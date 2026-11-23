@@ -658,5 +658,15 @@ document.addEventListener('pointerdown', ()=>{ ensureAudio(); bgmSetMode(documen
 
 renderStages(); renderStatus();
 </script>
+
+<script>
+(function(){try{
+var K='kanji';
+try{if(new URLSearchParams(location.search).get('owner')==='1'){localStorage.setItem('gc-owner','1');}}catch(e){}
+try{if(localStorage.getItem('gc-owner')==='1')return;}catch(e){}
+try{if(sessionStorage.getItem('gc-c-'+K))return;sessionStorage.setItem('gc-c-'+K,'1');}catch(e){}
+fetch('https://abacus.jasoncameron.dev/hit/kyouikugame-games/'+K).catch(function(){});
+}catch(e){}})();
+</script>
 </body>
 </html>
