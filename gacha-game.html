@@ -1,0 +1,1020 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>ガチャゲーム 〜けいさんで レアを あつめよう！〜</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --bg:#fdf3e3; --bg2:#ffe9c9; --card:#ffffff; --ink:#3d2c1e; --ink-soft:#7a6552;
+        --accent:#ff6b4a; --accent-dark:#e04e2e; --gold:#f5a623; --coin:#ffc93c;
+        --blue:#3aa7e0; --green:#43b581; --pink:#ff8fb2;
+        --n-color:#8a97a5; --r-color:#3aa7e0; --sr-color:#f5a623; --ur-color:#e05299;
+        --shadow:0 4px 0 rgba(61,44,30,.14), 0 10px 24px rgba(61,44,30,.10);
+        --radius:20px;
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#241c2e; --bg2:#2e2340; --card:#372b4a; --ink:#fdf3e3; --ink-soft:#c9b8d9;
+          --accent:#ff7d5c; --accent-dark:#ff6b4a; --shadow:0 4px 0 rgba(0,0,0,.35), 0 10px 24px rgba(0,0,0,.3);
+          --n-color:#aab6c2;
+        }
+      }
+      *{box-sizing:border-box;}
+      html,body{margin:0;padding:0;}
+      body{
+        font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif;
+        background:var(--bg); color:var(--ink);
+        background-image:radial-gradient(circle at 12% 8%, var(--bg2) 0 120px, transparent 121px),
+                         radial-gradient(circle at 88% 22%, var(--bg2) 0 90px, transparent 91px),
+                         radial-gradient(circle at 78% 88%, var(--bg2) 0 140px, transparent 141px);
+        min-height:100vh;
+      }
+      button{font-family:inherit; cursor:pointer; min-height:44px;}
+      .wrap{max-width:1180px; margin:0 auto; padding:14px 14px 48px;}
+
+      /* ===== プロフィールバー ===== */
+      .profile{
+        display:flex; flex-wrap:wrap; gap:10px; align-items:stretch;
+        background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:12px 14px;
+      }
+      .prof-main{display:flex; align-items:center; gap:12px; min-width:230px; flex:1 1 260px;}
+      .level-badge{
+        width:62px; height:62px; border-radius:50%; flex:0 0 auto;
+        background:var(--accent); color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center;
+        box-shadow:inset 0 -5px 0 rgba(0,0,0,.15);
+      }
+      .level-badge small{font-size:11px; font-weight:700; line-height:1;}
+      .level-badge b{font-size:24px; line-height:1.05;}
+      .prof-text{flex:1; min-width:140px;}
+      .title-name{font-size:19px; font-weight:800;}
+      .xp-row{display:flex; align-items:center; gap:8px; margin-top:5px;}
+      .xp-bar{flex:1; height:14px; background:rgba(61,44,30,.12); border-radius:99px; overflow:hidden;}
+      @media (prefers-color-scheme: dark){ .xp-bar{background:rgba(255,255,255,.15);} }
+      .xp-fill{height:100%; width:0%; background:var(--green); border-radius:99px; transition:width .5s ease;}
+      .xp-num{font-size:12px; font-weight:700; color:var(--ink-soft); white-space:nowrap;}
+      .stat-chip{
+        display:flex; align-items:center; gap:7px; background:var(--bg); border-radius:14px; padding:8px 14px;
+        font-weight:800; font-size:18px;
+      }
+      .stat-chip .lbl{font-size:12px; color:var(--ink-soft); font-weight:700;}
+      .coin-ico{width:24px;height:24px;border-radius:50%;background:var(--coin);border:3px solid #e8a90c;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:#8a5d00;font-weight:800;}
+      .ctrl-row{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:12px;}
+      .seg{display:flex; background:var(--card); border-radius:99px; padding:4px; box-shadow:var(--shadow);}
+      .seg button{
+        border:none; background:transparent; border-radius:99px; padding:6px 16px; font-weight:800; font-size:15px; color:var(--ink-soft); min-height:40px;
+      }
+      .seg button.on{background:var(--accent); color:#fff; box-shadow:0 2px 0 var(--accent-dark);}
+      .mini-btn{
+        border:none; background:var(--card); color:var(--ink); border-radius:99px; padding:8px 14px; font-weight:800; font-size:14px; box-shadow:var(--shadow);
+      }
+      .mini-btn.off{opacity:.45;}
+      .ctrl-spacer{flex:1;}
+
+      /* ===== メインレイアウト ===== */
+      .main-grid{display:grid; grid-template-columns:1fr 380px; gap:16px; margin-top:16px; align-items:start;}
+      @media (max-width:860px){ .main-grid{grid-template-columns:1fr;} }
+
+      .card{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px;}
+
+      /* ===== クイズ ===== */
+      .quiz-head{display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;}
+      .quiz-head h2{margin:0; font-size:20px;}
+      .streak{
+        background:#fff3d6; color:#8a5d00; border-radius:99px; padding:6px 14px; font-weight:800; font-size:15px; border:2px dashed var(--gold);
+        visibility:hidden;
+      }
+      @media (prefers-color-scheme: dark){ .streak{background:#4a3a17; color:#ffd97a;} }
+      .streak.show{visibility:visible;}
+      .question{
+        text-align:center; font-size:56px; font-weight:800; letter-spacing:.04em; margin:18px 0 6px; line-height:1.15;
+      }
+      .question .qmark{color:var(--accent);}
+      @media (max-width:480px){ .question{font-size:44px;} }
+      .blocks{
+        display:flex; justify-content:center; align-items:flex-start; gap:18px; margin:10px 0 4px; min-height:56px; flex-wrap:wrap;
+      }
+      .num-wrap{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; align-items:flex-start;}
+      .block-row{display:flex; flex-wrap:wrap; gap:5px; justify-content:center;}
+      .blk{width:20px; height:20px; border-radius:6px; box-shadow:inset 0 -3px 0 rgba(0,0,0,.15);}
+      .blk.a{background:var(--blue);} .blk.b{background:var(--accent);}
+      .blk.cross{background:rgba(120,120,120,.35); position:relative; box-shadow:none;}
+      .blk.cross::after{content:"✕"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#c22; font-size:14px; font-weight:800;}
+      .blocks .op{align-self:center; font-size:26px; font-weight:800;}
+      .hint-toggle{ text-align:center; margin-top:2px;}
+      .hint-toggle button{border:none; background:none; color:var(--blue); font-weight:800; font-size:14px; text-decoration:underline; min-height:36px;}
+      .choices{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:16px;}
+      @media (max-width:480px){ .choices{grid-template-columns:1fr;} }
+      .choice{
+        border:none; border-radius:18px; padding:16px 8px; font-size:34px; font-weight:800; color:var(--ink);
+        background:var(--bg); box-shadow:0 4px 0 rgba(61,44,30,.18); transition:transform .08s;
+      }
+      .choice:active{transform:translateY(3px); box-shadow:0 1px 0 rgba(61,44,30,.18);}
+      .choice.good{background:var(--green); color:#fff;}
+      .choice.bad{background:#e05252; color:#fff;}
+      .choice:disabled{opacity:.85;}
+      .feedback{min-height:40px; text-align:center; font-size:21px; font-weight:800; margin-top:14px;}
+      .feedback .coin-pop{color:#c78a00;}
+      @media (prefers-color-scheme: dark){ .feedback .coin-pop{color:#ffd97a;} }
+      .coin-fly{position:fixed; font-size:30px; z-index:99; pointer-events:none; transition:all .8s cubic-bezier(.2,.7,.3,1);}
+
+      /* ===== ガチャマシン ===== */
+      .gacha-card{text-align:center; position:relative; overflow:hidden;}
+      .gacha-card h2{margin:0 0 4px; font-size:20px;}
+      .machine{position:relative; width:230px; margin:10px auto 4px;}
+      .dome{
+        width:190px; height:150px; margin:0 auto; border-radius:100px 100px 18px 18px;
+        background:rgba(160,220,255,.35); border:5px solid #7fc7ec; position:relative; overflow:hidden;
+      }
+      @media (prefers-color-scheme: dark){ .dome{background:rgba(90,140,190,.3);} }
+      .dome .cap{position:absolute; width:34px; height:34px; border-radius:50%; box-shadow:inset 0 -8px 0 rgba(0,0,0,.12);}
+      .machine-body{
+        width:210px; margin:-6px auto 0; background:var(--accent); border-radius:16px; padding:12px 10px 14px; position:relative;
+        box-shadow:inset 0 -8px 0 rgba(0,0,0,.15);
+      }
+      .handle-wrap{display:flex; align-items:center; justify-content:center; gap:10px;}
+      .handle{
+        width:58px; height:58px; border-radius:50%; background:#fff; border:5px solid #d8d8d8; position:relative; flex:0 0 auto;
+        transition:transform .7s cubic-bezier(.3,1.4,.5,1);
+      }
+      .handle::before{content:""; position:absolute; left:50%; top:6px; width:9px; height:20px; margin-left:-4.5px; background:var(--accent-dark); border-radius:5px;}
+      .handle::after{content:""; position:absolute; left:50%; top:50%; width:16px; height:16px; margin:-8px 0 0 -8px; background:#bbb; border-radius:50%;}
+      .handle.spin{transform:rotate(360deg);}
+      .tray{margin:10px auto 0; width:120px; height:44px; background:rgba(0,0,0,.22); border-radius:12px; display:flex; align-items:center; justify-content:center; position:relative;}
+      .tray-cap{width:36px; height:36px; border-radius:50%; display:none; box-shadow:inset 0 -10px 0 rgba(0,0,0,.15); border:3px solid rgba(255,255,255,.7);}
+      .machine.shake{animation:shake .5s ease;}
+      @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px) rotate(-1deg)}40%{transform:translateX(6px) rotate(1deg)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+      .gacha-btn{
+        margin-top:14px; width:100%; border:none; border-radius:99px; padding:16px; font-size:22px; font-weight:800; color:#fff;
+        background:var(--accent); box-shadow:0 5px 0 var(--accent-dark);
+      }
+      .gacha-btn:active{transform:translateY(3px); box-shadow:0 2px 0 var(--accent-dark);}
+      .gacha-btn:disabled{background:#b9aFA5; box-shadow:0 5px 0 #94897d; cursor:not-allowed;}
+      @media (prefers-color-scheme: dark){ .gacha-btn:disabled{background:#5a4d6e; box-shadow:0 5px 0 #453a58;} }
+      .gacha-cost{font-size:14px; font-weight:700; margin-top:8px; color:var(--ink-soft);}
+      .prob{margin-top:14px; text-align:left; font-size:13.5px; line-height:1.9; background:var(--bg); border-radius:14px; padding:10px 14px;}
+      .prob b{font-size:14px;}
+      .dot{display:inline-block; width:12px; height:12px; border-radius:50%; margin-right:6px; vertical-align:-1px;}
+      .zukan-mini{margin-top:12px; font-weight:800; font-size:16px;}
+      .zukan-mini .bar{height:12px; background:rgba(61,44,30,.12); border-radius:99px; overflow:hidden; margin-top:6px;}
+      @media (prefers-color-scheme: dark){ .zukan-mini .bar{background:rgba(255,255,255,.15);} }
+      .zukan-mini .bar i{display:block; height:100%; background:var(--pink); width:0%; transition:width .5s;}
+
+      /* ===== 図鑑 ===== */
+      .zukan{margin-top:16px;}
+      .zukan h2{margin:0 0 4px; font-size:21px;}
+      .zukan-sub{color:var(--ink-soft); font-weight:700; font-size:14px; margin-bottom:12px;}
+      .zukan-group{margin-top:14px;}
+      .zukan-group h3{margin:0 0 8px; font-size:16px; display:flex; align-items:center; gap:8px;}
+      .zukan-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:10px;}
+      .slot{
+        background:var(--bg); border-radius:16px; padding:10px 6px 8px; text-align:center; border:3px solid transparent;
+      }
+      .slot.got-n{border-color:var(--n-color);} .slot.got-r{border-color:var(--r-color);}
+      .slot.got-sr{border-color:var(--sr-color); background:#fff7e0;}
+      .slot.got-ur{border-color:var(--ur-color); background:#ffeef7;}
+      @media (prefers-color-scheme: dark){ .slot.got-sr{background:#4a3a17;} .slot.got-ur{background:#4a2440;} }
+      .slot .art{height:64px; display:flex; align-items:center; justify-content:center;}
+      .slot .nm{font-size:12.5px; font-weight:800; margin-top:4px; line-height:1.25;}
+      .slot .unknown{font-size:34px; color:var(--ink-soft); font-weight:800;}
+      .slot.locked .nm{color:var(--ink-soft);}
+      .slot svg{width:60px; height:60px;}
+      .slot .silhouette svg{filter:brightness(0); opacity:.18;}
+
+      /* ===== ガチャ演出モーダル ===== */
+      .overlay{
+        position:fixed; inset:0; background:rgba(30,18,10,.72); display:none; align-items:center; justify-content:center; z-index:50; padding:16px;
+      }
+      .overlay.open{display:flex;}
+      .stage-box{
+        background:var(--card); border-radius:26px; padding:26px 22px; max-width:420px; width:100%; text-align:center; position:relative; overflow:hidden;
+        max-height:92vh; overflow-y:auto;
+      }
+      .stage-msg{font-size:21px; font-weight:800; min-height:30px;}
+      .big-cap{
+        width:130px; height:130px; border-radius:50%; margin:22px auto; position:relative; cursor:pointer;
+        box-shadow:inset 0 -22px 0 rgba(0,0,0,.14), 0 8px 20px rgba(0,0,0,.25); border:5px solid rgba(255,255,255,.75);
+        display:none;
+      }
+      .big-cap.drop{display:block; animation:drop .6s cubic-bezier(.3,1.6,.5,1);}
+      @keyframes drop{0%{transform:translateY(-190px) scale(.7);}70%{transform:translateY(8px) scale(1.05);}100%{transform:translateY(0) scale(1);}}
+      .big-cap.wiggle{animation:wiggle .5s ease infinite;}
+      @keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
+      .reveal{display:none;}
+      .reveal.show{display:block; animation:pop .45s cubic-bezier(.3,1.6,.5,1);}
+      @keyframes pop{0%{transform:scale(.3); opacity:0;}100%{transform:scale(1); opacity:1;}}
+      .reveal .art{position:relative; width:170px; height:170px; margin:8px auto;}
+      .reveal .art svg{width:170px; height:170px; position:relative; z-index:2;}
+      .rays{position:absolute; inset:-24px; border-radius:50%; z-index:1; display:none;}
+      .rays.gold{display:block; background:repeating-conic-gradient(from 0deg, rgba(245,166,35,.4) 0 14deg, transparent 14deg 28deg); animation:spin 7s linear infinite;}
+      .rays.rainbow{display:block; background:repeating-conic-gradient(from 0deg, rgba(255,90,90,.35) 0 12deg, rgba(255,180,60,.35) 12deg 24deg, rgba(90,200,120,.35) 24deg 36deg, rgba(70,150,255,.35) 36deg 48deg, rgba(190,90,255,.35) 48deg 60deg); animation:spin 5s linear infinite;}
+      @keyframes spin{to{transform:rotate(360deg);}}
+      .sparkle{position:absolute; font-size:22px; z-index:3; animation:twinkle 1s ease infinite alternate; pointer-events:none;}
+      @keyframes twinkle{from{transform:scale(.6); opacity:.4;}to{transform:scale(1.25); opacity:1;}}
+      .rarity-label{font-size:17px; font-weight:800; padding:5px 18px; border-radius:99px; display:inline-block; color:#fff;}
+      .rl-n{background:var(--n-color);} .rl-r{background:var(--r-color);} .rl-sr{background:var(--sr-color);} .rl-ur{background:linear-gradient(90deg,#ff5a5a,#f5a623,#43b581,#3aa7e0,#b45aff);}
+      .reveal-name{font-size:28px; font-weight:800; margin-top:10px;}
+      .new-badge{background:#e05252; color:#fff; font-size:13px; font-weight:800; border-radius:99px; padding:3px 12px; display:inline-block; margin-left:8px; vertical-align:middle; animation:twinkle .6s ease infinite alternate;}
+      .dup-note{font-weight:800; color:#c78a00; margin-top:6px;}
+      @media (prefers-color-scheme: dark){ .dup-note{color:#ffd97a;} }
+      .stage-btns{display:flex; gap:10px; justify-content:center; margin-top:18px; flex-wrap:wrap;}
+      .stage-btns button{border:none; border-radius:99px; padding:12px 24px; font-size:17px; font-weight:800;}
+      .btn-close{background:var(--bg); color:var(--ink); box-shadow:0 3px 0 rgba(61,44,30,.2);}
+      .btn-again{background:var(--accent); color:#fff; box-shadow:0 3px 0 var(--accent-dark);}
+      .btn-again:disabled{opacity:.45;}
+      .mini-machine{margin:6px auto;}
+      .confetti{position:absolute; width:10px; height:16px; z-index:5; pointer-events:none; border-radius:2px;}
+
+      /* レベルアップ */
+      .levelup-box{text-align:center;}
+      .levelup-box .big{font-size:30px; font-weight:800; color:var(--accent-dark);}
+      @media (prefers-color-scheme: dark){ .levelup-box .big{color:var(--accent);} }
+      footer{margin-top:22px; text-align:center; color:var(--ink-soft); font-size:13px; font-weight:700;}
+      @media (prefers-reduced-motion: reduce){
+        .machine.shake,.big-cap.drop,.big-cap.wiggle,.reveal.show,.rays.gold,.rays.rainbow{animation:none !important;}
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <!-- プロフィール -->
+      <div class="profile">
+        <div class="prof-main">
+          <div class="level-badge"><small>レベル</small><b id="lvNum">1</b></div>
+          <div class="prof-text">
+            <div class="title-name" id="titleName">けいさん見習い</div>
+            <div class="xp-row">
+              <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+              <div class="xp-num" id="xpNum">0 / 50 XP</div>
+            </div>
+          </div>
+        </div>
+        <div class="stat-chip"><span class="coin-ico">C</span><span id="coinNum">0</span><span class="lbl">コイン</span></div>
+        <div class="stat-chip">📖 <span id="collNum">0 / 30</span><span class="lbl">ずかん</span></div>
+      </div>
+
+      <div class="ctrl-row">
+        <div class="seg" id="diffSeg" role="group" aria-label="むずかしさ">
+          <button data-diff="easy" class="on">やさしい</button>
+          <button data-diff="normal">ふつう</button>
+          <button data-diff="hard">むずかしい</button>
+        </div>
+        <div class="ctrl-spacer"></div>
+        <button class="mini-btn" id="seBtn">🔊 こうか音 ON</button>
+        <button class="mini-btn" id="bgmBtn">🎵 BGM ON</button>
+        <button class="mini-btn" id="fsBtn">⛶ ぜんがめん</button>
+      </div>
+
+      <div class="main-grid">
+        <!-- クイズ -->
+        <section class="card">
+          <div class="quiz-head">
+            <h2>🧮 けいさんクイズ</h2>
+            <div class="streak" id="streakBox">🔥 <span id="streakNum">0</span>れんぞく せいかい！</div>
+          </div>
+          <div class="question" id="question">3 ＋ 4 ＝ <span class="qmark">？</span></div>
+          <div class="blocks" id="blocks"></div>
+          <div class="hint-toggle"><button id="hintBtn">ブロックを かくす</button></div>
+          <div class="choices" id="choices"></div>
+          <div class="feedback" id="feedback">こたえを えらんでね！</div>
+        </section>
+
+        <!-- ガチャ -->
+        <section class="card gacha-card">
+          <h2>🎁 ガチャマシン</h2>
+          <div class="machine" id="machine">
+            <div class="dome" id="dome"></div>
+            <div class="machine-body">
+              <div class="handle-wrap">
+                <div class="handle" id="handle"></div>
+                <div style="color:#fff; font-weight:800; font-size:14px; text-align:left;">ハンドルを<br />まわそう！</div>
+              </div>
+              <div class="tray"><div class="tray-cap" id="trayCap"></div></div>
+            </div>
+          </div>
+          <button class="gacha-btn" id="gachaBtn">ガチャを まわす！</button>
+          <div class="gacha-cost" id="gachaCost">コイン 30まい で 1かい まわせるよ</div>
+          <div class="zukan-mini">ずかん <span id="collNum2">0 / 30</span>体
+            <div class="bar"><i id="collBar"></i></div>
+          </div>
+          <div class="prob">
+            <b>でる かくりつ</b><br />
+            <span class="dot" style="background:var(--n-color)"></span>ノーマル … 60%<br />
+            <span class="dot" style="background:var(--r-color)"></span>レア … 28%<br />
+            <span class="dot" style="background:var(--sr-color)"></span>スーパーレア … 10%<br />
+            <span class="dot" style="background:var(--ur-color)"></span>ウルトラレア … 2%
+          </div>
+        </section>
+      </div>
+
+      <!-- 図鑑 -->
+      <section class="card zukan">
+        <h2>📖 キャラずかん</h2>
+        <div class="zukan-sub">ぜんぶで 30体！ レアなキャラを あつめて コンプリートを めざそう。</div>
+        <div id="zukanBody"></div>
+      </section>
+
+      <footer>けいさんで コインを ためて、ガチャで レアキャラを あつめよう！</footer>
+    </div>
+
+    <!-- ガチャ演出 -->
+    <div class="overlay" id="gachaOverlay" role="dialog" aria-modal="true">
+      <div class="stage-box" id="stageBox">
+        <div class="stage-msg" id="stageMsg">ハンドルを まわすよ…</div>
+        <div class="mini-machine machine" id="stageMachine">
+          <div class="dome" id="stageDome"></div>
+          <div class="machine-body">
+            <div class="handle-wrap"><div class="handle" id="stageHandle"></div></div>
+            <div class="tray"><div class="tray-cap" id="stageTrayCap"></div></div>
+          </div>
+        </div>
+        <div class="big-cap" id="bigCap"></div>
+        <div class="reveal" id="reveal">
+          <div class="art"><div class="rays" id="rays"></div><div id="revealArt"></div><div id="sparkles"></div></div>
+          <span class="rarity-label" id="rarityLabel">ノーマル</span>
+          <div class="reveal-name"><span id="revealName"></span><span class="new-badge" id="newBadge" style="display:none;">NEW!</span></div>
+          <div class="dup-note" id="dupNote"></div>
+        </div>
+        <div class="stage-btns" id="stageBtns" style="display:none;">
+          <button class="btn-close" id="closeStage">とじる</button>
+          <button class="btn-again" id="againStage">もう 1かい（30まい）</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- レベルアップ -->
+    <div class="overlay" id="levelOverlay" role="dialog" aria-modal="true">
+      <div class="stage-box levelup-box">
+        <div style="font-size:56px;">🎉</div>
+        <div class="big">レベルアップ！</div>
+        <p style="font-weight:800; font-size:19px;">レベル <span id="lvUpNum">2</span> に なったよ！</p>
+        <p style="font-weight:800;">しょうごう：<span id="lvUpTitle"></span></p>
+        <div class="stage-btns"><button class="btn-again" id="closeLevel">やったー！</button></div>
+      </div>
+    </div>
+
+    <script>
+      "use strict";
+      /* ================= キャラデータ（全30体） ================= */
+      // kind: leaf=くだもの / cat / dog / rabbit / bear / panda / chick / penguin / frog / octopus /
+      //       cake / donut / fox / owl / dolphin / elephant / koala / unicorn / phoenix / dragon / rainbow / plain
+      var CHARS = [
+        // ノーマル 18体
+        {name:"いちごまる",   rarity:"n",  color:"#ff5a6e", accent:"#43b581", kind:"leaf"},
+        {name:"りんごまる",   rarity:"n",  color:"#e8452c", accent:"#43b581", kind:"leaf"},
+        {name:"みかんまる",   rarity:"n",  color:"#ff9f2e", accent:"#43b581", kind:"leaf"},
+        {name:"レモンまる",   rarity:"n",  color:"#ffd93c", accent:"#43b581", kind:"leaf"},
+        {name:"メロンまる",   rarity:"n",  color:"#7ed957", accent:"#2e8b57", kind:"leaf"},
+        {name:"ぶどうまる",   rarity:"n",  color:"#9b6dd6", accent:"#43b581", kind:"leaf"},
+        {name:"ももまる",     rarity:"n",  color:"#ffb3c8", accent:"#43b581", kind:"leaf"},
+        {name:"さくらんぼまる",rarity:"n", color:"#e0344a", accent:"#43b581", kind:"leaf"},
+        {name:"ねこまる",     rarity:"n",  color:"#ffb84d", accent:"#ff8a3d", kind:"cat"},
+        {name:"いぬまる",     rarity:"n",  color:"#c98d5e", accent:"#8a5a33", kind:"dog"},
+        {name:"うさぎまる",   rarity:"n",  color:"#f2f2f2", accent:"#ff8fb2", kind:"rabbit"},
+        {name:"くままる",     rarity:"n",  color:"#a5713f", accent:"#7a4a22", kind:"bear"},
+        {name:"パンダまる",   rarity:"n",  color:"#ffffff", accent:"#333333", kind:"panda"},
+        {name:"ひよこまる",   rarity:"n",  color:"#ffe14d", accent:"#ff9f2e", kind:"chick"},
+        {name:"ペンギンまる", rarity:"n",  color:"#4a6fa5", accent:"#ffffff", kind:"penguin"},
+        {name:"かえるまる",   rarity:"n",  color:"#5ec95e", accent:"#2e8b57", kind:"frog"},
+        {name:"たこまる",     rarity:"n",  color:"#ff7d5c", accent:"#e04e2e", kind:"octopus"},
+        {name:"プリンまる",   rarity:"n",  color:"#ffdf6b", accent:"#b5651d", kind:"cake"},
+        // レア 8体
+        {name:"ケーキまる",   rarity:"r",  color:"#fff3f6", accent:"#ff5a6e", kind:"cake"},
+        {name:"ドーナツまる", rarity:"r",  color:"#f2a65a", accent:"#ff8fb2", kind:"donut"},
+        {name:"バーガーまる", rarity:"r",  color:"#f7b955", accent:"#43b581", kind:"burger"},
+        {name:"きつねまる",   rarity:"r",  color:"#ff8a3d", accent:"#fff3e0", kind:"fox"},
+        {name:"ふくろうまる", rarity:"r",  color:"#8a6db3", accent:"#ffd93c", kind:"owl"},
+        {name:"いるかまる",   rarity:"r",  color:"#5ec8e6", accent:"#dff6ff", kind:"dolphin"},
+        {name:"ぞうまる",     rarity:"r",  color:"#a8b8d8", accent:"#8496bd", kind:"elephant"},
+        {name:"コアラまる",   rarity:"r",  color:"#b9c4cc", accent:"#8a97a5", kind:"koala"},
+        // スーパーレア 3体
+        {name:"ユニコーンまる",rarity:"sr", color:"#ffe9f4", accent:"#b45aff", kind:"unicorn"},
+        {name:"フェニックスまる",rarity:"sr",color:"#ff7847", accent:"#ffd93c", kind:"phoenix"},
+        {name:"ドラゴンまる", rarity:"sr", color:"#43c98a", accent:"#ffd93c", kind:"dragon"},
+        // ウルトラレア 1体
+        {name:"レインボーまる",rarity:"ur", color:"#fff6d8", accent:"#ff5a5a", kind:"rainbow"}
+      ];
+      var RARITY_INFO = {
+        n:  {label:"ノーマル",     rate:60, refund:5},
+        r:  {label:"レア",         rate:28, refund:10},
+        sr: {label:"スーパーレア", rate:10, refund:15},
+        ur: {label:"ウルトラレア", rate:2,  refund:30}
+      };
+      var CAP_COLORS = ["#ff5a6e","#3aa7e0","#ffd93c","#43b581","#ff8fb2","#9b6dd6","#ff9f2e","#5ec8e6"];
+
+      /* キャラSVG生成 */
+      function charSVG(c){
+        var extra = "";
+        var face = '<circle cx="38" cy="56" r="5" fill="#3d2c1e"/><circle cx="62" cy="56" r="5" fill="#3d2c1e"/>' +
+                   '<circle cx="39.5" cy="54.5" r="1.8" fill="#fff"/><circle cx="63.5" cy="54.5" r="1.8" fill="#fff"/>' +
+                   '<path d="M44 66 Q50 71 56 66" stroke="#3d2c1e" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+                   '<circle cx="28" cy="64" r="5" fill="#ff9db1" opacity=".65"/><circle cx="72" cy="64" r="5" fill="#ff9db1" opacity=".65"/>';
+        switch(c.kind){
+          case "leaf":
+            extra = '<path d="M50 14 Q44 2 32 4 Q38 14 50 14Z" fill="'+c.accent+'"/><rect x="47" y="12" width="5" height="9" rx="2" fill="#7a4a22"/>'; break;
+          case "cat":
+            extra = '<path d="M26 26 L22 8 L40 16Z" fill="'+c.color+'"/><path d="M74 26 L78 8 L60 16Z" fill="'+c.color+'"/>' +
+                    '<path d="M28 21 L26 13 L35 17Z" fill="#ff8fb2"/><path d="M72 21 L74 13 L65 17Z" fill="#ff8fb2"/>'; break;
+          case "dog":
+            extra = '<ellipse cx="18" cy="42" rx="9" ry="17" fill="'+c.accent+'"/><ellipse cx="82" cy="42" rx="9" ry="17" fill="'+c.accent+'"/>' +
+                    '<circle cx="50" cy="62" r="3.4" fill="#3d2c1e"/>'; break;
+          case "rabbit":
+            extra = '<ellipse cx="36" cy="12" rx="7" ry="16" fill="'+c.color+'" stroke="#ddd"/><ellipse cx="64" cy="12" rx="7" ry="16" fill="'+c.color+'" stroke="#ddd"/>' +
+                    '<ellipse cx="36" cy="14" rx="3.4" ry="10" fill="'+c.accent+'"/><ellipse cx="64" cy="14" rx="3.4" ry="10" fill="'+c.accent+'"/>'; break;
+          case "bear":
+            extra = '<circle cx="26" cy="24" r="11" fill="'+c.color+'"/><circle cx="74" cy="24" r="11" fill="'+c.color+'"/>' +
+                    '<circle cx="26" cy="24" r="5.5" fill="#e8c9a0"/><circle cx="74" cy="24" r="5.5" fill="#e8c9a0"/>' +
+                    '<ellipse cx="50" cy="64" rx="9" ry="7" fill="#e8c9a0"/><circle cx="50" cy="61" r="3.2" fill="#3d2c1e"/>'; break;
+          case "panda":
+            extra = '<circle cx="26" cy="24" r="11" fill="#333"/><circle cx="74" cy="24" r="11" fill="#333"/>' +
+                    '<ellipse cx="38" cy="55" rx="7" ry="9" fill="#333" transform="rotate(-18 38 55)"/><ellipse cx="62" cy="55" rx="7" ry="9" fill="#333" transform="rotate(18 62 55)"/>' +
+                    '<circle cx="50" cy="63" r="3.2" fill="#333"/>'; face = face.replace('cx="38" cy="56" r="5"','cx="38" cy="54" r="3.4"').replace('cx="62" cy="56" r="5"','cx="62" cy="54" r="3.4"'); break;
+          case "chick":
+            extra = '<path d="M42 20 Q50 8 58 20 Q50 15 42 20Z" fill="'+c.accent+'"/><path d="M44 62 L56 62 L50 70Z" fill="#ff9f2e"/>'; break;
+          case "penguin":
+            extra = '<ellipse cx="50" cy="62" rx="20" ry="22" fill="#fff"/><path d="M44 60 L56 60 L50 67Z" fill="#ff9f2e"/>'; break;
+          case "frog":
+            extra = '<circle cx="30" cy="24" r="10" fill="'+c.color+'"/><circle cx="70" cy="24" r="10" fill="'+c.color+'"/>' +
+                    '<circle cx="30" cy="24" r="6" fill="#fff"/><circle cx="70" cy="24" r="6" fill="#fff"/>' +
+                    '<circle cx="30" cy="25" r="3" fill="#3d2c1e"/><circle cx="70" cy="25" r="3" fill="#3d2c1e"/>'; break;
+          case "octopus":
+            extra = '<path d="M28 82 q4 8 9 0 M45 86 q4 8 9 0 M63 82 q4 8 9 0" stroke="'+c.accent+'" stroke-width="6" fill="none" stroke-linecap="round"/>'; break;
+          case "cake":
+            extra = '<rect x="30" y="8" width="40" height="14" rx="6" fill="'+c.accent+'"/><circle cx="50" cy="6" r="5" fill="#ff5a6e"/><rect x="48" y="8" width="4" height="7" fill="#fff"/>'; break;
+          case "donut":
+            extra = '<circle cx="50" cy="50" r="11" fill="var(--card,#fff)"/><path d="M22 44 Q30 30 44 26 M60 24 Q76 30 80 44 M24 62 Q34 76 50 78" stroke="'+c.accent+'" stroke-width="5" fill="none" stroke-linecap="round" stroke-dasharray="1 9"/>'; face=""; break;
+          case "burger":
+            extra = '<path d="M18 52 Q50 38 82 52 L82 58 Q50 50 18 58Z" fill="#43b581"/><rect x="18" y="60" width="64" height="7" rx="3" fill="#8a5a33"/>'; break;
+          case "fox":
+            extra = '<path d="M24 28 L18 6 L40 15Z" fill="'+c.color+'"/><path d="M76 28 L82 6 L60 15Z" fill="'+c.color+'"/>' +
+                    '<path d="M26 21 L23 12 L34 16Z" fill="#3d2c1e"/><path d="M74 21 L77 12 L66 16Z" fill="#3d2c1e"/>' +
+                    '<ellipse cx="50" cy="70" rx="17" ry="11" fill="'+c.accent+'"/>'; break;
+          case "owl":
+            extra = '<circle cx="36" cy="50" r="11" fill="#fff"/><circle cx="64" cy="50" r="11" fill="#fff"/>' +
+                    '<circle cx="36" cy="50" r="5" fill="#3d2c1e"/><circle cx="64" cy="50" r="5" fill="#3d2c1e"/>' +
+                    '<path d="M45 62 L55 62 L50 69Z" fill="'+c.accent+'"/><path d="M30 22 L38 32 M70 22 L62 32" stroke="'+c.accent+'" stroke-width="5" stroke-linecap="round"/>';
+            face = '<circle cx="28" cy="70" r="4" fill="#ff9db1" opacity=".6"/><circle cx="72" cy="70" r="4" fill="#ff9db1" opacity=".6"/>'; break;
+          case "dolphin":
+            extra = '<path d="M50 16 Q66 4 78 12 Q64 14 56 24Z" fill="'+c.color+'"/><ellipse cx="50" cy="70" rx="16" ry="12" fill="'+c.accent+'"/>'; break;
+          case "elephant":
+            extra = '<ellipse cx="16" cy="48" rx="10" ry="14" fill="'+c.color+'"/><ellipse cx="84" cy="48" rx="10" ry="14" fill="'+c.color+'"/>' +
+                    '<path d="M50 58 q0 16 -3 22 q6 3 10 0 q-2 -8 -2 -14" fill="'+c.color+'" stroke="'+c.accent+'" stroke-width="2"/>'; break;
+          case "koala":
+            extra = '<circle cx="20" cy="30" r="13" fill="'+c.color+'"/><circle cx="80" cy="30" r="13" fill="'+c.color+'"/>' +
+                    '<circle cx="20" cy="30" r="7" fill="#e8edf0"/><circle cx="80" cy="30" r="7" fill="#e8edf0"/>' +
+                    '<ellipse cx="50" cy="60" rx="5.5" ry="8" fill="#5a6672"/>'; break;
+          case "unicorn":
+            extra = '<path d="M50 2 L56 20 L44 20Z" fill="#ffd93c" stroke="#e8a90c" stroke-width="1.5"/>' +
+                    '<path d="M28 20 Q18 34 24 46 Q30 32 36 26Z" fill="'+c.accent+'"/><path d="M72 20 Q82 34 76 46 Q70 32 64 26Z" fill="#5ec8e6"/>' +
+                    '<path d="M38 14 Q50 4 62 14 Q56 20 50 16 Q44 20 38 14Z" fill="#ff8fb2"/>'; break;
+          case "phoenix":
+            extra = '<path d="M50 18 Q38 2 26 8 Q36 14 38 24 Q44 12 50 18 Q56 12 62 24 Q64 14 74 8 Q62 2 50 18Z" fill="'+c.accent+'"/>' +
+                    '<path d="M44 62 L56 62 L50 70Z" fill="#e8a90c"/>'; break;
+          case "dragon":
+            extra = '<path d="M30 22 L24 6 L40 14Z" fill="'+c.accent+'"/><path d="M70 22 L76 6 L60 14Z" fill="'+c.accent+'"/>' +
+                    '<circle cx="36" cy="18" r="4" fill="#ffd93c"/><circle cx="64" cy="18" r="4" fill="#ffd93c"/>' +
+                    '<path d="M14 52 Q4 44 8 32 Q18 38 20 48Z" fill="'+c.accent+'"/><path d="M86 52 Q96 44 92 32 Q82 38 80 48Z" fill="'+c.accent+'"/>' +
+                    '<ellipse cx="50" cy="72" rx="13" ry="10" fill="#fff3c9"/>'; break;
+          case "rainbow":
+            extra = '<path d="M22 30 A28 28 0 0 1 78 30" stroke="#ff5a5a" stroke-width="6" fill="none"/>' +
+                    '<path d="M28 32 A22 22 0 0 1 72 32" stroke="#f5a623" stroke-width="5" fill="none"/>' +
+                    '<path d="M34 33 A16 16 0 0 1 66 33" stroke="#43b581" stroke-width="5" fill="none"/>' +
+                    '<path d="M40 34 A10 10 0 0 1 60 34" stroke="#3aa7e0" stroke-width="4" fill="none"/>'; break;
+        }
+        var bodyFill = c.color;
+        if(c.kind === "rainbow"){
+          bodyFill = "#fff3b0";
+        }
+        return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+          extra +
+          '<circle cx="50" cy="52" r="34" fill="'+bodyFill+'" stroke="rgba(0,0,0,.08)" stroke-width="2"/>' +
+          (c.kind==="donut" ? '<circle cx="50" cy="52" r="12" fill="#fdf3e3"/><circle cx="38" cy="46" r="5" fill="#3d2c1e"/><circle cx="62" cy="46" r="5" fill="#3d2c1e"/><path d="M44 62 Q50 66 56 62" stroke="#3d2c1e" stroke-width="3" fill="none" stroke-linecap="round"/>' : face) +
+          '</svg>';
+      }
+      // ドーナツ等で顔が重なる問題を避けるため、body後に顔を描く順序を調整：extra→body→face の順にする
+      // （上記実装は extra が body より前。耳などは body の後ろに出るのが自然なのでこのまま使う）
+
+      /* ================= 状態（セッション内のみ） ================= */
+      var state = {
+        coins: 0, level: 1, xp: 0, streak: 0, best: 0,
+        diff: "easy", hint: true,
+        owned: {}, // index -> true
+        ownedCount: 0,
+        current: null, locked: false,
+        seOn: true, bgmOn: true
+      };
+      // ===== 記録の保存（Netlify公開版） =====
+      function saveState(){ try{ localStorage.setItem("gacha-game-save-v1", JSON.stringify({coins:state.coins, level:state.level, xp:state.xp, owned:state.owned, ownedCount:state.ownedCount, seOn:state.seOn, bgmOn:state.bgmOn})); }catch(e){} }
+      try{ var sv = JSON.parse(localStorage.getItem("gacha-game-save-v1") || "null"); if(sv){ state.coins = sv.coins|0; state.level = sv.level|0 || 1; state.xp = sv.xp|0; state.owned = sv.owned || {}; state.ownedCount = sv.ownedCount|0; if(typeof sv.seOn === "boolean") state.seOn = sv.seOn; if(typeof sv.bgmOn === "boolean") state.bgmOn = sv.bgmOn; } }catch(e){}
+      var TITLES = [
+        {lv:1, t:"けいさん見習い"}, {lv:3, t:"けいさんレンジャー"}, {lv:5, t:"コインあつめ名人"},
+        {lv:7, t:"ガチャマスター"}, {lv:9, t:"レアハンター"}, {lv:11, t:"でんせつのガチャ王"}
+      ];
+      function titleFor(lv){ var t = TITLES[0].t; for(var i=0;i<TITLES.length;i++){ if(lv>=TITLES[i].lv) t = TITLES[i].t; } return t; }
+      function xpNeed(lv){ return 40 + lv*20; }
+
+      var $ = function(id){ return document.getElementById(id); };
+
+      /* ================= オーディオ ================= */
+      var AC = null, master = null, bgmTimer = null, bgmStep = 0;
+      function audio(){
+        if(!AC){
+          AC = new (window.AudioContext || window.webkitAudioContext)();
+          var comp = AC.createDynamicsCompressor();
+          comp.threshold.value = -18; comp.knee.value = 24; comp.ratio.value = 8;
+          master = AC.createGain(); master.gain.value = 0.5;
+          master.connect(comp); comp.connect(AC.destination);
+        }
+        if(AC.state === "suspended") AC.resume();
+        return AC;
+      }
+      function tone(freq, t0, dur, type, vol, slideTo){
+        if(!state.seOn && type !== "bgm") { /* SE off のときは鳴らさない（呼び出し側でも制御） */ }
+        var ac = audio(); var o = ac.createOscillator(); var g = ac.createGain();
+        o.type = (type === "bgm") ? "triangle" : (type || "sine");
+        o.frequency.setValueAtTime(freq, ac.currentTime + t0);
+        if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, ac.currentTime + t0 + dur);
+        g.gain.setValueAtTime(0.0001, ac.currentTime + t0);
+        g.gain.exponentialRampToValueAtTime(vol || 0.22, ac.currentTime + t0 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + t0 + dur);
+        o.connect(g); g.connect(master); o.start(ac.currentTime + t0); o.stop(ac.currentTime + t0 + dur + 0.05);
+      }
+      /* きもちいい音のための重ねがけ：基音＋やわらかい倍音で、角のない丸い音にする */
+      function toneRich(freq, t0, dur, vol){
+        tone(freq, t0, dur, "sine", vol || 0.2);
+        tone(freq * 2, t0, dur * 0.65, "sine", (vol || 0.2) * 0.32);
+        tone(freq * 1.5, t0 + 0.01, dur * 0.5, "triangle", (vol || 0.2) * 0.22);
+      }
+      function toneSoft(freq, t0, dur, vol){
+        var ac = audio(); var o = ac.createOscillator(); var g = ac.createGain();
+        o.type = "sine"; o.frequency.setValueAtTime(freq, ac.currentTime + t0);
+        g.gain.setValueAtTime(0.0001, ac.currentTime + t0);
+        g.gain.exponentialRampToValueAtTime(vol || 0.18, ac.currentTime + t0 + 0.03);
+        g.gain.setValueAtTime(vol || 0.18, ac.currentTime + t0 + Math.max(0.03, dur - 0.12));
+        g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + t0 + dur);
+        o.connect(g); g.connect(master); o.start(ac.currentTime + t0); o.stop(ac.currentTime + t0 + dur + 0.05);
+      }
+      function shimmer(t0, count){
+        // キラキラした高音の粒（ベル風）をランダムに散らす
+        var base = [1568, 1760, 2093, 2349, 2637];
+        for(var i = 0; i < (count || 5); i++){
+          var f = base[Math.floor(Math.random() * base.length)];
+          tone(f, t0 + i * 0.07 + Math.random() * 0.04, 0.28, "sine", 0.055);
+        }
+      }
+      function noiseBurst(t0, dur, vol, freq){
+        var ac = audio(); var len = Math.floor(ac.sampleRate * dur);
+        var buf = ac.createBuffer(1, len, ac.sampleRate); var d = buf.getChannelData(0);
+        for(var i=0;i<len;i++) d[i] = (Math.random()*2-1) * (1 - i/len);
+        var src = ac.createBufferSource(); src.buffer = buf;
+        var f = ac.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = freq || 1800; f.Q.value = 1.2;
+        var g = ac.createGain(); g.gain.value = vol || 0.25;
+        src.connect(f); f.connect(g); g.connect(master); src.start(ac.currentTime + t0);
+      }
+      function sndCorrect(){ if(!state.seOn) return; toneRich(523,0,.2,.18); toneRich(659,.08,.2,.18); toneRich(784,.16,.3,.19); }
+      function sndWrong(){ if(!state.seOn) return; tone(220,0,.2,"sine",.11); tone(185,.09,.26,"sine",.11); }
+      function sndCoin(){ if(!state.seOn) return; toneRich(988,0,.14,.11); toneRich(1319,.06,.22,.11); }
+      function sndClick(){ if(!state.seOn) return; tone(700,0,.06,"sine",.12); }
+      function sndGachan(){
+        if(!state.seOn) return;
+        // ハンドルを回す音：角の取れた「コロコロ」というラチェット音＋少しずつ高くなるワクワク音
+        for(var i = 0; i < 6; i++){
+          var tt = i * 0.085;
+          tone(980 + i * 90, tt, .055, "triangle", .07);
+          noiseBurst(tt, .028, .045, 3200);
+        }
+        // 回し終わりに向けて、期待感が上がる3音
+        toneRich(523, .54, .14, .13);
+        toneRich(659, .64, .14, .13);
+        toneRich(784, .74, .18, .15);
+      }
+      function sndDrop(){
+        if(!state.seOn) return;
+        // カプセルが落ちて、受け皿で「ポンッ」と小さく跳ねる音
+        toneSoft(620, 0, .16, .16);
+        // 落下はスライドで表現（別オシレータで滑らかに）
+        tone(620, 0, .16, "sine", .10, 210);
+        noiseBurst(.13, .05, .07, 900);
+        toneRich(392, .16, .14, .13);
+        tone(392, .16, .12, "sine", .08, 300);
+        toneRich(523, .27, .16, .10);
+      }
+      function sndOpenPop(){
+        if(!state.seOn) return;
+        // 開封：やわらかい「パカッ」＋開いた瞬間のキラッという上昇音
+        noiseBurst(0, .06, .10, 2600);
+        tone(740, 0, .14, "sine", .16, 1480);
+        toneRich(1047, .06, .22, .14);
+        toneRich(1319, .13, .26, .11);
+        shimmer(.1, 3);
+      }
+      function sndFanfare(rarity){
+        if(!state.seOn) return;
+        if(rarity === "n"){
+          // ノーマルでも「ポロン」と気持ちいい3音（ド・ミ・ソ）
+          toneRich(523, 0, .22, .18); toneRich(659, .11, .22, .18); toneRich(784, .22, .34, .19);
+        }
+        else if(rarity === "r"){
+          [523,659,784,1047].forEach(function(f,i){ toneRich(f, i*.1, .26, .19); });
+          toneSoft(262, 0, .55, .07); toneSoft(392, 0, .55, .06);
+          shimmer(.3, 4);
+        }
+        else if(rarity === "sr"){
+          [392,523,659,784,1047,1319].forEach(function(f,i){ toneRich(f, i*.09, .3, .2); });
+          toneSoft(196, 0, .8, .09); toneSoft(262, 0, .8, .08); toneSoft(392, .1, .7, .07);
+          shimmer(.35, 6);
+        }
+        else {
+          // ウルトラレア：上昇アルペジオ→大きな和音で締める
+          [523,659,784,1047,784,1047,1319,1568].forEach(function(f,i){ toneRich(f, i*.09, .32, .21); });
+          [262,330,392,523].forEach(function(f){ toneSoft(f, .72, .85, .09); });
+          toneRich(2093, .72, .6, .10);
+          shimmer(.5, 9);
+        }
+      }
+      function sndLevelUp(){
+        if(!state.seOn) return;
+        // レベルアップ：ハープのように駆け上がって、最後に明るい和音がふわっと広がる
+        // 1) ドレミファソラシドの駆け上がり（倍音つきで丸く）
+        var scale = [523,587,659,698,784,880,988,1047];
+        scale.forEach(function(f,i){ toneRich(f, i*.075, .26, .17); });
+        // 2) 少し遅れて高い音が追いかける（エコーのような気持ちよさ）
+        [1047,1319,1568].forEach(function(f,i){ toneRich(f, .62 + i*.08, .3, .13); });
+        // 3) 締めの和音：ド・ミ・ソ・ドを長く響かせる
+        var chordAt = .92;
+        [523,659,784,1047].forEach(function(f){ toneSoft(f, chordAt, 1.05, .11); });
+        toneSoft(262, chordAt, 1.05, .09);
+        toneSoft(1319, chordAt + .06, .9, .08);
+        // 4) キラキラの粒で余韻をつける
+        shimmer(chordAt + .1, 7);
+      }
+      /* BGM: 軽快なループ */
+      var BGM_NOTES = [262,330,392,523, 392,330,392,440, 349,440,523,440, 392,330,294,262,
+                       262,330,392,523, 587,523,440,392, 349,392,330,294, 262,0,392,0];
+      function bgmTick(){
+        if(!state.bgmOn || !AC) return;
+        var f = BGM_NOTES[bgmStep % BGM_NOTES.length];
+        if(f){
+          var ac = AC; var o = ac.createOscillator(); var g = ac.createGain();
+          o.type = "triangle"; o.frequency.value = f;
+          g.gain.setValueAtTime(0.0001, ac.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.055, ac.currentTime + 0.03);
+          g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.24);
+          o.connect(g); g.connect(master); o.start(); o.stop(ac.currentTime + 0.26);
+          if(bgmStep % 2 === 0){
+            var o2 = ac.createOscillator(); var g2 = ac.createGain();
+            o2.type = "sine"; o2.frequency.value = f/2;
+            g2.gain.setValueAtTime(0.0001, ac.currentTime);
+            g2.gain.exponentialRampToValueAtTime(0.04, ac.currentTime + 0.03);
+            g2.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.3);
+            o2.connect(g2); g2.connect(master); o2.start(); o2.stop(ac.currentTime + 0.32);
+          }
+        }
+        bgmStep++;
+      }
+      function startBGM(){ if(bgmTimer) return; audio(); bgmTimer = setInterval(bgmTick, 250); }
+      function stopBGM(){ if(bgmTimer){ clearInterval(bgmTimer); bgmTimer = null; } }
+
+      /* ================= 問題生成 ================= */
+      function rnd(n){ return Math.floor(Math.random()*n); }
+      function genQuestion(){
+        var diff = state.diff, a, b, op, ans, tries = 0;
+        while(true){
+          tries++;
+          op = Math.random() < 0.5 ? "+" : "−";
+          if(diff === "easy"){
+            if(op === "+"){ a = 1+rnd(9); b = 1+rnd(10-a); if(b<1) b=1; ans = a+b; }
+            else { a = 2+rnd(9); b = 1+rnd(a); ans = a-b; }
+          } else if(diff === "normal"){
+            if(op === "+"){ a = 3+rnd(15); b = 2+rnd(17); if(a+b > 20 || (a%10)+(b%10) >= 10){ if(tries<40) continue; } ans = a+b; }
+            else { a = 6+rnd(15); b = 2+rnd(a-1); if((a%10) < (b%10)){ if(tries<40) continue; } ans = a-b; }
+            if(ans > 20 || ans < 0){ if(tries<40) continue; }
+          } else { // hard: くり上がり・繰り下がりあり（20まで中心、ときどき30まで）
+            if(op === "+"){ a = 6+rnd(14); b = 5+rnd(14); ans = a+b; if(ans > 30){ if(tries<40) continue; } }
+            else { a = 11+rnd(14); b = 4+rnd(12); if(b >= a){ if(tries<40) continue; } ans = a-b; }
+          }
+          break;
+        }
+        // 選択肢
+        var opts = [ans];
+        var cand = [ans+1, ans-1, ans+2, ans-2, ans+10, ans-10, ans+3, ans-3];
+        cand.sort(function(){ return Math.random()-.5; });
+        for(var i=0;i<cand.length && opts.length<3;i++){ if(cand[i] >= 0 && opts.indexOf(cand[i]) < 0) opts.push(cand[i]); }
+        while(opts.length < 3){ var v = ans + 4 + opts.length; if(opts.indexOf(v)<0) opts.push(v); }
+        opts.sort(function(){ return Math.random()-.5; });
+        return {a:a, b:b, op:op, ans:ans, opts:opts};
+      }
+
+      function renderBlocks(q){
+        var box = $("blocks"); box.innerHTML = "";
+        if(!state.hint) return;
+        // ブロックをそのまま並べる（まとまり分けなし）
+        function numberBlocks(n, cls, crossFrom){
+          var wrap = document.createElement("div"); wrap.className = "num-wrap";
+          var row = document.createElement("div"); row.className = "block-row";
+          for(var i = 0; i < n; i++){
+            var d = document.createElement("div");
+            d.className = "blk " + cls + ((crossFrom !== undefined && i >= crossFrom) ? " cross" : "");
+            row.appendChild(d);
+          }
+          wrap.appendChild(row);
+          return wrap;
+        }
+        if(q.op === "+"){
+          box.appendChild(numberBlocks(q.a, "a"));
+          var opEl = document.createElement("div"); opEl.className = "op"; opEl.textContent = "＋"; box.appendChild(opEl);
+          box.appendChild(numberBlocks(q.b, "b"));
+        } else {
+          box.appendChild(numberBlocks(q.a, "a", q.a - q.b));
+        }
+      }
+
+      function newQuestion(){
+        state.current = genQuestion(); state.locked = false;
+        var q = state.current;
+        $("question").innerHTML = q.a + " " + (q.op === "+" ? "＋" : "−") + " " + q.b + " ＝ <span class=\"qmark\">？</span>";
+        renderBlocks(q);
+        var ch = $("choices"); ch.innerHTML = "";
+        q.opts.forEach(function(v){
+          var btn = document.createElement("button");
+          btn.className = "choice"; btn.textContent = v;
+          btn.addEventListener("click", function(){ answer(v, btn); });
+          ch.appendChild(btn);
+        });
+        $("feedback").textContent = "こたえを えらんでね！";
+      }
+
+      function addXP(n){
+        state.xp += n;
+        var need = xpNeed(state.level);
+        if(state.xp >= need){
+          state.xp -= need; state.level++;
+          updateProfile();
+          sndLevelUp();
+          $("lvUpNum").textContent = state.level;
+          $("lvUpTitle").textContent = titleFor(state.level);
+          setTimeout(function(){ $("levelOverlay").classList.add("open"); }, 450);
+          return;
+        }
+        updateProfile();
+      }
+
+      function coinFly(fromEl){
+        var c = document.createElement("div"); c.className = "coin-fly"; c.textContent = "🪙";
+        var r = fromEl.getBoundingClientRect();
+        c.style.left = (r.left + r.width/2 - 15) + "px"; c.style.top = (r.top) + "px";
+        document.body.appendChild(c);
+        var target = $("coinNum").getBoundingClientRect();
+        requestAnimationFrame(function(){
+          c.style.left = (target.left) + "px"; c.style.top = (target.top - 4) + "px";
+          c.style.transform = "scale(.5)"; c.style.opacity = ".4";
+        });
+        setTimeout(function(){ c.remove(); }, 850);
+      }
+
+      function answer(v, btn){
+        if(state.locked) return;
+        var q = state.current;
+        var buttons = $("choices").querySelectorAll(".choice");
+        if(v === q.ans){
+          state.locked = true;
+          state.streak++;
+          btn.classList.add("good");
+          buttons.forEach(function(b){ b.disabled = true; });
+          sndCorrect();
+          var base = state.diff === "easy" ? 5 : state.diff === "normal" ? 6 : 8;
+          var bonus = Math.min(6, Math.floor(state.streak / 3) * 2);
+          var gain = base + bonus;
+          setTimeout(function(){ sndCoin(); coinFly(btn); }, 200);
+          state.coins += gain;
+          $("feedback").innerHTML = "⭕ せいかい！" + (bonus > 0 ? " れんぞくボーナス！" : "") +
+            " <span class=\"coin-pop\">コイン +" + gain + "まい</span>";
+          addXP(state.diff === "easy" ? 10 : state.diff === "normal" ? 14 : 20);
+          updateProfile();
+          setTimeout(newQuestion, 1100);
+        } else {
+          state.streak = 0;
+          btn.classList.add("bad"); btn.disabled = true;
+          sndWrong();
+          $("feedback").textContent = "❌ おしい！ もう一度 かんがえてみよう";
+          updateProfile();
+        }
+        updateStreak();
+      }
+
+      function updateStreak(){
+        if(state.streak >= 2){ $("streakBox").classList.add("show"); $("streakNum").textContent = state.streak; }
+        else $("streakBox").classList.remove("show");
+      }
+
+      function updateProfile(){
+        saveState();
+        $("lvNum").textContent = state.level;
+        $("titleName").textContent = titleFor(state.level);
+        var need = xpNeed(state.level);
+        $("xpFill").style.width = Math.min(100, state.xp / need * 100) + "%";
+        $("xpNum").textContent = state.xp + " / " + need + " XP";
+        $("coinNum").textContent = state.coins;
+        var label = state.ownedCount + " / " + CHARS.length;
+        $("collNum").textContent = label; $("collNum2").textContent = label;
+        $("collBar").style.width = (state.ownedCount / CHARS.length * 100) + "%";
+        var btn = $("gachaBtn");
+        if(state.coins >= 30){ btn.disabled = false; btn.textContent = "ガチャを まわす！（30まい）"; $("gachaCost").textContent = "コインが たまった！ ガチャを まわそう！"; }
+        else { btn.disabled = true; btn.textContent = "ガチャを まわす！"; $("gachaCost").textContent = "あと " + (30 - state.coins) + "まい で ガチャが まわせるよ（1かい 30まい）"; }
+        $("againStage").disabled = state.coins < 30;
+      }
+
+      /* ================= 図鑑 ================= */
+      function renderZukan(){
+        var body = $("zukanBody"); body.innerHTML = "";
+        var groups = [["n","ノーマル","var(--n-color)"],["r","レア","var(--r-color)"],["sr","スーパーレア","var(--sr-color)"],["ur","ウルトラレア","var(--ur-color)"]];
+        groups.forEach(function(g){
+          var wrap = document.createElement("div"); wrap.className = "zukan-group";
+          var list = CHARS.map(function(c,i){ return {c:c, i:i}; }).filter(function(x){ return x.c.rarity === g[0]; });
+          var got = list.filter(function(x){ return state.owned[x.i]; }).length;
+          wrap.innerHTML = "<h3><span class=\"dot\" style=\"background:" + g[2] + "\"></span>" + g[1] + "（" + got + " / " + list.length + "）</h3>";
+          var grid = document.createElement("div"); grid.className = "zukan-grid";
+          list.forEach(function(x){
+            var slot = document.createElement("div");
+            if(state.owned[x.i]){
+              slot.className = "slot got-" + x.c.rarity;
+              slot.innerHTML = "<div class=\"art\">" + charSVG(x.c) + "</div><div class=\"nm\">" + x.c.name + "</div>";
+            } else {
+              slot.className = "slot locked";
+              slot.innerHTML = "<div class=\"art silhouette\">" + charSVG(x.c) + "</div><div class=\"nm\">？？？</div>";
+            }
+            grid.appendChild(slot);
+          });
+          wrap.appendChild(grid); body.appendChild(wrap);
+        });
+      }
+
+      /* ================= ガチャ ================= */
+      function fillDome(el){
+        el.innerHTML = "";
+        var pos = [[12,88],[52,96],[95,84],[30,58],[72,52],[110,58],[48,26],[88,22],[18,28],[128,86],[140,40],[64,74]];
+        pos.forEach(function(p, i){
+          var d = document.createElement("div"); d.className = "cap";
+          var col = CAP_COLORS[i % CAP_COLORS.length];
+          d.style.background = "linear-gradient(180deg, " + col + " 0 48%, #ffffff 52% 100%)";
+          d.style.left = p[0] + "px"; d.style.top = p[1] + "px";
+          el.appendChild(d);
+        });
+      }
+      function rollRarity(){
+        var r = Math.random() * 100;
+        if(r < 2) return "ur"; if(r < 12) return "sr"; if(r < 40) return "r"; return "n";
+      }
+      var gachaBusy = false;
+      function playGacha(){
+        if(gachaBusy || state.coins < 30) return;
+        gachaBusy = true;
+        state.coins -= 30; updateProfile();
+        var rarity = rollRarity();
+        var pool = CHARS.map(function(c,i){ return i; }).filter(function(i){ return CHARS[i].rarity === rarity; });
+        var idx = pool[rnd(pool.length)];
+        var isNew = !state.owned[idx];
+
+        $("gachaOverlay").classList.add("open");
+        $("stageMsg").textContent = "ハンドルを まわすよ…";
+        $("stageMachine").style.display = "block";
+        $("bigCap").style.display = "none"; $("bigCap").className = "big-cap";
+        $("reveal").className = "reveal";
+        $("stageBtns").style.display = "none";
+        $("sparkles").innerHTML = "";
+        var capCol = CAP_COLORS[rnd(CAP_COLORS.length)];
+        $("stageTrayCap").style.display = "none";
+
+        var handle = $("stageHandle"); handle.classList.remove("spin");
+        void handle.offsetWidth;
+        sndGachan();
+        $("stageMachine").classList.add("shake"); handle.classList.add("spin");
+        setTimeout(function(){
+          $("stageMachine").classList.remove("shake");
+          var tc = $("stageTrayCap");
+          tc.style.background = "linear-gradient(180deg, " + capCol + " 0 48%, #ffffff 52% 100%)";
+          tc.style.display = "block";
+          sndDrop();
+          $("stageMsg").textContent = "カプセルが でてきた！";
+        }, 800);
+        setTimeout(function(){
+          $("stageMachine").style.display = "none";
+          var bc = $("bigCap");
+          bc.style.background = "linear-gradient(180deg, " + capCol + " 0 48%, #ffffff 52% 100%)";
+          bc.className = "big-cap drop";
+          bc.style.display = "block";
+          $("stageMsg").textContent = "タップして あけよう！";
+          bc.onclick = function(){ openCapsule(idx, isNew, rarity); };
+          setTimeout(function(){ if(bc.style.display !== "none") bc.classList.add("wiggle"); }, 700);
+        }, 1500);
+      }
+      function openCapsule(idx, isNew, rarity){
+        var bc = $("bigCap"); bc.onclick = null; bc.classList.remove("wiggle");
+        sndOpenPop();
+        if(rarity === "sr" || rarity === "ur" || rarity === "r") setTimeout(function(){ sndFanfare(rarity); }, 120);
+        else sndFanfare(rarity);
+        bc.style.display = "none";
+        var c = CHARS[idx];
+        $("revealArt").innerHTML = charSVG(c);
+        var rays = $("rays"); rays.className = "rays" + (rarity === "sr" ? " gold" : rarity === "ur" ? " rainbow" : "");
+        var sp = $("sparkles"); sp.innerHTML = "";
+        if(rarity !== "n"){
+          var n = rarity === "r" ? 5 : rarity === "sr" ? 8 : 12;
+          for(var i=0;i<n;i++){
+            var s = document.createElement("span"); s.className = "sparkle"; s.textContent = rarity === "ur" ? "🌟" : "✨";
+            s.style.left = (Math.random()*150) + "px"; s.style.top = (Math.random()*150) + "px";
+            s.style.animationDelay = (Math.random()*0.7) + "s";
+            sp.appendChild(s);
+          }
+        }
+        if(rarity === "ur") confettiBurst();
+        var rl = $("rarityLabel"); rl.textContent = RARITY_INFO[rarity].label; rl.className = "rarity-label rl-" + rarity;
+        $("revealName").textContent = c.name;
+        $("stageMsg").textContent = rarity === "ur" ? "🎉 ウルトラレア！！ おめでとう！！" :
+                                     rarity === "sr" ? "🎉 スーパーレア！！ すごい！" :
+                                     rarity === "r" ? "✨ レアが でた！" : "でた！";
+        if(isNew){
+          state.owned[idx] = true; state.ownedCount++;
+          $("newBadge").style.display = "inline-block";
+          $("dupNote").textContent = "";
+          addXP(15);
+        } else {
+          $("newBadge").style.display = "none";
+          var refund = RARITY_INFO[rarity].refund;
+          state.coins += refund;
+          $("dupNote").textContent = "ダブったので コイン " + refund + "まい もどってきた！";
+          setTimeout(sndCoin, 500);
+        }
+        $("reveal").classList.add("show");
+        $("stageBtns").style.display = "flex";
+        renderZukan(); updateProfile();
+        gachaBusy = false;
+      }
+      function confettiBurst(){
+        var box = $("stageBox");
+        var colors = ["#ff5a5a","#f5a623","#43b581","#3aa7e0","#b45aff","#ffd93c"];
+        for(var i=0;i<26;i++){
+          var d = document.createElement("div"); d.className = "confetti";
+          d.style.background = colors[i % colors.length];
+          d.style.left = (30 + Math.random()*40) + "%"; d.style.top = "30%";
+          box.appendChild(d);
+          (function(el){
+            var dx = (Math.random()-0.5)*260, dy = 120 + Math.random()*220, rot = Math.random()*540;
+            el.animate([
+              {transform:"translate(0,0) rotate(0deg)", opacity:1},
+              {transform:"translate(" + dx + "px," + dy + "px) rotate(" + rot + "deg)", opacity:0}
+            ], {duration: 1300 + Math.random()*700, easing:"cubic-bezier(.2,.7,.3,1)"});
+            setTimeout(function(){ el.remove(); }, 2100);
+          })(d);
+        }
+      }
+
+      /* ================= イベント ================= */
+      $("diffSeg").addEventListener("click", function(e){
+        var b = e.target.closest("button"); if(!b) return;
+        this.querySelectorAll("button").forEach(function(x){ x.classList.remove("on"); });
+        b.classList.add("on"); state.diff = b.dataset.diff; state.streak = 0; updateStreak();
+        sndClick(); newQuestion();
+      });
+      $("hintBtn").addEventListener("click", function(){
+        state.hint = !state.hint;
+        this.textContent = state.hint ? "ブロックを かくす" : "ブロックを みる";
+        renderBlocks(state.current);
+      });
+      $("gachaBtn").addEventListener("click", function(){ audio(); playGacha(); });
+      $("closeStage").addEventListener("click", function(){ $("gachaOverlay").classList.remove("open"); sndClick(); });
+      $("againStage").addEventListener("click", function(){ if(state.coins >= 30) playGacha(); });
+      $("closeLevel").addEventListener("click", function(){ $("levelOverlay").classList.remove("open"); sndClick(); });
+      $("seBtn").addEventListener("click", function(){
+        state.seOn = !state.seOn;
+        this.textContent = state.seOn ? "🔊 こうか音 ON" : "🔇 こうか音 OFF";
+        this.classList.toggle("off", !state.seOn);
+        if(state.seOn) sndClick();
+      });
+      $("bgmBtn").addEventListener("click", function(){
+        state.bgmOn = !state.bgmOn;
+        this.textContent = state.bgmOn ? "🎵 BGM ON" : "🎵 BGM OFF";
+        this.classList.toggle("off", !state.bgmOn);
+        if(state.bgmOn) startBGM(); else stopBGM();
+      });
+      $("fsBtn").addEventListener("click", function(){
+        if(document.fullscreenElement) document.exitFullscreen();
+        else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+      });
+      // 最初のタップでBGM開始（自動再生制限のため）
+      document.addEventListener("pointerdown", function once(){
+        if(state.bgmOn) startBGM();
+        document.removeEventListener("pointerdown", once);
+      });
+
+      /* 初期化 */
+      fillDome($("dome")); fillDome($("stageDome"));
+      renderZukan(); updateProfile(); newQuestion();
+    </script>
+  </body>
+</html>

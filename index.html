@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>ゲームいちらん</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eaf6ff;
+    --bg-dot:#cfeaff;
+    --ink:#22304a;
+    --muted:#5a6b8a;
+    --card:#ffffff;
+    --card-border:#e2ecf7;
+    --yellow:#ffd93d;
+    --orange:#ff8a3d;
+    --shadow:0 6px 0 rgba(34,48,74,.08), 0 14px 28px rgba(34,48,74,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#16233a;
+      --bg-dot:#1e3355;
+      --ink:#f2f6ff;
+      --muted:#b9c7e0;
+      --card:#1f304f;
+      --card-border:#2f4a73;
+      --shadow:0 6px 0 rgba(0,0,0,.25), 0 14px 28px rgba(0,0,0,.25);
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    font-family:"M PLUS Rounded 1c", system-ui, -apple-system, "Hiragino Maru Gothic ProN", sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle, var(--bg-dot) 2.2px, transparent 2.3px) 0 0/26px 26px,
+      var(--bg);
+    line-height:1.5;
+  }
+  .wrap{max-width:680px;margin:0 auto;padding:20px 16px 40px}
+
+  /* ヘッダー */
+  header{text-align:center;padding:18px 8px 6px}
+  .free-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--yellow);color:#5c4300;
+    font-weight:900;font-size:15px;letter-spacing:.02em;
+    padding:8px 16px;border-radius:999px;
+    border:2px solid #e8b800;
+    box-shadow:0 3px 0 #e8b800;
+  }
+  h1{
+    margin:14px 0 4px;
+    font-size:44px;line-height:1.1;font-weight:900;letter-spacing:.02em;
+  }
+  h1 .game-emoji{font-size:40px;vertical-align:-2px}
+  .subtitle{
+    margin:6px 0 0;font-size:20px;font-weight:800;color:var(--ink);
+  }
+  .lead{
+    margin:10px auto 0;max-width:520px;
+    font-size:15px;font-weight:700;color:var(--muted);
+  }
+  .howto{
+    margin:18px auto 0;
+    display:flex;justify-content:center;gap:8px;flex-wrap:wrap;
+  }
+  .howto span{
+    background:var(--card);border:2px solid var(--card-border);
+    border-radius:999px;padding:7px 12px;font-size:13px;font-weight:800;
+  }
+
+  /* カード一覧 */
+  .list{display:flex;flex-direction:column;gap:16px;margin-top:22px}
+  .section-title{
+    font-size:26px;font-weight:900;margin:26px 4px 2px;color:var(--ink);
+  }
+  .section-title:first-child{margin-top:6px}
+  .card{
+    display:flex;gap:16px;align-items:center;
+    background:var(--card);
+    border:3px solid var(--card-border);
+    border-top:6px solid var(--accent);
+    border-radius:22px;
+    padding:18px 16px 16px;
+    text-decoration:none;color:inherit;
+    box-shadow:var(--shadow);
+    min-height:118px;
+    transition:transform .12s ease, box-shadow .12s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .card:active{transform:scale(.985)}
+  @media (hover:hover){
+    .card:hover{transform:translateY(-2px)}
+  }
+  .icon{
+    flex:0 0 auto;
+    width:76px;height:76px;border-radius:20px;
+    display:grid;place-items:center;
+    font-size:44px;line-height:1;
+    background:var(--accent-soft);
+    border:2px solid var(--accent);
+  }
+  .body{flex:1 1 auto;min-width:0}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+  .tag{
+    font-size:12px;font-weight:900;line-height:1;
+    padding:6px 8px;border-radius:999px;
+    background:var(--accent);color:#fff;
+  }
+  .tag.grade{background:var(--card);color:var(--ink);border:2px solid var(--card-border)}
+  .tag.free{background:#22c55e;color:#fff;border:none}
+  .name{
+    font-size:21px;font-weight:900;line-height:1.25;margin:0;
+    word-break:keep-all;overflow-wrap:anywhere;
+  }
+  .desc{
+    margin:6px 0 0;font-size:14.5px;font-weight:700;color:var(--muted);line-height:1.55;
+  }
+  .play{
+    flex:0 0 auto;align-self:center;
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+  }
+  .play-btn{
+    width:52px;height:52px;border-radius:50%;
+    display:grid;place-items:center;
+    background:var(--accent);color:#fff;
+    font-size:22px;font-weight:900;
+    box-shadow:0 4px 0 rgba(0,0,0,.15);
+  }
+  .play-label{font-size:11px;font-weight:900;color:var(--muted)}
+
+  /* 色分け */
+  .c-kuku{--accent:#e85d3f;--accent-soft:#ffe9e2}
+  .c-tokei{--accent:#f59e0b;--accent-soft:#fef3c7}
+  .c-monster{--accent:#7c5cff;--accent-soft:#ede9ff}
+  .c-race{--accent:#0ea5e9;--accent-soft:#e0f2fe}
+  .c-gacha{--accent:#f59e0b;--accent-soft:#fef3c7}
+  .c-zombie{--accent:#22a06b;--accent-soft:#dcfce7}
+  .c-taiko{--accent:#ec4899;--accent-soft:#fce7f3}
+  @media (prefers-color-scheme: dark){
+    .c-kuku{--accent-soft:#3d2620}
+    .c-tokei{--accent-soft:#3a2f14}
+    .c-monster{--accent-soft:#2c254d}
+    .c-race{--accent-soft:#163344}
+    .c-gacha{--accent-soft:#3a2c10}
+    .c-zombie{--accent-soft:#173a2a}
+    .c-taiko{--accent-soft:#3d1e2f}
+  }
+
+  footer{
+    margin-top:28px;text-align:center;
+    background:var(--card);border:2px dashed var(--card-border);
+    border-radius:18px;padding:18px 16px;
+  }
+  footer .big{font-size:17px;font-weight:900;margin:0}
+  footer .small{font-size:13.5px;font-weight:700;color:var(--muted);margin:6px 0 0;line-height:1.6}
+  .stars{font-size:18px;letter-spacing:4px}
+
+  @media (max-width:420px){
+    h1{font-size:38px}
+    h1 .game-emoji{font-size:34px}
+    .subtitle{font-size:18px}
+    .icon{width:64px;height:64px;font-size:38px;border-radius:16px}
+    .name{font-size:19px}
+    .card{gap:12px;padding:16px 12px 14px}
+    .play-btn{width:46px;height:46px}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .card{transition:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="free-badge">⭐ ぜんぶ むりょう！</div>
+    <h1><span class="game-emoji">🎮</span> ゲームいちらん</h1>
+    <p class="subtitle">無料で遊べる教育ゲーム</p>
+    <p class="lead">あそびたい ゲームを えらんで、カードを タップしてね。<br>せんせい・おうちのひとと いっしょに あそんでも たのしいよ！</p>
+    <div class="howto" aria-label="あそびかた">
+      <span>👆 タップで スタート</span>
+      <span>💰 ぜんぶ 無料</span>
+      <span>📱 スマホで あそべる</span>
+    </div>
+  </header>
+
+  <main class="list" aria-label="ゲームのいちらん">
+    <h2 class="section-title">📚 1・2年生のゲーム</h2>
+
+    <!-- 1. 九九 -->
+    <a class="card c-kuku" href="kuku-game.html">
+      <div class="icon" aria-hidden="true">⚔️</div>
+      <div class="body">
+        <div class="tags">
+          <span class="tag">かけざん・九九</span>
+          <span class="tag grade">しょうがく 2ねんせい</span>
+          <span class="tag free">無料</span>
+        </div>
+        <h2 class="name">ゆうしゃの 九九ぼうけん</h2>
+        <p class="desc">ゆうしゃに なって モンスターを たおそう！ 九九を こたえると けんで こうげきできるよ。さいごは まおうが まっている！</p>
+      </div>
+      <div class="play" aria-hidden="true">
+        <div class="play-btn">▶</div>
+        <div class="play-label">あそぶ</div>
+      </div>
+    </a>
+
+    <!-- 2. とけい -->
+    <a class="card c-tokei" href="tokei-game.html">
+      <div class="icon" aria-hidden="true">🕐</div>
+      <div class="body">
+        <div class="tags">
+          <span class="tag">とけいの よみかた</span>
+          <span class="tag grade">しょうがく 1ねんせい</span>
+          <span class="tag free">無料</span>
+        </div>
+        <h2 class="name">とけいゲーム</h2>
+        <p class="desc">おおきな とけいを みて「なんじ なんぷん？」に こたえよう。レベルが あがって、ベストタイムにも ちょうせんできるよ！</p>
+      </div>
+      <div class="play" aria-hidden="true">
+        <div class="play-btn">▶</div>
+        <div class="play-label">あそぶ</div>
+      </div>
+    </a>
+
+    <!-- 3. モンスターたしざん -->
+    <a class="card c-monster" href="monster-tasizan.html">
+      <div class="icon" aria-hidden="true">👾</div>
+      <div class="body">
+        <div class="tags">
+          <span class="tag">たしざん</span>
+          <span class="tag grade">しょうがく 1ねんせい</span>
+          <span class="tag free">無料</span>
+        </div>
+        <h2 class="name">モンスターを あつめる たしざんゲーム</h2>
+        <p class="desc">たしざんを といて モンスターを あつめよう！ ずかんは ぜんぶで 50たい。レアな モンスターも いるよ！</p>
+      </div>
+      <div class="play" aria-hidden="true">
+        <div class="play-btn">▶</div>
+        <div class="play-label">あそぶ</div>
+      </div>
+    </a>
+
+    <!-- 4. たしざんレース -->
+    <a class="card c-race" href="race-tasizan.html">
+      <div class="icon" aria-hidden="true">🏎️</div>
+      <div class="body">
+        <div class="tags">
+          <span class="tag">たしざん</span>
+          <span class="tag grade">しょうがく 1ねんせい</span>
+          <span class="tag free">無料</span>
+        </div>
+        <h2 class="name">たしざんレースゲーム</h2>
+        <p class="desc">たしざんを はやく といて くるまを はしらせよう！ ゴールを めざして レースに かとう！</p>
+      </div>
+      <div class="play" aria-hidden="true">
+        <div class="play-btn">▶</div>
+        <div class="play-label">あそぶ</div>
+      </div>
+    </a>
+
+    <a class="card c-gacha" href="gacha-game.html">
+      <div class="icon" aria-hidden="true">🎁</div>
+      <div class="body">
+        <div class="tags">
+          <span class="tag">たしざん・ひきざん</span>
+          <span class="tag grade">しょうがく 1・2ねんせい</span>
+          <span class="tag free">無料</span>
+        </div>
+        <h2 class="name">ガチャゲーム</h2>
+        <p class="desc">けいさんを といて コインを あつめよう！ ガチャを まわして、レアキャラ 30たい コンプリートを めざそう！</p>
+      </div>
+      <div class="play" aria-hidden="true">
+        <div class="play-btn">▶</div>
+        <div class="play-label">あそぶ</div>
+      </div>
+    </a>
+
+    <!-- 5. ゾンビひきざん -->
+    <a class="card c-zombie" href="https://muse.ai/s/baiohazadohikizangemu-qxo6xbxjuf8xgdxc/ee-OK4ELw1TEn1mE1EwA-sXxp_dy7zRVvIro5N3iqvk">
+      <div class="icon" aria-hidden="true">🧟</div>
+      <div class="body">
+        <div class="tags">
+          <span class="tag">ひきざん</span>
+          <span class="tag grade">しょうがく 1ねんせい</span>
+          <span class="tag free">無料</span>
+        </div>
+        <h2 class="name">ゾンビのひきざんゲーム</h2>
+        <p class="desc">ひきざんを といて ゾンビを たおそう！ ちょっと ドキドキする ひきざんの ぼうけんだよ。</p>
+      </div>
+      <div class="play" aria-hidden="true">
+        <div class="play-btn">▶</div>
+        <div class="play-label">あそぶ</div>
+      </div>
+    </a>
+
+    <!-- 6. たいこ -->
+    <a class="card c-taiko" href="https://muse.ai/s/tai-gu-gemu-xdx06xbxn9lxzaad/jQpvpR4_zAJVCN7BR27sQq88Atd_CHy2qis0CDTLnbM">
+      <div class="icon" aria-hidden="true">🥁</div>
+      <div class="body">
+        <div class="tags">
+          <span class="tag">リズムゲーム</span>
+          <span class="tag grade">みんな</span>
+          <span class="tag free">無料</span>
+        </div>
+        <h2 class="name">たいこゲーム</h2>
+        <p class="desc">リズムに あわせて たいこを たたこう！ あかい「ドン」と あおい「カツ」を うまく うてるかな？</p>
+      </div>
+      <div class="play" aria-hidden="true">
+        <div class="play-btn">▶</div>
+        <div class="play-label">あそぶ</div>
+      </div>
+    </a>
+
+
+
+    <h2 class="section-title">🗾 4・5年生のゲーム</h2>
+
+    <!-- 8. 都道府県シルエットクイズ -->
+    <a class="card c-silhouette" href="silhouette-game.html">
+      <div class="icon" aria-hidden="true">🧩</div>
+      <div class="body">
+        <div class="tags">
+          <span class="tag">都道府県の形</span>
+          <span class="tag grade">しょうがく 4・5ねんせい</span>
+          <span class="tag free">無料</span>
+        </div>
+        <h2 class="name">都道府県シルエットクイズ</h2>
+        <p class="desc">都道府県の形を見て、何県か当てよう！ 正解するとコインがたまって、マッピンの着せ替えが買えるよ。</p>
+      </div>
+      <div class="play" aria-hidden="true">
+        <div class="play-btn">▶</div>
+        <div class="play-label">あそぶ</div>
+      </div>
+    </a>
+
+    <h2 class="section-title">🎓 5・6年生のゲーム</h2>
+
+    <!-- 7. 漢字クエスト -->
+    <a class="card c-kanji" href="kanji-game.html">
+      <div class="icon" aria-hidden="true">🗡️</div>
+      <div class="body">
+        <div class="tags">
+          <span class="tag">漢字の読み方</span>
+          <span class="tag grade">しょうがく 5・6ねんせい</span>
+          <span class="tag free">無料</span>
+        </div>
+        <h2 class="name">漢字クエスト 読みの勇者</h2>
+        <p class="desc">ラノベ風の勇者になって、漢字の読み方で敵をたおすRPG！ 経験値をためてレベルアップ、魔王にちょうせんしよう。</p>
+      </div>
+      <div class="play" aria-hidden="true">
+        <div class="play-btn">▶</div>
+        <div class="play-label">あそぶ</div>
+      </div>
+    </a>
+
+  </main>
+
+  <footer>
+    <div class="stars" aria-hidden="true">⭐⭐⭐</div>
+    <p class="big">ぜんぶ 無料で あそべます！</p>
+    <p class="small">おかねは かかりません。きになる ゲームから じゆうに あそんでね。<br>まいにち すこしずつ れんしゅうすると、さんすうが もっと とくいになるよ。</p>
+  </footer>
+
+</div>
+</body>
+</html>

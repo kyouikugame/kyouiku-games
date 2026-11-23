@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>たしざんレースゲーム</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet" />
+    <style>
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2rem; }
+
+      :root {
+        color-scheme: light dark;
+        --sky1: #aee3ff;
+        --sky2: #e6fbff;
+        --grass: #7ed957;
+        --panel: #ffffff;
+        --panel-line: #ffd23f;
+        --ink: #22304a;
+        --ink-soft: #5a6b8c;
+        --track: #4a4f5e;
+        --track-line: #f5f5f5;
+        --accent: #ff6b4a;
+        --accent2: #2fb3ff;
+        --good: #22b573;
+        --bad: #ef476f;
+        --gold: #ffb703;
+        --chip: #eef6ff;
+        --shadow: 0 6px 0 rgba(34,48,74,.18);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --sky1: #12263f;
+          --sky2: #0a1626;
+          --grass: #2c7a3f;
+          --panel: #16283f;
+          --panel-line: #ffb703;
+          --ink: #f2f7ff;
+          --ink-soft: #a9bedd;
+          --track: #232a3a;
+          --track-line: #dfe9ff;
+          --chip: #1e3a5c;
+          --shadow: 0 6px 0 rgba(0,0,0,.45);
+        }
+      }
+
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        font-family: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Noto Sans JP", sans-serif;
+        color: var(--ink);
+        background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 62%, var(--grass) 62.2%, var(--grass) 100%);
+        min-height: 100vh;
+        min-height: 100dvh;
+      }
+      .wrap { max-width: 560px; margin: 0 auto; padding: 14px 14px 28px; }
+
+      /* ---------- 共通 ---------- */
+      .panel {
+        background: var(--panel);
+        border: 4px solid var(--panel-line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 16px;
+      }
+      .btn {
+        font-family: inherit;
+        font-weight: 800;
+        color: var(--ink);
+        background: var(--chip);
+        border: 3px solid var(--ink);
+        border-radius: 16px;
+        cursor: pointer;
+        box-shadow: 0 4px 0 rgba(34,48,74,.35);
+        transition: transform .08s ease, box-shadow .08s ease;
+        min-height: 48px;
+      }
+      .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(34,48,74,.35); }
+      .hidden { display: none !important; }
+
+      /* ---------- スタート画面 ---------- */
+      .title-badge {
+        text-align: center;
+        margin: 8px 0 4px;
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: .14em;
+        color: var(--ink-soft);
+      }
+      h1.game-title {
+        margin: 0 0 6px;
+        text-align: center;
+        font-size: clamp(30px, 8.5vw, 44px);
+        font-weight: 800;
+        line-height: 1.15;
+      }
+      h1.game-title .t1 { color: var(--accent); }
+      h1.game-title .t2 { color: var(--accent2); }
+      .subtitle { text-align: center; font-size: 16px; font-weight: 700; color: var(--ink-soft); margin: 0 0 16px; }
+
+      .sec-label { font-size: 17px; font-weight: 800; margin: 16px 0 8px; }
+      .sec-label:first-child { margin-top: 2px; }
+
+      .racer-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .racer-card {
+        display: flex; flex-direction: column; align-items: center; gap: 2px;
+        padding: 10px 4px 8px;
+        font-size: 16px;
+      }
+      .racer-card svg { width: 64px; height: 48px; }
+      .racer-card.selected { background: #fff3c4; border-color: var(--gold); outline: 3px solid var(--gold); }
+      @media (prefers-color-scheme: dark) { .racer-card.selected { background: #4a3a08; } }
+
+      .level-row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+      .level-btn {
+        display: flex; align-items: center; gap: 12px;
+        text-align: left; padding: 12px 16px; font-size: 18px;
+      }
+      .level-btn .lv-star { font-size: 20px; white-space: nowrap; }
+      .level-btn .lv-desc { display: block; font-size: 13px; font-weight: 700; color: var(--ink-soft); margin-top: 2px; }
+      .level-btn.selected { background: #fff3c4; border-color: var(--gold); outline: 3px solid var(--gold); }
+      @media (prefers-color-scheme: dark) { .level-btn.selected { background: #4a3a08; } }
+
+      .start-btn {
+        display: block; width: 100%; margin-top: 20px;
+        font-size: 24px; padding: 14px;
+        background: var(--accent); color: #fff; border-color: #c33d1e;
+      }
+      .howto { margin-top: 14px; font-size: 14px; font-weight: 700; color: var(--ink-soft); line-height: 1.7; }
+      .howto p { margin: 4px 0; }
+
+      /* ---------- プロフィール / レベル ---------- */
+      .profile-panel {
+        background: linear-gradient(135deg, #fff8d6, #e6f7ff);
+        border: 4px solid var(--gold);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 14px 16px 12px;
+        margin-bottom: 12px;
+      }
+      @media (prefers-color-scheme: dark) {
+        .profile-panel { background: linear-gradient(135deg, #3a2f08, #16283f); }
+      }
+      .profile-top { display: flex; align-items: center; gap: 12px; }
+      .level-badge {
+        flex: 0 0 auto; width: 64px; height: 64px; border-radius: 50%;
+        background: var(--accent); color: #fff; border: 4px solid #fff;
+        box-shadow: 0 4px 0 rgba(0,0,0,.2);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1;
+      }
+      .level-badge small { font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+      .level-badge strong { font-size: 28px; font-weight: 800; }
+      .profile-main { flex: 1; min-width: 0; }
+      .profile-title { font-size: 18px; font-weight: 800; line-height: 1.2; }
+      .profile-title .title-name { color: var(--accent); }
+      .xp-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; color: var(--ink-soft); margin-top: 6px; }
+      .xp-label b { color: var(--ink); }
+      .xp-bar { height: 16px; background: rgba(0,0,0,.12); border-radius: 999px; border: 2px solid rgba(0,0,0,.15); overflow: hidden; margin-top: 4px; }
+      .xp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ffb703, #ff6b4a); border-radius: 999px; transition: width .8s cubic-bezier(.2,.9,.3,1); }
+      .profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+      .p-stat { background: var(--panel); border: 3px solid var(--ink); border-radius: 14px; padding: 7px 4px 6px; text-align: center; }
+      .p-stat small { display: block; font-size: 11px; font-weight: 800; color: var(--ink-soft); letter-spacing: .04em; }
+      .p-stat strong { display: block; font-size: 19px; font-weight: 800; line-height: 1.15; }
+      .p-stat strong em { font-style: normal; font-size: 12px; color: var(--ink-soft); }
+      .p-stat.best strong { color: #e07b00; }
+      .new-record { display: inline-block; background: var(--bad); color: #fff; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 999px; vertical-align: middle; margin-left: 6px; animation: popBadge .5s ease; }
+      @keyframes popBadge { 0% { transform: scale(.5); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+      .levelup-banner {
+        margin-top: 10px; background: var(--gold); color: #5a3600; border: 3px solid #c98a00;
+        border-radius: 14px; padding: 10px; text-align: center; font-weight: 800; font-size: 18px;
+        animation: levelUpPulse .6s ease infinite alternate;
+      }
+      @keyframes levelUpPulse { from { transform: scale(1); } to { transform: scale(1.03); } }
+      .xp-gain-box { background: var(--chip); border: 3px dashed var(--accent2); border-radius: 16px; padding: 10px 12px; margin: 10px 0 4px; text-align: left; }
+      .xp-gain-box .xp-gain-title { font-size: 17px; font-weight: 800; text-align: center; }
+      .xp-gain-box .xp-gain-title b { color: var(--accent); font-size: 22px; }
+      .xp-detail { font-size: 13px; font-weight: 700; color: var(--ink-soft); line-height: 1.7; text-align: center; margin-top: 2px; }
+
+      /* ---------- ゲーム画面 ---------- */
+      .hud { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+      .hud .chip {
+        flex: 1 1 auto;
+        background: var(--panel); border: 3px solid var(--panel-line); border-radius: 14px;
+        padding: 6px 10px; font-weight: 800; font-size: 16px; text-align: center;
+        box-shadow: 0 3px 0 rgba(34,48,74,.18);
+        white-space: nowrap;
+      }
+      .hud .chip b { color: var(--accent); font-size: 19px; }
+      .hud .mini-btn { flex: 0 0 auto; font-size: 15px; padding: 6px 12px; border-radius: 14px; }
+
+      .track-panel { padding: 12px 12px 8px; margin-bottom: 12px; }
+      .lane-label { display: flex; justify-content: space-between; font-weight: 800; font-size: 15px; margin: 2px 2px 4px; }
+      .lane-label .pct { color: var(--accent2); }
+      .lane-label.cpu .pct { color: var(--bad); }
+      .track {
+        position: relative;
+        background: var(--track);
+        border-radius: 14px;
+        overflow: hidden;
+        margin-bottom: 10px;
+        border: 3px solid rgba(0,0,0,.25);
+      }
+      .lane {
+        position: relative;
+        height: 74px;
+        border-bottom: 3px dashed var(--track-line);
+      }
+      .lane:last-child { border-bottom: none; }
+      .lane .dist {
+        position: absolute; top: 4px; font-size: 11px; font-weight: 800;
+        color: rgba(255,255,255,.65);
+      }
+      .finish {
+        position: absolute; top: 0; bottom: 0; right: 6px; width: 16px;
+        background: conic-gradient(#222 0 25%, #fff 0 50%, #222 0 75%, #fff 0) 0 0 / 16px 16px;
+        border-left: 2px solid rgba(0,0,0,.4);
+        z-index: 1;
+      }
+      .racer {
+        position: absolute; bottom: 8px; left: 0;
+        width: 68px; height: 52px;
+        z-index: 2;
+        transition: left .45s cubic-bezier(.2,.9,.3,1.2);
+        will-change: left;
+      }
+      .racer svg { width: 100%; height: 100%; filter: drop-shadow(0 3px 2px rgba(0,0,0,.35)); }
+      .racer.dash svg { animation: dashShake .45s ease; }
+      .racer.stall svg { animation: stallShake .4s ease; }
+      @keyframes dashShake {
+        0% { transform: translateX(0) rotate(0); }
+        30% { transform: translateX(4px) rotate(-3deg) scale(1.08); }
+        100% { transform: translateX(0) rotate(0); }
+      }
+      @keyframes stallShake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+      }
+      .speed-lines {
+        position: absolute; top: 50%; right: 100%; width: 34px; height: 26px;
+        transform: translateY(-50%);
+        opacity: 0; pointer-events: none;
+      }
+      .racer.dash .speed-lines { opacity: 1; transition: opacity .1s; }
+      .speed-lines i {
+        position: absolute; right: 0; height: 4px; border-radius: 2px; background: #fff;
+        animation: speedLine .3s linear infinite;
+      }
+      .speed-lines i:nth-child(1) { top: 2px; width: 30px; }
+      .speed-lines i:nth-child(2) { top: 11px; width: 22px; animation-delay: .08s; }
+      .speed-lines i:nth-child(3) { top: 20px; width: 28px; animation-delay: .16s; }
+      @keyframes speedLine { from { transform: translateX(6px); opacity: 0; } 40% { opacity: 1; } to { transform: translateX(-8px); opacity: 0; } }
+
+      .message {
+        text-align: center; font-size: 19px; font-weight: 800; min-height: 30px; margin: 2px 0 6px;
+      }
+      .message.good { color: var(--good); }
+      .message.bad { color: var(--bad); }
+      .message.turbo { color: var(--gold); }
+
+      .question-panel { text-align: center; }
+      .q-label { font-size: 15px; font-weight: 800; color: var(--ink-soft); margin-bottom: 2px; }
+      .question {
+        font-size: clamp(46px, 13vw, 64px); font-weight: 800; letter-spacing: .04em;
+        line-height: 1.2; margin: 2px 0 10px;
+      }
+      .question .qmark { color: var(--gold); }
+      .combo { font-size: 15px; font-weight: 800; color: var(--accent); min-height: 22px; margin-bottom: 6px; }
+
+      .blocks-toggle { font-size: 15px; padding: 8px 16px; margin-bottom: 10px; }
+      .blocks {
+        display: flex; justify-content: center; align-items: flex-start; gap: 18px;
+        flex-wrap: wrap; margin: 4px 0 12px;
+      }
+      .block-group { text-align: center; }
+      .block-group .bg-label { font-size: 14px; font-weight: 800; margin-bottom: 4px; }
+      .block-grid { display: grid; grid-template-columns: repeat(5, 24px); gap: 4px; justify-content: center; }
+      .blk { width: 24px; height: 24px; border-radius: 6px; border: 2px solid rgba(0,0,0,.25); }
+      .blk.a { background: #ff9f43; }
+      .blk.b { background: #2fb3ff; }
+      .blocks .plus { font-size: 26px; font-weight: 800; align-self: center; }
+
+      .choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .choice-btn {
+        font-size: clamp(30px, 9vw, 40px); padding: 14px 4px; border-radius: 18px;
+      }
+      .choice-btn.correct { background: var(--good); color: #fff; border-color: #157347; }
+      .choice-btn.wrong { background: var(--bad); color: #fff; border-color: #b02347; }
+      .choice-btn:disabled { opacity: .85; cursor: default; }
+
+      /* カウントダウン */
+      .countdown {
+        position: fixed; inset: 0; z-index: 50;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(10, 20, 40, .45);
+      }
+      .countdown .cd-num {
+        font-size: clamp(72px, 22vw, 120px); font-weight: 800; color: #fff;
+        text-shadow: 0 6px 0 rgba(0,0,0,.35);
+        animation: cdPop .7s ease;
+      }
+      @keyframes cdPop { 0% { transform: scale(.4); opacity: 0; } 40% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); } }
+
+      /* ---------- 結果画面 ---------- */
+      .result-panel { text-align: center; }
+      .result-emoji { font-size: 54px; line-height: 1.1; }
+      .result-title { font-size: 30px; font-weight: 800; margin: 4px 0 2px; }
+      .rank {
+        font-size: 92px; font-weight: 800; line-height: 1.1; margin: 6px 0;
+        color: var(--gold);
+        text-shadow: 0 4px 0 rgba(0,0,0,.18);
+      }
+      .rank.rank-a { color: var(--accent); }
+      .rank.rank-b { color: var(--accent2); }
+      .rank.rank-c { color: var(--ink-soft); }
+      .result-stats { font-size: 18px; font-weight: 800; line-height: 1.9; margin: 6px 0 14px; }
+      .result-stats b { color: var(--accent); }
+      .result-btns { display: grid; grid-template-columns: 1fr; gap: 10px; }
+      .result-btns .again { background: var(--accent); color: #fff; border-color: #c33d1e; font-size: 21px; padding: 12px; }
+      .result-btns .back { font-size: 17px; padding: 10px; }
+
+      .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 40; }
+      .confetti i {
+        position: absolute; top: -16px; width: 10px; height: 16px; border-radius: 2px;
+        animation: fall linear forwards;
+      }
+      @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
+
+      /* ---------- 全画面ボタン ---------- */
+      .fs-btn {
+        display: block; width: 100%; margin-top: 12px;
+        font-size: 17px; padding: 11px;
+        background: var(--accent2); color: #fff; border-color: #1478b8;
+      }
+
+      /* ---------- パソコン（広い画面）：大きく・2列で表示 ---------- */
+      @media (min-width: 1024px) {
+        .wrap { max-width: 1120px; padding: 22px 26px 36px; }
+        #screen-start, #screen-result { max-width: 780px; margin: 0 auto; }
+        h1.game-title { font-size: 52px; }
+        #screen-game {
+          display: grid;
+          grid-template-columns: 1.2fr 1fr;
+          gap: 14px;
+          align-items: start;
+        }
+        #screen-game .hud { grid-column: 1 / -1; margin-bottom: 0; }
+        #screen-game .track-panel { margin-bottom: 0; }
+        .lane { height: 104px; }
+        .racer { width: 92px; height: 70px; }
+        .message { font-size: 22px; min-height: 34px; }
+        .question { font-size: clamp(56px, 5.5vw, 84px); }
+        .choice-btn { font-size: 44px; padding: 20px 4px; }
+        .block-grid { grid-template-columns: repeat(5, 30px); }
+        .blk { width: 30px; height: 30px; }
+      }
+      /* 全画面のときは画面いっぱいに広げる */
+      :fullscreen .wrap { max-width: 1440px; }
+      :fullscreen body { min-height: 100%; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .racer { transition: none; }
+        .racer svg, .speed-lines i, .countdown .cd-num, .confetti i { animation: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- レーサーの絵（SVG） -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <g id="racer-car">
+          <ellipse cx="34" cy="46" rx="30" ry="3.5" fill="rgba(0,0,0,.25)"/>
+          <path d="M6 38 Q6 30 16 29 L24 17 Q26 13 32 13 L44 13 Q50 13 53 18 L58 29 Q64 30 64 37 L64 40 Q64 43 60 43 L8 43 Q4 43 4 39 Z" fill="#ff5252"/>
+          <path d="M27 18 L32 18 L32 28 L22 28 Z" fill="#bfe9ff"/>
+          <path d="M35 18 L43 18 L48 28 L35 28 Z" fill="#bfe9ff"/>
+          <rect x="4" y="36" width="60" height="4" rx="2" fill="#d63030"/>
+          <circle cx="18" cy="43" r="7" fill="#263238"/><circle cx="18" cy="43" r="3" fill="#cfd8dc"/>
+          <circle cx="52" cy="43" r="7" fill="#263238"/><circle cx="52" cy="43" r="3" fill="#cfd8dc"/>
+          <circle cx="61" cy="33" r="2.6" fill="#fff59d"/>
+        </g>
+        <g id="racer-rocket">
+          <ellipse cx="34" cy="46" rx="28" ry="3.5" fill="rgba(0,0,0,.25)"/>
+          <path d="M14 40 L8 48 L20 46 Z" fill="#ff7043"/>
+          <path d="M16 30 Q34 6 58 22 Q64 26 62 32 Q60 38 50 40 L22 42 Q14 40 16 30 Z" fill="#eceff1"/>
+          <path d="M50 40 L62 44 L52 34 Z" fill="#e53935"/>
+          <path d="M24 42 L18 48 L30 44 Z" fill="#e53935"/>
+          <circle cx="42" cy="28" r="6.5" fill="#4fc3f7" stroke="#90a4ae" stroke-width="2"/>
+          <rect x="16" y="34" width="16" height="5" rx="2.5" fill="#e53935"/>
+          <path d="M14 38 Q6 40 10 44 Q16 44 16 40 Z" fill="#ffb300"/>
+        </g>
+        <g id="racer-usagi">
+          <ellipse cx="34" cy="46" rx="28" ry="3.5" fill="rgba(0,0,0,.25)"/>
+          <ellipse cx="26" cy="12" rx="5" ry="11" fill="#ffffff" stroke="#d8dee9" stroke-width="1.5" transform="rotate(-10 26 12)"/>
+          <ellipse cx="40" cy="11" rx="5" ry="11" fill="#ffffff" stroke="#d8dee9" stroke-width="1.5" transform="rotate(8 40 11)"/>
+          <ellipse cx="26" cy="13" rx="2.4" ry="7" fill="#ffc1d9" transform="rotate(-10 26 13)"/>
+          <ellipse cx="40" cy="12" rx="2.4" ry="7" fill="#ffc1d9" transform="rotate(8 40 12)"/>
+          <ellipse cx="34" cy="34" rx="19" ry="13" fill="#ffffff" stroke="#d8dee9" stroke-width="1.5"/>
+          <circle cx="27" cy="32" r="2.4" fill="#263238"/>
+          <circle cx="41" cy="32" r="2.4" fill="#263238"/>
+          <ellipse cx="21" cy="37" rx="3.4" ry="2.2" fill="#ffc1d9"/>
+          <ellipse cx="47" cy="37" rx="3.4" ry="2.2" fill="#ffc1d9"/>
+          <path d="M32 36 Q34 38 36 36" stroke="#263238" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <ellipse cx="52" cy="42" rx="6" ry="4.5" fill="#ffffff" stroke="#d8dee9" stroke-width="1.5"/>
+        </g>
+        <g id="racer-cpu">
+          <ellipse cx="34" cy="46" rx="30" ry="3.5" fill="rgba(0,0,0,.25)"/>
+          <line x1="34" y1="12" x2="34" y2="4" stroke="#78909c" stroke-width="2.5"/>
+          <circle cx="34" cy="4" r="3" fill="#ef476f"/>
+          <path d="M6 38 Q6 30 16 29 L24 17 Q26 13 32 13 L44 13 Q50 13 53 18 L58 29 Q64 30 64 37 L64 40 Q64 43 60 43 L8 43 Q4 43 4 39 Z" fill="#5b8def"/>
+          <path d="M27 18 L32 18 L32 28 L22 28 Z" fill="#ffe082"/>
+          <path d="M35 18 L43 18 L48 28 L35 28 Z" fill="#ffe082"/>
+          <rect x="4" y="36" width="60" height="4" rx="2" fill="#3366bb"/>
+          <circle cx="18" cy="43" r="7" fill="#263238"/><circle cx="18" cy="43" r="3" fill="#cfd8dc"/>
+          <circle cx="52" cy="43" r="7" fill="#263238"/><circle cx="52" cy="43" r="3" fill="#cfd8dc"/>
+          <circle cx="61" cy="33" r="2.6" fill="#fff59d"/>
+        </g>
+      </defs>
+    </svg>
+
+    <div class="wrap">
+      <!-- ======== スタート画面 ======== -->
+      <section id="screen-start">
+        <p class="title-badge">★ さんすう ゲーム ★</p>
+        <h1 class="game-title"><span class="t1">たしざん</span><span class="t2">レース</span>ゲーム</h1>
+        <p class="subtitle">たしざんを とくと ダッシュ！<br />コンピューターより さきに ゴールしよう！</p>
+
+        <!-- プロフィール：レベル・経験値・ベストスコア -->
+        <div class="profile-panel" id="profile-panel">
+          <div class="profile-top">
+            <div class="level-badge"><small>レベル</small><strong id="prof-level">1</strong></div>
+            <div class="profile-main">
+              <div class="profile-title">🏅 <span class="title-name" id="prof-title">かけだしレーサー</span></div>
+              <div class="xp-label"><span>けいけんち <b id="prof-xp-text">0 / 80 XP</b></span><span>つぎのレベルまで <b id="prof-xp-left">あと 80</b></span></div>
+              <div class="xp-bar"><div class="xp-fill" id="prof-xp-fill"></div></div>
+            </div>
+          </div>
+          <div class="profile-stats">
+            <div class="p-stat best"><small>👑 ベストスコア</small><strong><span id="prof-best">0</span><em>てん</em></strong></div>
+            <div class="p-stat"><small>⭐ ごうけいスコア</small><strong><span id="prof-total-score">0</span><em>てん</em></strong></div>
+            <div class="p-stat"><small>🏁 レース</small><strong><span id="prof-plays">0</span><em>かい</em> ・ <span id="prof-wins">0</span><em>しょう</em></strong></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <p class="sec-label">🚗 レーサーを えらぼう</p>
+          <div class="racer-row" id="racer-row">
+            <button type="button" class="btn racer-card selected" data-racer="car">
+              <svg viewBox="0 0 68 52" aria-hidden="true"><use href="#racer-car"/></svg>
+              くるま
+            </button>
+            <button type="button" class="btn racer-card" data-racer="rocket">
+              <svg viewBox="0 0 68 52" aria-hidden="true"><use href="#racer-rocket"/></svg>
+              ロケット
+            </button>
+            <button type="button" class="btn racer-card" data-racer="usagi">
+              <svg viewBox="0 0 68 52" aria-hidden="true"><use href="#racer-usagi"/></svg>
+              うさぎ
+            </button>
+          </div>
+
+          <p class="sec-label">🏁 レベルを えらぼう</p>
+          <div class="level-row" id="level-row">
+            <button type="button" class="btn level-btn selected" data-level="easy">
+              <span class="lv-star">⭐</span>
+              <span>やさしい<span class="lv-desc">10までの たしざん</span></span>
+            </button>
+            <button type="button" class="btn level-btn" data-level="normal">
+              <span class="lv-star">⭐⭐</span>
+              <span>ふつう<span class="lv-desc">20までの たしざん</span></span>
+            </button>
+            <button type="button" class="btn level-btn" data-level="hard">
+              <span class="lv-star">⭐⭐⭐</span>
+              <span>むずかしい<span class="lv-desc">くり上がりの たしざん</span></span>
+            </button>
+          </div>
+
+          <button type="button" class="btn start-btn" id="start-btn">▶ レース スタート！</button>
+          <button type="button" class="btn fs-btn" id="fs-btn-start">🖥️ パソコンで ぜんがめん（フルスクリーン）にして あそぶ</button>
+
+          <div class="howto">
+            <p>🏎️ こたえを タップすると まえに すすむよ。</p>
+            <p>⚡ はやく こたえると ターボダッシュ！ れんぞく正解でも スピードアップ！</p>
+            <p>🤖 コンピューターも どんどん すすむから、まけないで！</p>
+            <p>⭐ レースが おわると <b>けいけんち（XP）</b>が たまるよ。たくさん あそんで レベルアップしよう！ スコアは <b>ベストスコア</b>と <b>ごうけいスコア</b>に くわわるよ。</p>
+            <p>🖥️ パソコンでは「ぜんがめん」ボタンで 画面いっぱいに 大きくして あそべるよ。</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======== ゲーム画面 ======== -->
+      <section id="screen-game" class="hidden">
+        <div class="hud">
+          <div class="chip">Lv.<b id="hud-level">1</b></div>
+          <div class="chip">スコア <b id="hud-score">0</b></div>
+          <div class="chip">ベスト <b id="hud-best">0</b></div>
+          <div class="chip">せいかい <b id="hud-correct">0</b>もん</div>
+          <button type="button" class="btn mini-btn" id="sound-btn">🎵 オフ</button>
+          <button type="button" class="btn mini-btn" id="fs-btn-game">⛶ ぜんがめん</button>
+          <button type="button" class="btn mini-btn" id="quit-btn">やめる</button>
+        </div>
+
+        <div class="panel track-panel">
+          <div class="lane-label"><span>⭐ あなた</span><span class="pct" id="pct-player">0%</span></div>
+          <div class="track" id="track">
+            <div class="lane">
+              <span class="dist" style="left:27%">25</span>
+              <span class="dist" style="left:52%">50</span>
+              <span class="dist" style="left:77%">75</span>
+              <div class="racer" id="racer-player">
+                <span class="speed-lines"><i></i><i></i><i></i></span>
+                <svg viewBox="0 0 68 52" aria-hidden="true"><use id="player-use" href="#racer-car"/></svg>
+              </div>
+            </div>
+            <div class="lane">
+              <div class="racer" id="racer-cpu">
+                <svg viewBox="0 0 68 52" aria-hidden="true"><use href="#racer-cpu"/></svg>
+              </div>
+            </div>
+            <div class="finish"></div>
+          </div>
+          <div class="lane-label cpu"><span>🤖 コンピューター</span><span class="pct" id="pct-cpu">0%</span></div>
+          <p class="message" id="message">じゅんびは いいかな？</p>
+        </div>
+
+        <div class="panel question-panel">
+          <p class="q-label">たしざんを といて ダッシュ！</p>
+          <div class="question"><span id="q-a">3</span> ＋ <span id="q-b">4</span> ＝ <span class="qmark">？</span></div>
+          <p class="combo" id="combo"></p>
+          <button type="button" class="btn blocks-toggle" id="blocks-btn">🧱 ブロックで かんがえる</button>
+          <div class="blocks hidden" id="blocks"></div>
+          <div class="choices" id="choices"></div>
+        </div>
+      </section>
+
+      <!-- ======== 結果画面 ======== -->
+      <section id="screen-result" class="hidden">
+        <div class="panel result-panel">
+          <div class="result-emoji" id="result-emoji">🏆</div>
+          <p class="result-title" id="result-title">ゴール！ かった！</p>
+          <div class="rank" id="rank">S</div>
+          <div class="result-stats" id="result-stats"></div>
+
+          <div class="xp-gain-box">
+            <div class="xp-gain-title">⭐ けいけんち <b id="xp-gain">+0 XP</b> ゲット！</div>
+            <div class="xp-detail" id="xp-detail"></div>
+            <div class="xp-label" style="margin-top:8px"><span>レベル <b id="result-level">1</b> ・ <span id="result-title-name">かけだしレーサー</span></span><span><b id="result-xp-text">0 / 80 XP</b> ・ つぎまで <b id="result-xp-left">あと 80</b></span></div>
+            <div class="xp-bar"><div class="xp-fill" id="result-xp-fill"></div></div>
+          </div>
+          <div class="levelup-banner hidden" id="levelup-banner">🎉 レベルアップ！ レベル <span id="levelup-num">2</span> になったよ！</div>
+
+          <div class="result-stats" id="result-profile-stats" style="font-size:16px;margin-top:10px"></div>
+
+          <div class="result-btns">
+            <button type="button" class="btn again" id="again-btn">▶ もういちど レース</button>
+            <button type="button" class="btn back" id="fs-btn-result">🖥️ ぜんがめんで あそぶ</button>
+            <button type="button" class="btn back" id="back-btn">レベルを えらぶ</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="countdown hidden" id="countdown"><div class="cd-num" id="cd-num">3</div></div>
+    <div class="confetti hidden" id="confetti"></div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        /* ============ 設定 ============ */
+        var LEVELS = {
+          easy:   { cpuSpeed: 0.42 },  /* 200msごとの すすみ具合(%) */
+          normal: { cpuSpeed: 0.58 },
+          hard:   { cpuSpeed: 0.74 }
+        };
+        var GOAL = 100;
+
+        /* ============ プロフィール（このページを開いている間の記録） ============ */
+        var profile = {
+          level: 1,
+          xp: 0,           /* 今のレベル内での経験値 */
+          totalXP: 0,      /* 累計経験値 */
+          bestScore: 0,
+          totalScore: 0,   /* スコア加算（累計） */
+          plays: 0,
+          wins: 0,
+          totalCorrect: 0
+        };
+        try { var savedProf = localStorage.getItem("tasizan-race-profile-v1"); if (savedProf) { var sp = JSON.parse(savedProf); for (var k in sp) profile[k] = sp[k]; } } catch (e) {}
+        function saveProfile() { try { localStorage.setItem("tasizan-race-profile-v1", JSON.stringify(profile)); } catch (e) {} }
+        function xpNeeded(level) { return 80 + (level - 1) * 40; }
+        function titleForLevel(lv) {
+          if (lv >= 10) return "レジェンドレーサー";
+          if (lv >= 8) return "マスターレーサー";
+          if (lv >= 6) return "スピードスター";
+          if (lv >= 5) return "ターボレーサー";
+          if (lv >= 4) return "はやいレーサー";
+          if (lv >= 3) return "がんばりレーサー";
+          if (lv >= 2) return "かけだしレーサー＋";
+          return "かけだしレーサー";
+        }
+        function sfxLevelUp() {
+          [523, 659, 784, 1046, 1318].forEach(function (f, i) { tone(f, 0.2, "triangle", 0.18, i * 0.1); });
+        }
+
+        /* ============ 状態 ============ */
+        var state = {
+          level: "easy",
+          racer: "car",
+          playing: false,
+          playerPos: 0,
+          cpuPos: 0,
+          score: 0,
+          correct: 0,
+          total: 0,
+          combo: 0,
+          bestCombo: 0,
+          a: 0, b: 0, answer: 0,
+          qStart: 0,
+          startTime: 0,
+          locked: true,
+          cpuTimer: null,
+          soundOn: false,
+          blocksOn: false,
+          totalTimeMs: 0
+        };
+
+        /* ============ DOM ============ */
+        function $(id) { return document.getElementById(id); }
+        var el = {
+          start: $("screen-start"), game: $("screen-game"), result: $("screen-result"),
+          score: $("hud-score"), correct: $("hud-correct"),
+          pctP: $("pct-player"), pctC: $("pct-cpu"),
+          racerP: $("racer-player"), racerC: $("racer-cpu"),
+          playerUse: $("player-use"),
+          message: $("message"),
+          qA: $("q-a"), qB: $("q-b"),
+          combo: $("combo"),
+          choices: $("choices"),
+          blocks: $("blocks"), blocksBtn: $("blocks-btn"),
+          countdown: $("countdown"), cdNum: $("cd-num"),
+          confetti: $("confetti"),
+          rank: $("rank"), resultTitle: $("result-title"),
+          resultEmoji: $("result-emoji"), resultStats: $("result-stats"),
+          soundBtn: $("sound-btn"),
+          hudLevel: $("hud-level"), hudBest: $("hud-best"),
+          profLevel: $("prof-level"), profTitle: $("prof-title"),
+          profXpText: $("prof-xp-text"), profXpLeft: $("prof-xp-left"), profXpFill: $("prof-xp-fill"),
+          profBest: $("prof-best"), profTotalScore: $("prof-total-score"),
+          profPlays: $("prof-plays"), profWins: $("prof-wins"),
+          xpGain: $("xp-gain"), xpDetail: $("xp-detail"),
+          resultLevel: $("result-level"), resultTitleName: $("result-title-name"),
+          resultXpText: $("result-xp-text"), resultXpLeft: $("result-xp-left"), resultXpFill: $("result-xp-fill"),
+          levelupBanner: $("levelup-banner"), levelupNum: $("levelup-num"),
+          resultProfileStats: $("result-profile-stats")
+        };
+
+        function renderProfile() {
+          var need = xpNeeded(profile.level);
+          var pct = Math.min(100, Math.round(profile.xp / need * 100));
+          if (el.profLevel) {
+            el.profLevel.textContent = profile.level;
+            el.profTitle.textContent = titleForLevel(profile.level);
+            el.profXpText.textContent = profile.xp + " / " + need + " XP";
+            el.profXpLeft.textContent = "あと " + (need - profile.xp);
+            el.profXpFill.style.width = pct + "%";
+            el.profBest.textContent = profile.bestScore;
+            el.profTotalScore.textContent = profile.totalScore;
+            el.profPlays.textContent = profile.plays;
+            el.profWins.textContent = profile.wins;
+          }
+          if (el.hudLevel) el.hudLevel.textContent = profile.level;
+          if (el.hudBest) el.hudBest.textContent = profile.bestScore;
+          if (el.resultLevel) {
+            el.resultLevel.textContent = profile.level;
+            el.resultTitleName.textContent = titleForLevel(profile.level);
+            el.resultXpText.textContent = profile.xp + " / " + need + " XP";
+            if (el.resultXpLeft) el.resultXpLeft.textContent = "あと " + (need - profile.xp);
+            el.resultXpFill.style.width = pct + "%";
+          }
+        }
+
+        /* ============ サウンド (WebAudio) ============ */
+        var actx = null;
+        function audio() {
+          if (!actx) {
+            var AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) actx = new AC();
+          }
+          if (actx && actx.state === "suspended") actx.resume();
+          return actx;
+        }
+        function tone(freq, dur, type, vol, when, slideTo) {
+          var ac = audio(); if (!ac) return;
+          var t = ac.currentTime + (when || 0);
+          var o = ac.createOscillator(), g = ac.createGain();
+          o.type = type || "sine";
+          o.frequency.setValueAtTime(freq, t);
+          if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+          g.gain.setValueAtTime(0.0001, t);
+          g.gain.exponentialRampToValueAtTime(vol || 0.15, t + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+          o.connect(g); g.connect(ac.destination);
+          o.start(t); o.stop(t + dur + 0.05);
+        }
+        function sfxCorrect() { tone(660, 0.12, "triangle", 0.18); tone(880, 0.16, "triangle", 0.18, 0.09); }
+        function sfxTurbo() { tone(300, 0.3, "sawtooth", 0.1, 0, 1200); tone(880, 0.14, "triangle", 0.16, 0.12); tone(1174, 0.2, "triangle", 0.16, 0.22); }
+        function sfxWrong() { tone(180, 0.25, "square", 0.1, 0, 110); }
+        function sfxCount(final) { tone(final ? 880 : 440, final ? 0.4 : 0.15, "triangle", 0.2); }
+        function sfxGoal(win) {
+          if (win) { [523, 659, 784, 1046].forEach(function (f, i) { tone(f, 0.22, "triangle", 0.18, i * 0.13); }); }
+          else { [440, 392, 330].forEach(function (f, i) { tone(f, 0.22, "triangle", 0.14, i * 0.15); }); }
+        }
+        /* BGM: かんたんな ループ */
+        var bgmTimer = null, bgmStep = 0;
+        var bgmNotes = [262, 330, 392, 330, 349, 440, 392, 330, 262, 330, 392, 523, 392, 330, 294, 262];
+        function bgmTick() {
+          if (!state.soundOn) return;
+          var f = bgmNotes[bgmStep % bgmNotes.length];
+          tone(f, 0.22, "triangle", 0.05);
+          if (bgmStep % 2 === 0) tone(f / 2, 0.3, "sine", 0.045);
+          bgmStep++;
+        }
+        function startBgm() { stopBgm(); if (state.soundOn) bgmTimer = setInterval(bgmTick, 240); }
+        function stopBgm() { if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; } }
+
+        /* ============ 問題づくり ============ */
+        function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        function makeQuestion() {
+          var a, b;
+          if (state.level === "easy") {
+            a = rand(1, 9);
+            b = rand(1, 10 - a);
+          } else if (state.level === "normal") {
+            /* 20まで・くり上がりなし */
+            do {
+              a = rand(2, 19);
+              b = rand(1, 20 - a);
+            } while ((a % 10) + (b % 10) > 9);
+          } else {
+            /* くり上がりあり */
+            do {
+              a = rand(4, 19);
+              b = rand(3, 19);
+            } while ((a % 10) + (b % 10) < 10 || a + b > 29);
+          }
+          state.a = a; state.b = b; state.answer = a + b;
+        }
+        function makeChoices() {
+          var ans = state.answer, set = {};
+          set[ans] = true;
+          var opts = [ans];
+          var cand = [ans + 1, ans - 1, ans + 2, ans - 2, ans + 10, ans - 10, ans + 3, ans - 3];
+          for (var i = 0; i < cand.length && opts.length < 3; i++) {
+            var c = cand[i];
+            if (c >= 0 && !set[c]) { set[c] = true; opts.push(c); }
+          }
+          while (opts.length < 3) { var r = ans + rand(3, 6); if (!set[r]) { set[r] = true; opts.push(r); } }
+          /* シャッフル */
+          for (var j = opts.length - 1; j > 0; j--) {
+            var k = Math.floor(Math.random() * (j + 1));
+            var tmp = opts[j]; opts[j] = opts[k]; opts[k] = tmp;
+          }
+          return opts;
+        }
+
+        /* ============ ブロックのヒント ============ */
+        function renderBlocks() {
+          if (!state.blocksOn) { el.blocks.classList.add("hidden"); return; }
+          el.blocks.classList.remove("hidden");
+          function group(n, cls, label) {
+            var html = '<div class="block-group"><div class="bg-label">' + label + "：" + n + '</div><div class="block-grid">';
+            for (var i = 0; i < n; i++) html += '<div class="blk ' + cls + '"></div>';
+            return html + "</div></div>";
+          }
+          el.blocks.innerHTML = group(state.a, "a", "はじめ") + '<div class="plus">＋</div>' + group(state.b, "b", "あとから");
+        }
+
+        /* ============ 画面更新 ============ */
+        function renderRace() {
+          var trackW = el.racerP.parentElement.clientWidth;
+          var maxLeft = Math.max(0, trackW - el.racerP.offsetWidth - 28);
+          el.racerP.style.left = (state.playerPos / 100 * maxLeft) + "px";
+          el.racerC.style.left = (state.cpuPos / 100 * maxLeft) + "px";
+          el.pctP.textContent = Math.floor(state.playerPos) + "%";
+          el.pctC.textContent = Math.floor(state.cpuPos) + "%";
+        }
+        function renderHud() {
+          el.score.textContent = state.score;
+          el.correct.textContent = state.correct;
+          if (el.hudLevel) el.hudLevel.textContent = profile.level;
+          if (el.hudBest) el.hudBest.textContent = Math.max(profile.bestScore, state.score);
+        }
+        function setMessage(text, cls) {
+          el.message.textContent = text;
+          el.message.className = "message" + (cls ? " " + cls : "");
+        }
+        function showQuestion() {
+          makeQuestion();
+          el.qA.textContent = state.a;
+          el.qB.textContent = state.b;
+          el.combo.textContent = state.combo >= 2 ? "🔥 " + state.combo + "れんぞく せいかい！ スピードアップ中" : "";
+          el.choices.innerHTML = "";
+          makeChoices().forEach(function (v) {
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "btn choice-btn";
+            btn.textContent = v;
+            btn.addEventListener("click", function () { onAnswer(v, btn); });
+            el.choices.appendChild(btn);
+          });
+          renderBlocks();
+          state.qStart = Date.now();
+          state.locked = false;
+        }
+
+        /* ============ レース進行 ============ */
+        function cpuTick() {
+          if (!state.playing) return;
+          state.cpuPos += LEVELS[state.level].cpuSpeed;
+          if (state.cpuPos >= GOAL) {
+            state.cpuPos = GOAL;
+            renderRace();
+            finishRace(false);
+            return;
+          }
+          renderRace();
+        }
+        function onAnswer(v, btn) {
+          if (!state.playing || state.locked) return;
+          state.locked = true;
+          state.total++;
+          var elapsed = (Date.now() - state.qStart) / 1000;
+          var buttons = el.choices.querySelectorAll(".choice-btn");
+          if (v === state.answer) {
+            state.correct++;
+            state.combo++;
+            if (state.combo > state.bestCombo) state.bestCombo = state.combo;
+            btn.classList.add("correct");
+            /* すすむ量：はやいほど・れんぞくほど 大きい */
+            var step, turbo = elapsed <= 3.5;
+            if (turbo) step = 13; else if (elapsed <= 7) step = 10; else step = 8;
+            step += Math.min(3, Math.max(0, state.combo - 1));
+            state.playerPos = Math.min(GOAL, state.playerPos + step);
+            state.score += 100 + (turbo ? 50 : 0) + (state.combo >= 3 ? 30 : 0);
+            el.racerP.classList.remove("dash"); void el.racerP.offsetWidth; el.racerP.classList.add("dash");
+            if (turbo) { sfxTurbo(); setMessage("⚡ ターボダッシュ！ はやい！", "turbo"); }
+            else { sfxCorrect(); setMessage(pick(["せいかい！", "やったね！", "そのちょうし！", "すごい！"]), "good"); }
+          } else {
+            state.combo = 0;
+            btn.classList.add("wrong");
+            for (var i = 0; i < buttons.length; i++) {
+              if (parseInt(buttons[i].textContent, 10) === state.answer) buttons[i].classList.add("correct");
+            }
+            el.racerP.classList.remove("stall"); void el.racerP.offsetWidth; el.racerP.classList.add("stall");
+            sfxWrong();
+            setMessage("ざんねん… こたえは " + state.answer + " だよ", "bad");
+          }
+          for (var j = 0; j < buttons.length; j++) buttons[j].disabled = true;
+          renderHud();
+          renderRace();
+          if (state.playerPos >= GOAL) {
+            setTimeout(function () { finishRace(true); }, 550);
+            return;
+          }
+          setTimeout(function () {
+            if (!state.playing) return;
+            el.racerP.classList.remove("dash", "stall");
+            showQuestion();
+          }, v === state.answer ? 650 : 1100);
+        }
+        function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        function finishRace(win) {
+          if (!state.playing) return;
+          state.playing = false;
+          state.locked = true;
+          if (state.cpuTimer) { clearInterval(state.cpuTimer); state.cpuTimer = null; }
+          state.totalTimeMs = Date.now() - state.startTime;
+          sfxGoal(win);
+          /* ランク */
+          var acc = state.total > 0 ? state.correct / state.total : 0;
+          var sec = state.totalTimeMs / 1000;
+          var rank;
+          if (win && acc >= 0.9 && sec <= 45) rank = "S";
+          else if (win && acc >= 0.75) rank = "A";
+          else if (win || state.playerPos >= 80) rank = "B";
+          else rank = "C";
+
+          /* ---- スコア加算・ベストスコア・経験値 ---- */
+          var prevBest = profile.bestScore;
+          var actuallyNewRecord = state.score > prevBest;
+          profile.plays++;
+          if (win) profile.wins++;
+          profile.totalScore += state.score;
+          profile.totalCorrect += state.correct;
+          if (state.score > profile.bestScore) profile.bestScore = state.score;
+
+          var diffMul = state.level === "hard" ? 1.5 : state.level === "normal" ? 1.2 : 1;
+          var diffLabel = state.level === "hard" ? "むずかしい ×1.5" : state.level === "normal" ? "ふつう ×1.2" : "やさしい ×1.0";
+          var baseXP = state.correct * 10;
+          var winXP = win ? 30 : 5;
+          var rankXP = rank === "S" ? 50 : rank === "A" ? 30 : rank === "B" ? 15 : 5;
+          var xpGain = Math.round((baseXP + winXP + rankXP) * diffMul);
+
+          profile.totalXP += xpGain;
+          profile.xp += xpGain;
+          var levelUps = 0;
+          while (profile.xp >= xpNeeded(profile.level)) {
+            profile.xp -= xpNeeded(profile.level);
+            profile.level++;
+            levelUps++;
+          }
+          if (levelUps > 0) setTimeout(sfxLevelUp, 500);
+
+          el.rank.textContent = rank;
+          el.rank.className = "rank rank-" + rank.toLowerCase();
+          el.resultEmoji.textContent = win ? "🏆" : "🏁";
+          el.resultTitle.textContent = win ? "ゴール！ かった！" : "コンピューターの かち…";
+          var mm = Math.floor(sec / 60), ss = Math.floor(sec % 60);
+          el.resultStats.innerHTML =
+            "スコア <b>" + state.score + "</b>てん" + (actuallyNewRecord ? '<span class="new-record">NEW! ベストこうしん</span>' : "") + "<br>" +
+            "せいかい <b>" + state.correct + "</b> / " + state.total + "もん<br>" +
+            "さいこう れんぞく <b>" + state.bestCombo + "</b>かい<br>" +
+            "タイム <b>" + (mm > 0 ? mm + "ふん " : "") + ss + "びょう</b>";
+
+          if (el.xpGain) el.xpGain.textContent = "+" + xpGain + " XP";
+          if (el.xpDetail) {
+            el.xpDetail.innerHTML =
+              "せいかい " + state.correct + "もん ×10 = " + baseXP + " XP ＋ " +
+              (win ? "しょうりボーナス 30 XP" : "さんかボーナス 5 XP") + " ＋ ランク" + rank + " " + rankXP + " XP<br>" +
+              "むずかしさ：" + diffLabel + " ／ ごうけい けいけんち " + profile.totalXP + " XP";
+          }
+          if (el.levelupBanner) {
+            if (levelUps > 0) {
+              el.levelupBanner.classList.remove("hidden");
+              el.levelupBanner.innerHTML = "🎉 レベルアップ！ レベル <span id=\"levelup-num\">" + profile.level + "</span> になったよ！<br><span style=\"font-size:14px\">" + titleForLevel(profile.level) + " だよ！ " + (levelUps > 1 ? levelUps + "レベル あがった！" : "") + "</span>";
+            } else {
+              el.levelupBanner.classList.add("hidden");
+            }
+          }
+          if (el.resultProfileStats) {
+            el.resultProfileStats.innerHTML =
+              "👑 ベストスコア <b>" + profile.bestScore + "</b>てん<br>" +
+              "⭐ ごうけいスコア <b>" + profile.totalScore + "</b>てん（" + profile.plays + "レース）<br>" +
+              "🏆 しょうり <b>" + profile.wins + "</b>かい ／ ごうけい せいかい <b>" + profile.totalCorrect + "</b>もん";
+          }
+          saveProfile();
+          renderProfile();
+          /* XPバーは結果画面で少し遅れて伸ばす */
+          if (el.resultXpFill) {
+            var finalPct = Math.min(100, Math.round(profile.xp / xpNeeded(profile.level) * 100));
+            el.resultXpFill.style.width = "0%";
+            setTimeout(function () { el.resultXpFill.style.width = finalPct + "%"; }, 120);
+          }
+          showScreen("result");
+          if (win) launchConfetti();
+          if (levelUps > 0) setTimeout(launchConfetti, 600);
+        }
+
+        function launchConfetti() {
+          var colors = ["#ff6b4a", "#2fb3ff", "#ffd23f", "#22b573", "#ef476f"];
+          var html = "";
+          for (var i = 0; i < 40; i++) {
+            var left = Math.random() * 100;
+            var delay = Math.random() * 0.8;
+            var dur = 2 + Math.random() * 1.6;
+            html += '<i style="left:' + left + "%;background:" + colors[i % colors.length] +
+              ";animation-duration:" + dur + "s;animation-delay:" + delay + 's"></i>';
+          }
+          el.confetti.innerHTML = html;
+          el.confetti.classList.remove("hidden");
+          setTimeout(function () { el.confetti.classList.add("hidden"); el.confetti.innerHTML = ""; }, 4200);
+        }
+
+        /* ============ 画面切り替え ============ */
+        function showScreen(name) {
+          el.start.classList.toggle("hidden", name !== "start");
+          el.game.classList.toggle("hidden", name !== "game");
+          el.result.classList.toggle("hidden", name !== "result");
+          if (name === "start") renderProfile();
+          window.scrollTo(0, 0);
+        }
+
+        function startRace() {
+          audio();
+          state.playing = false;
+          state.playerPos = 0; state.cpuPos = 0;
+          state.score = 0; state.correct = 0; state.total = 0;
+          state.combo = 0; state.bestCombo = 0;
+          state.locked = true;
+          el.playerUse.setAttribute("href", "#racer-" + state.racer);
+          showScreen("game");
+          renderHud();
+          renderRace();
+          setMessage("じゅんびは いいかな？", "");
+          el.choices.innerHTML = "";
+          el.combo.textContent = "";
+          startBgm();
+          /* カウントダウン */
+          var seq = ["3", "2", "1", "スタート！"];
+          var idx = 0;
+          el.countdown.classList.remove("hidden");
+          function nextCount() {
+            if (idx >= seq.length) {
+              el.countdown.classList.add("hidden");
+              state.playing = true;
+              state.startTime = Date.now();
+              setMessage("ゴールを めざせ！", "");
+              showQuestion();
+              state.cpuTimer = setInterval(cpuTick, 200);
+              return;
+            }
+            el.cdNum.textContent = seq[idx];
+            el.cdNum.style.animation = "none"; void el.cdNum.offsetWidth; el.cdNum.style.animation = "";
+            sfxCount(idx === seq.length - 1);
+            idx++;
+            setTimeout(nextCount, idx === seq.length ? 750 : 800);
+          }
+          nextCount();
+        }
+
+        function quitRace() {
+          state.playing = false;
+          if (state.cpuTimer) { clearInterval(state.cpuTimer); state.cpuTimer = null; }
+          el.countdown.classList.add("hidden");
+          stopBgm();
+          showScreen("start");
+        }
+
+        /* ============ イベント ============ */
+        $("racer-row").addEventListener("click", function (e) {
+          var btn = e.target.closest(".racer-card"); if (!btn) return;
+          state.racer = btn.getAttribute("data-racer");
+          var cards = this.querySelectorAll(".racer-card");
+          for (var i = 0; i < cards.length; i++) cards[i].classList.toggle("selected", cards[i] === btn);
+          audio(); tone(520, 0.08, "triangle", 0.1);
+        });
+        $("level-row").addEventListener("click", function (e) {
+          var btn = e.target.closest(".level-btn"); if (!btn) return;
+          state.level = btn.getAttribute("data-level");
+          var btns = this.querySelectorAll(".level-btn");
+          for (var i = 0; i < btns.length; i++) btns[i].classList.toggle("selected", btns[i] === btn);
+          audio(); tone(520, 0.08, "triangle", 0.1);
+        });
+        $("start-btn").addEventListener("click", startRace);
+        $("again-btn").addEventListener("click", startRace);
+        $("back-btn").addEventListener("click", function () { stopBgm(); showScreen("start"); });
+        $("quit-btn").addEventListener("click", quitRace);
+        el.blocksBtn.addEventListener("click", function () {
+          state.blocksOn = !state.blocksOn;
+          this.textContent = state.blocksOn ? "🧱 ブロックを かくす" : "🧱 ブロックで かんがえる";
+          renderBlocks();
+        });
+        el.soundBtn.addEventListener("click", function () {
+          state.soundOn = !state.soundOn;
+          this.textContent = state.soundOn ? "🎵 オン" : "🎵 オフ";
+          if (state.soundOn) { audio(); startBgm(); } else { stopBgm(); }
+        });
+        window.addEventListener("resize", renderRace);
+
+        /* ============ 全画面（フルスクリーン） ============ */
+        function isFullscreen() { return !!document.fullscreenElement; }
+        function toggleFullscreen() {
+          if (isFullscreen()) {
+            if (document.exitFullscreen) document.exitFullscreen();
+          } else {
+            var root = document.documentElement;
+            if (root.requestFullscreen) {
+              var p = root.requestFullscreen();
+              if (p && p.catch) p.catch(function () {});
+            }
+          }
+        }
+        function syncFsLabels() {
+          var fs = isFullscreen();
+          var startBtn = $("fs-btn-start"), resultBtn = $("fs-btn-result"), gameBtn = $("fs-btn-game");
+          if (startBtn) startBtn.textContent = fs ? "🖥️ ぜんがめんを やめる" : "🖥️ パソコンで ぜんがめん（フルスクリーン）にして あそぶ";
+          if (resultBtn) resultBtn.textContent = fs ? "🖥️ ぜんがめんを やめる" : "🖥️ ぜんがめんで あそぶ";
+          if (gameBtn) gameBtn.textContent = fs ? "⛶ もどす" : "⛶ ぜんがめん";
+        }
+        ["fs-btn-start", "fs-btn-game", "fs-btn-result"].forEach(function (id) {
+          var b = $(id);
+          if (b) b.addEventListener("click", toggleFullscreen);
+        });
+        document.addEventListener("fullscreenchange", function () {
+          syncFsLabels();
+          setTimeout(renderRace, 120);
+        });
+        syncFsLabels();
+        renderProfile();
+      })();
+    </script>
+  </body>
+</html>
