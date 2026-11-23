@@ -109,7 +109,7 @@
         background:var(--panel); border:2.5px solid var(--frame); border-radius:999px;
         padding:4px 12px; font-weight:800; font-size:.9rem; display:inline-flex; align-items:center; gap:6px;
       }
-      .chip .ball-ico{ width:16px; height:16px; }
+      .chip .capsule-ico{ width:16px; height:16px; }
       .badges-row{ display:flex; gap:5px; align-items:center; }
       .badge-ico{
         width:30px; height:30px; border-radius:50%; display:grid; place-items:center;
@@ -311,13 +311,13 @@
       }
       .dmg-pop.crit{ color:#ffd35c; font-size:2.1rem; }
       @keyframes pop{ 0%{ transform:translateY(6px) scale(.6); opacity:0 } 25%{ opacity:1; transform:translateY(-6px) scale(1.15)} 100%{ transform:translateY(-30px); opacity:0 } }
-      .throw-ball{
-        position:absolute; width:44px; height:44px; z-index:6; display:none;
+      .throw-capsule{
+        position:absolute; width:40px; height:48px; z-index:6; display:none;
         left:16%; bottom:34%;
       }
-      .throw-ball.go{ display:block; animation:throwB 0.9s ease forwards; }
+      .throw-capsule.go{ display:block; animation:throwB 0.9s ease forwards; }
       @keyframes throwB{ 0%{ transform:translate(0,0) rotate(0) } 60%{ transform:translate(38vw,-90px) rotate(340deg) } 100%{ transform:translate(52vw,-46px) rotate(560deg) scale(.9) } }
-      @media (prefers-reduced-motion: reduce){ .throw-ball.go{ animation-duration:.01s; } .dmg-pop{ animation-duration:.01s; } }
+      @media (prefers-reduced-motion: reduce){ .throw-capsule.go{ animation-duration:.01s; } .dmg-pop{ animation-duration:.01s; } }
 
       /* メッセージボックス＆コマンド */
       .msg-box{
@@ -375,17 +375,28 @@
         opacity:0; pointer-events:none; transition:all .3s ease; z-index:50; max-width:92vw; text-align:center;
       }
       .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
-      .ball-css{
-        border-radius:50%; border:3px solid #2b2118; position:relative; overflow:hidden;
-        background:linear-gradient(180deg,#e0574f 0 46%, #2b2118 46% 54%, #fff 54% 100%);
+      /* ホカクカプセル：水色〜緑色の タマゴ型カプセルに 星マーク（オリジナルデザイン） */
+      .capsule-css{
+        border-radius:50% 50% 50% 50% / 62% 62% 38% 38%; border:3px solid #14532d; position:relative; overflow:hidden;
+        background:linear-gradient(165deg,#8fe3ff 0%, #3fd8c2 48%, #5fce62 100%);
         width:100%; height:100%;
       }
-      .ball-css::after{
-        content:""; position:absolute; left:50%; top:50%; width:26%; height:26%;
-        transform:translate(-50%,-50%); background:#fff; border:3px solid #2b2118; border-radius:50%;
+      .capsule-css::before{
+        content:""; position:absolute; left:13%; top:7%; width:34%; height:24%;
+        background:rgba(255,255,255,.75); border-radius:50%; transform:rotate(-18deg);
       }
-      .ball-ico{ display:inline-block; border-radius:50%; border:2px solid #2b2118; position:relative; overflow:hidden;
-        background:linear-gradient(180deg,#e0574f 0 46%, #2b2118 46% 54%, #fff 54% 100%); }
+      .capsule-css::after{
+        content:""; position:absolute; left:50%; top:57%; width:58%; height:52%;
+        transform:translate(-50%,-50%); background:#fff3a3;
+        clip-path:polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      }
+      .capsule-ico{ display:inline-block; border-radius:50% 50% 50% 50% / 62% 62% 38% 38%; border:2px solid #14532d; position:relative; overflow:hidden; vertical-align:-2px;
+        background:linear-gradient(165deg,#8fe3ff 0%, #3fd8c2 48%, #5fce62 100%); }
+      .capsule-ico::after{
+        content:""; position:absolute; left:50%; top:57%; width:58%; height:52%;
+        transform:translate(-50%,-50%); background:#fff3a3;
+        clip-path:polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      }
     </style>
   </head>
   <body>
@@ -411,8 +422,8 @@
             <li>バトルでは けいさんもんだいに こたえると こうげきできる。あいても まいターン こうげきしてくる（たおした ターンだけ 反撃なし）。まちがえると あいての こうげきが 2回に なるから 気をつけよう！</li>
             <li>てもちの モンスターには けいけんちバーが ついているよ。「つぎの レベルまで あと いくつか」が ひとめで 分かる！</li>
             <li>てもちが ぜんいん たおれると、さいごに 訪れた まちの かいふくセンターに 運ばれる。おかねは 半分に なっちゃうけど、みんな 元気に なって 再開できるよ。</li>
-            <li>あいてが よわったときに ボールを なげると つかまえられる。</li>
-            <li>モンスターを たおすと おかねが もらえる。まちの ショップで ホカクボールや きずぐすりが 買えるよ。</li>
+            <li>あいてが よわったときに ホカクカプセルを なげると つかまえられる。</li>
+            <li>モンスターを たおすと おかねが もらえる。まちの ショップで ホカクカプセルや きずぐすりが 買えるよ。</li>
             <li>タイプの あいしょうで ダメージが 変わる！「こうかは ばつぐん」を ねらおう（あいてからの こうげきも 同じだよ）。</li>
             <li>バトル中は「こうたい」で てもちの モンスターと 交代できる。交代した ターンは あいての こうげきを うけるから、あいしょうの いい モンスターに 代えよう！</li>
             <li>4つの まちを めぐり、ジムで リーダーに かって バッジを あつめよう。ジムは じゅんばんに ちょうせんする 決まり（つぎの ジムには まえの バッジが ひつよう）だけど、レベル制限は ないよ。まちが すすむほど モンスターも もんだいも つよくなる！</li>
@@ -436,7 +447,7 @@
       <section id="screen-map" class="hidden">
         <div class="hud">
           <div class="chips">
-            <span class="chip"><span class="ball-ico" style="width:16px;height:16px;"></span>ボール × <span id="hud-balls">5</span></span>
+            <span class="chip"><span class="capsule-ico" style="width:16px;height:16px;"></span>カプセル × <span id="hud-balls">5</span></span>
             <span class="chip">💰 おかね <span id="hud-money">200</span>円</span>
             <span class="chip">つかまえた数 <span id="hud-caught">1</span> / 40</span>
             <span class="chip">💻 パソコン <span id="hud-box">0</span> たい</span>
@@ -513,14 +524,14 @@
             <div class="xp-row"><span class="xp-tag">EXP</span><div class="xpbar"><div id="p-xpbar" style="width:0%"></div></div></div>
             <div class="xp-num">けいけんち <span id="p-xpnow">0</span> / <span id="p-xpnext">0</span> ・ つぎのレベルまで あと <span id="p-xprest">0</span></div>
           </div>
-          <div class="throw-ball" id="throw-ball"><div class="ball-css"></div></div>
+          <div class="throw-capsule" id="throw-capsule"><div class="capsule-css"></div></div>
         </div>
 
         <div class="msg-box" id="msg-box">やせいの モンスターが あらわれた！</div>
 
         <div class="cmd-grid" id="cmd-grid">
           <button class="btn primary" id="cmd-fight">たたかう（けいさん）</button>
-          <button class="btn cool" id="cmd-catch">ボール（×<span id="cmd-balls">5</span>）</button>
+          <button class="btn cool" id="cmd-catch">カプセル（×<span id="cmd-balls">5</span>）</button>
           <button class="btn ghost" id="cmd-heal-item">きずぐすり</button>
           <button class="btn ghost" id="cmd-switch">こうたい</button>
           <button class="btn danger" id="cmd-run" style="grid-column:1 / -1;">にげる</button>
@@ -1934,7 +1945,7 @@
         ef.className = "fighter enemy"; pf.className = "fighter player";
         ef.innerHTML = MONSTERS[team[0].mid].svg;
         pf.innerHTML = MONSTERS[activeMon().mid].svg;
-        document.getElementById("throw-ball").className = "throw-ball";
+        document.getElementById("throw-capsule").className = "throw-capsule";
         show("battle");
         playBgm(opts.champion ? "champion" : (opts.gym ? "gym" : "battle"));
         renderBattle();
@@ -2022,7 +2033,7 @@
         });
         document.getElementById("cmd-grid").classList.add("hidden");
         document.getElementById("q-area").classList.remove("hidden");
-        if(catchMode) setMsg("せいかいすると ボールを なげられる！ もんだいに こたえよう");
+        if(catchMode) setMsg("せいかいすると カプセルを なげられる！ もんだいに こたえよう");
         else setMsg("もんだいに せいかいすると こうげきできる！");
       }
       function closeQuestion(){
@@ -2040,7 +2051,7 @@
         if(correct){
           sfx("ok");
           if(B.catchMode){
-            setTimeout(function(){ throwBall(); }, 500);
+            setTimeout(function(){ throwCapsule(); }, 500);
           } else {
             setTimeout(function(){ playerAttack(); }, 500);
           }
@@ -2101,23 +2112,23 @@
           renderBattle();
         }, 750);
       }
-      function throwBall(){
+      function throwCapsule(){
         var B = S.battle;
         document.getElementById("q-area").classList.add("hidden");
         S.balls--;
-        var ball = document.getElementById("throw-ball");
-        ball.className = "throw-ball";
-        void ball.offsetWidth;
-        ball.classList.add("go");
+        var cap = document.getElementById("throw-capsule");
+        cap.className = "throw-capsule";
+        void cap.offsetWidth;
+        cap.classList.add("go");
         sfx("throw");
-        /* ボールが ゆれる音（カタッ、カタッ…）を 結果が出る前に 入れる */
+        /* カプセルが ゆれる音（カタッ、カタッ…）を 結果が出る前に 入れる */
         beep(240, .06, "square", .032, .38);
         beep(240, .06, "square", .032, .66);
         beep(240, .06, "square", .032, .9);
-        setMsg("いけっ！ モンスターボール！");
+        setMsg("いけっ！ ホカクカプセル！");
         renderBattle();
         setTimeout(function(){
-          ball.classList.remove("go");
+          cap.classList.remove("go");
           var hpRatio = B.eHp / B.eMaxhp;
           var chance = 0.85 - hpRatio * 0.6; // HPが低いほど捕まりやすい
           if(Math.random() < chance){
@@ -2141,7 +2152,7 @@
             }, 1300);
           } else {
             sfx("break");
-            setMsg("おしい！ " + MONSTERS[B.eMid].name + " は ボールから とびだした！");
+            setMsg("おしい！ " + MONSTERS[B.eMid].name + " は カプセルから とびだした！");
             setTimeout(function(){ enemyAttack(false); }, 800);
           }
         }, 1000);
@@ -2221,10 +2232,10 @@
         } else if(B.trainer){
           if(B.trainerId) S.defeatedTrainers[B.trainerId] = true;
           S.balls += 1;
-          msg += " ボールを 1つ 手にいれた。";
+          msg += " カプセルを 1つ 手にいれた。";
         } else {
           S.balls += 1;
-          msg += " ボールを 1つ 手にいれた。";
+          msg += " カプセルを 1つ 手にいれた。";
           if(Math.random() < 0.3){ S.potions += 1; msg += " きずぐすりも 見つけた！"; }
         }
         setMsg(msg);
@@ -2287,7 +2298,7 @@
 
       /* ================= ショップ ================= */
       var SHOP_ITEMS = [
-        { key:"ball",   name:"ホカクボール", price:100, desc:"モンスターを つかまえるための ボール" },
+        { key:"ball",   name:"ホカクカプセル", price:100, desc:"モンスターを つかまえるための 星マークの カプセル" },
         { key:"potion", name:"きずぐすり",   price:200, desc:"バトル中に つかうと HPが 25 かいふくする" }
       ];
       function shopCount(key){ return key === "ball" ? S.balls : S.potions; }
@@ -2299,7 +2310,7 @@
           var row = document.createElement("div");
           row.className = "shop-row";
           row.innerHTML = '<div><div class="shop-name">' +
-            (it.key === "ball" ? '<span class="ball-ico" style="width:18px;height:18px;"></span>' : '<span aria-hidden="true">🧴</span>') +
+            (it.key === "ball" ? '<span class="capsule-ico" style="width:18px;height:18px;"></span>' : '<span aria-hidden="true">🧴</span>') +
             it.name + ' <span class="shop-price">' + it.price + '円</span></div>' +
             '<div class="shop-desc">' + it.desc + '（てもち ×' + shopCount(it.key) + '）</div></div>';
           var b = document.createElement("button");
@@ -2374,7 +2385,7 @@
       }
 
       /* ================= セーブ（localStorage に 自動保存） =================
-         保存するもの：てもち／パソコンの モンスター（レベル・経験値・HP）、おかね、ボール、きずぐすり、
+         保存するもの：てもち／パソコンの モンスター（レベル・経験値・HP）、おかね、カプセル、きずぐすり、
          バッジ、図鑑の記録、倒したトレーナー、今いるマップと位置、もんだいの しゅるい。
          自動セーブの タイミング：マップ移動・ジム出入り・バトル終了・買い物・かいふく・預け／引き出し・冒険開始 */
       var SAVE_KEY = "keimon-save-v1";
@@ -2573,7 +2584,7 @@
         var B = S.battle;
         if(!B || B.busy || B.over) return;
         if(B.trainer || B.gym || B.champion){ toast(B.trainer ? "トレーナーの モンスターは つかまえられない！" : "この バトルでは つかまえられない！"); return; }
-        if(S.balls <= 0){ toast("ボールが ない！ やせいに かって 手にいれよう"); return; }
+        if(S.balls <= 0){ toast("カプセルが ない！ やせいに かって 手にいれよう"); return; }
         openQuestion(true);
       });
       document.getElementById("cmd-heal-item").addEventListener("click", function(){
