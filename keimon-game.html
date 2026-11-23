@@ -1,0 +1,2611 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>けいさんバトルRPG けいもん！</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet" />
+    <style>
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2.25rem; }
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      :root{
+        --ink:#2b2118;
+        --paper:#fdf6e3;
+        --panel:#fffdf4;
+        --gold:#e8a91c;
+        --gold-d:#b97e0a;
+        --silver:#8d99ae;
+        --red:#d64541;
+        --green:#3fa34d;
+        --blue:#2f7fc4;
+        --frame:#3a2c14;
+        --sky1:#ffe9a8;
+        --sky2:#ffd35c;
+        --chrome:#f4ead2;
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --ink:#f2e8d5;
+          --paper:#241c10;
+          --panel:#2e2415;
+          --frame:#0f0b06;
+          --chrome:#33270f;
+          --sky1:#5b4a8a;
+          --sky2:#2c2350;
+        }
+      }
+      html,body{ margin:0; padding:0; }
+      body{
+        font-family:"M PLUS Rounded 1c", system-ui, sans-serif;
+        color:var(--ink);
+        background:
+          radial-gradient(1200px 500px at 50% -10%, rgba(232,169,28,.25), transparent 60%),
+          var(--paper);
+        min-height:100dvh;
+      }
+      .wrap{ max-width:860px; margin:0 auto; padding:10px 12px 40px; }
+      .dotfont{ font-family:"DotGothic16", "M PLUS Rounded 1c", sans-serif; }
+
+      /* ===== 共通パネル ===== */
+      .panel{
+        background:var(--panel);
+        border:3px solid var(--frame);
+        border-radius:14px;
+        box-shadow:0 4px 0 rgba(0,0,0,.18), inset 0 0 0 3px rgba(232,169,28,.25);
+        padding:14px;
+      }
+      .btn{
+        font-family:inherit; font-weight:800; cursor:pointer;
+        border:3px solid var(--frame); border-radius:12px;
+        background:linear-gradient(180deg,#fff8e1,#ffe9a8);
+        color:#2b2118; padding:10px 14px; font-size:1rem;
+        box-shadow:0 3px 0 rgba(0,0,0,.25);
+        transition:transform .06s ease, box-shadow .06s ease, filter .15s;
+      }
+      .btn:active{ transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,.25); }
+      .btn:disabled{ opacity:.45; cursor:not-allowed; }
+      .btn.primary{ background:linear-gradient(180deg,#ffd35c,#e8a91c); }
+      .btn.danger{ background:linear-gradient(180deg,#ffb3ab,#e0574f); color:#fff; }
+      .btn.cool{ background:linear-gradient(180deg,#cfe8ff,#7db6e8); }
+      .btn.ghost{ background:var(--panel); }
+      @media (prefers-color-scheme: dark){
+        .btn{ background:linear-gradient(180deg,#4a3a17,#33270f); color:#f2e8d5; }
+        .btn.primary{ background:linear-gradient(180deg,#8a6410,#6b4d0a); color:#fff3d6; }
+        .btn.cool{ background:linear-gradient(180deg,#274b73,#1c3555); color:#e6f2ff; }
+        .btn.danger{ background:linear-gradient(180deg,#8a2f28,#6d231d); }
+      }
+
+      /* ===== タイトル ===== */
+      #screen-title{ text-align:center; padding-top:6px; }
+      .title-badge{
+        display:inline-block; font-family:"DotGothic16",sans-serif;
+        background:var(--frame); color:#ffd35c; padding:4px 14px; border-radius:999px;
+        letter-spacing:.15em; font-size:.85rem; margin-bottom:10px;
+      }
+      h1.game-title{
+        font-family:"DotGothic16",sans-serif;
+        font-size:clamp(2rem, 8vw, 3.4rem); line-height:1.15; margin:6px 0 2px;
+        color:var(--gold-d);
+        text-shadow:2px 2px 0 #fff3c4, 4px 4px 0 rgba(0,0,0,.15);
+      }
+      @media (prefers-color-scheme: dark){ h1.game-title{ color:#ffd35c; text-shadow:2px 2px 0 #4a3205, 4px 4px 0 rgba(0,0,0,.4);} }
+      .title-sub{ font-weight:700; opacity:.85; margin:4px 0 14px; }
+      .title-monsters{ display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin:10px 0 16px; }
+      .title-monsters .tm{ width:86px; height:86px; }
+      .howto{ text-align:left; max-width:560px; margin:14px auto 0; }
+      .howto li{ margin:6px 0; font-weight:700; }
+
+      /* ===== HUD ===== */
+      .hud{
+        display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between;
+        margin-bottom:10px;
+      }
+      .hud .chips{ display:flex; flex-wrap:wrap; gap:6px; }
+      .chip{
+        background:var(--panel); border:2.5px solid var(--frame); border-radius:999px;
+        padding:4px 12px; font-weight:800; font-size:.9rem; display:inline-flex; align-items:center; gap:6px;
+      }
+      .chip .ball-ico{ width:16px; height:16px; }
+      .badges-row{ display:flex; gap:5px; align-items:center; }
+      .badge-ico{
+        width:30px; height:30px; border-radius:50%; display:grid; place-items:center;
+        border:2.5px solid var(--frame); font-size:.95rem; background:#cfd6dd; filter:grayscale(1); opacity:.45;
+      }
+      .badge-ico.got{ filter:none; opacity:1; box-shadow:0 0 8px rgba(232,169,28,.7); }
+
+      /* ===== マップ ===== */
+      .map-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+      .area-card{
+        text-align:left; cursor:pointer; font-family:inherit;
+        border:3px solid var(--frame); border-radius:14px; padding:12px;
+        background:var(--panel); color:var(--ink); box-shadow:0 3px 0 rgba(0,0,0,.2);
+      }
+      .area-card:active{ transform:translateY(2px); }
+      .area-card .a-name{ font-family:"DotGothic16",sans-serif; font-size:1.15rem; }
+      .area-card .a-desc{ font-size:.85rem; font-weight:700; opacity:.8; margin-top:4px; }
+      .area-card .a-lv{ display:inline-block; margin-top:8px; background:var(--frame); color:#ffd35c; border-radius:6px; padding:1px 8px; font-size:.8rem; font-weight:800; }
+      .area-card.gym{ background:linear-gradient(160deg, var(--panel), rgba(232,169,28,.18)); }
+      .area-card.locked{ opacity:.55; }
+      .sec-title{ font-family:"DotGothic16",sans-serif; font-size:1.3rem; margin:18px 0 8px; }
+      .qmode{ display:flex; flex-wrap:wrap; gap:8px; }
+      .qmode label{
+        display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+        border:3px solid var(--frame); border-radius:999px; padding:8px 16px; font-weight:800;
+        background:var(--panel); min-height:44px;
+      }
+      .qmode input{ width:20px; height:20px; accent-color:var(--gold-d); }
+      .party-row{ display:flex; gap:10px; flex-wrap:wrap; }
+      .party-card{
+        border:3px solid var(--frame); border-radius:12px; background:var(--panel);
+        padding:8px; width:132px; text-align:center; cursor:pointer; font-family:inherit; color:var(--ink);
+      }
+      .party-card.sel{ outline:4px solid var(--gold); background:rgba(232,169,28,.12); }
+      .party-card:disabled{ opacity:.45; cursor:not-allowed; }
+      .party-card .pm{ width:74px; height:74px; margin:0 auto; }
+      .party-card .p-name{ font-weight:800; font-size:.92rem; }
+      .party-card .p-lv{ font-size:.8rem; font-weight:700; opacity:.75; }
+      .mini-hp{ height:9px; border:2px solid var(--frame); border-radius:99px; overflow:hidden; background:#00000022; margin-top:5px; }
+      .mini-hp > div{ height:100%; background:var(--green); transition:width .3s; }
+      .mini-xp{ height:7px; border:2px solid var(--frame); border-radius:99px; overflow:hidden; background:#00000022; margin-top:5px; }
+      .mini-xp > div{ height:100%; background:linear-gradient(90deg,#57b6e8,#2f7fc4); transition:width .3s; }
+      .p-xp{ font-size:.74rem; font-weight:800; color:var(--blue); margin-top:2px; line-height:1.35; }
+      @media (prefers-color-scheme: dark){ .p-xp{ color:#8ec9f2; } }
+      /* 経験値表示ブロック全体：バー・枠・ラベル・数値・余白すべてを小さくまとめたコンパクト表示。右寄せ */
+      .xpbar{ height:2.5px; border:1px solid #2b2118; border-radius:99px; background:#ddd6c2; overflow:hidden; width:70%; margin-left:auto; }
+      .xpbar > div{ height:100%; background:linear-gradient(180deg,#bfe6ff,#57b6e8); transition:width .45s ease; }
+      .xp-row{ position:relative; margin-top:1px; }
+      .xp-tag{ position:absolute; left:1px; top:-10px; font-size:.5rem; font-weight:800; letter-spacing:.05em; color:#2f7fc4; line-height:1; }
+      .xp-num{ font-size:.56rem; font-weight:700; text-align:right; opacity:.8; margin-top:1px; line-height:1.15; }
+
+      /* ===== フィールド（歩けるマップ） ===== */
+      .field-wrap{ max-width:640px; margin:0 auto; }
+      .field{
+        position:relative; border:3px solid var(--frame); border-radius:14px; overflow:hidden;
+        box-shadow:0 4px 0 rgba(0,0,0,.18);
+        background:#7cb342;
+      }
+      .field-grid{ display:grid; grid-template-columns:repeat(14,1fr); }
+      .tile{ aspect-ratio:1/1; position:relative; }
+      .tile.path{ background:#e9d9a6; background-image:radial-gradient(rgba(160,130,60,.35) 1.2px, transparent 1.3px); background-size:9px 9px; }
+      .tile.flower{ background:#e9d9a6; }
+      .tile.flower::after{ content:"✿"; position:absolute; inset:0; display:grid; place-items:center; color:#e5739a; font-size:clamp(8px,2.4vw,15px); }
+      .tile.grass-a{ background:#8bc34a; background-image:repeating-linear-gradient(55deg, rgba(46,110,30,.35) 0 2px, transparent 2px 7px); }
+      .tile.grass-b{ background:#4db6ac; background-image:repeating-linear-gradient(55deg, rgba(10,90,80,.35) 0 2px, transparent 2px 7px); }
+      .tile.grass-c{ background:#a8a04c; background-image:repeating-linear-gradient(55deg, rgba(110,95,25,.4) 0 2px, transparent 2px 7px); }
+      .tile.grass-d{ background:#2e5d33; background-image:repeating-linear-gradient(55deg, rgba(8,40,14,.55) 0 2px, transparent 2px 7px); }
+      .tile.tree{ background:#33691e; }
+      .tile.tree::after{ content:"🌲"; position:absolute; inset:0; display:grid; place-items:center; font-size:clamp(11px,3.4vw,22px); }
+      .tile.rock{ background:#9e9e8f; }
+      .tile.rock::after{ content:"🪨"; position:absolute; inset:0; display:grid; place-items:center; font-size:clamp(10px,3vw,19px); }
+      .tile.water{ background:#4aa3d8; background-image:repeating-linear-gradient(0deg, rgba(255,255,255,.35) 0 2px, transparent 2px 8px); }
+      .tile.under{ background:#c9b083; }
+      .tile.cavewall{ background:#41321f; background-image:radial-gradient(rgba(0,0,0,.55) 2px, transparent 2.6px); background-size:11px 11px; }
+      .tile.cavefloor{ background:#6e5136; background-image:radial-gradient(rgba(255,220,160,.30) 1.4px, transparent 1.9px); background-size:9px 9px; }
+      .tile.cavepath{ background:#86755c; background-image:radial-gradient(rgba(60,40,20,.30) 1.2px, transparent 1.7px); background-size:9px 9px; }
+      .tile.house{ background:#7cb342; }
+      .tile.house::after{ content:"🏠"; position:absolute; inset:0; display:grid; place-items:center; font-size:clamp(11px,3.4vw,22px); }
+      .tile.exit-l::after, .tile.exit-r::after{ position:absolute; inset:0; display:grid; place-items:center; color:#8a6d2f; font-weight:800; font-size:clamp(9px,2.6vw,16px); }
+      .tile.exit-l::after{ content:"◀"; }
+      .tile.exit-r::after{ content:"▶"; }
+      .tile.exit-d::after{ position:absolute; inset:0; display:grid; place-items:center; color:#8a6d2f; font-weight:800; font-size:clamp(9px,2.6vw,16px); content:"▼"; }
+      .field.cave{ background:#2e2119; }
+      .building{
+        position:absolute; z-index:2; pointer-events:none;
+        display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+      }
+      .building .b-roof{
+        width:92%; height:38%; border:2.5px solid var(--frame); border-bottom:none;
+        border-radius:8px 8px 0 0; display:grid; place-items:center;
+        font-weight:800; color:#fff; font-size:clamp(11px,3vw,17px); line-height:1;
+      }
+      .building .b-body{
+        width:92%; flex:1; background:#fff8e8; border:2.5px solid var(--frame);
+        display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding-bottom:2px;
+      }
+      .building .b-door{ width:26%; height:52%; background:#6d4c41; border:2px solid var(--frame); border-bottom:none; border-radius:6px 6px 0 0; }
+      .building .b-name{
+        background:var(--frame); color:#ffd35c; border-radius:5px; padding:0 5px;
+        font-size:clamp(8px,2.2vw,12px); font-weight:800; white-space:nowrap; margin-bottom:2px;
+      }
+      @media (prefers-color-scheme: dark){ .building .b-body{ background:#3a2f1c; } }
+      #player{
+        position:absolute; z-index:3; width:7.142%; aspect-ratio:1/1;
+        transition:left .16s linear, top .16s linear; pointer-events:none;
+        filter:drop-shadow(0 3px 2px rgba(0,0,0,.35));
+      }
+      #player svg{ width:100%; height:100%; display:block; }
+      #player.walk svg{ animation:bob .16s ease infinite alternate; }
+      @keyframes bob{ from{ transform:translateY(0) } to{ transform:translateY(-2.5px) } }
+      @media (prefers-reduced-motion: reduce){ #player{ transition:none; } #player.walk svg{ animation:none; } }
+      /* ===== NPC（マップ上の 人） ===== */
+      .npc{
+        position:absolute; z-index:2; width:7.142%; aspect-ratio:1/1; pointer-events:none;
+        filter:drop-shadow(0 3px 2px rgba(0,0,0,.35));
+      }
+      .npc svg{ width:100%; height:100%; display:block; }
+      .npc-name{
+        position:absolute; left:50%; top:-46%; transform:translateX(-50%);
+        background:var(--frame); color:#ffd35c; border-radius:4px; padding:0 4px;
+        font-size:clamp(7px,1.9vw,10px); font-weight:800; white-space:nowrap; line-height:1.5;
+      }
+      .field-msg{
+        margin-top:8px; border:3px solid var(--frame); border-radius:12px; background:var(--panel);
+        padding:9px 12px; font-weight:800; min-height:46px; box-shadow:inset 0 0 0 3px rgba(232,169,28,.25);
+      }
+      .field-legend{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+      .field-legend span{
+        border:2px solid var(--frame); border-radius:999px; padding:2px 10px;
+        font-size:.78rem; font-weight:800; background:var(--panel);
+      }
+      .dpad{
+        display:grid; grid-template-columns:repeat(3,58px); grid-template-rows:repeat(3,58px);
+        gap:5px; justify-content:center; margin:14px auto 2px; touch-action:none;
+      }
+      .dpad button{
+        font-family:inherit; font-size:1.25rem; font-weight:800; cursor:pointer;
+        border:3px solid var(--frame); border-radius:12px; color:var(--ink);
+        background:linear-gradient(180deg,#fff8e1,#ffe9a8); box-shadow:0 3px 0 rgba(0,0,0,.25);
+        display:grid; place-items:center; user-select:none; -webkit-user-select:none;
+      }
+      .dpad button:active{ transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,.25); background:var(--gold); }
+      @media (prefers-color-scheme: dark){ .dpad button{ background:linear-gradient(180deg,#4a3a17,#33270f); color:#f2e8d5; } }
+      .dpad .dpad-empty{ visibility:hidden; }
+      .key-hint{ text-align:center; font-size:.8rem; font-weight:700; opacity:.7; margin-top:6px; }
+
+      /* ===== バトル画面 ===== */
+      .battle-stage{
+        position:relative; border:3px solid var(--frame); border-radius:14px; overflow:hidden;
+        background:linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 55%, #9ccc65 55.2%, #7cb342 100%);
+        min-height:340px;
+      }
+      .battle-stage.night{ background:linear-gradient(180deg,#2c2350 0%, #4a3a7a 55%, #3d5a2e 55.2%, #2f4a24 100%); }
+      .battle-stage.gymbg{ background:linear-gradient(180deg,#8d6e63 0%, #a1887f 55%, #6d4c41 55.2%, #5d4037 100%); }
+      .plat{
+        position:absolute; width:46%; height:34px; border-radius:50%;
+        background:radial-gradient(ellipse at center, rgba(0,0,0,.28), rgba(0,0,0,.05) 70%);
+      }
+      .plat.enemy{ right:4%; top:38%; }
+      .plat.player{ left:4%; bottom:16%; }
+      .fighter{ position:absolute; transition:transform .15s; }
+      .fighter svg{ width:100%; height:100%; display:block; filter:drop-shadow(0 6px 6px rgba(0,0,0,.25)); }
+      .fighter.enemy{ right:6%; top:8%; width:clamp(120px,32vw,180px); height:clamp(120px,32vw,180px); }
+      .fighter.player{ left:6%; bottom:20%; width:clamp(130px,34vw,190px); height:clamp(130px,34vw,190px); }
+      .fighter.lunge-r{ animation:lungeR .45s ease; }
+      .fighter.lunge-l{ animation:lungeL .45s ease; }
+      .fighter.hurt{ animation:hurt .45s ease; }
+      .fighter.faint{ animation:faint .8s ease forwards; }
+      .fighter.enter-r{ animation:enterR .5s ease; }
+      .fighter.enter-l{ animation:enterL .5s ease; }
+      @keyframes lungeR{ 0%{transform:translateX(0)} 40%{transform:translateX(46px) scale(1.05)} 100%{transform:translateX(0)} }
+      @keyframes lungeL{ 0%{transform:translateX(0)} 40%{transform:translateX(-46px) scale(1.05)} 100%{transform:translateX(0)} }
+      @keyframes hurt{ 0%,100%{transform:translateX(0); filter:brightness(1)} 25%{transform:translateX(-8px); filter:brightness(2)} 50%{transform:translateX(8px)} 75%{transform:translateX(-5px); filter:brightness(1.6)} }
+      @keyframes faint{ to{ transform:translateY(26px); opacity:0; } }
+      @keyframes enterR{ from{ transform:translateX(70px); opacity:0 } to{ transform:translateX(0); opacity:1 } }
+      @keyframes enterL{ from{ transform:translateX(-70px); opacity:0 } to{ transform:translateX(0); opacity:1 } }
+      @media (prefers-reduced-motion: reduce){
+        .fighter.lunge-r,.fighter.lunge-l,.fighter.hurt,.fighter.enter-r,.fighter.enter-l{ animation:none; }
+        .fighter.faint{ animation-duration:.01s; }
+      }
+      .stat-box{
+        position:absolute; background:rgba(255,253,244,.96); color:#2b2118;
+        border:3px solid var(--frame); border-radius:10px; padding:7px 10px; min-width:180px;
+        box-shadow:0 3px 0 rgba(0,0,0,.25);
+      }
+      .stat-box.enemy{ left:10px; top:10px; }
+      .stat-box.player{ right:10px; bottom:10px; }
+      .stat-box .s-name{ font-weight:800; display:flex; justify-content:space-between; gap:10px; }
+      .stat-box .s-type{ font-size:.72rem; font-weight:800; color:#fff; border-radius:5px; padding:0 6px; }
+      .hpbar{ height:12px; border:2px solid #2b2118; border-radius:99px; background:#e8e0cc; overflow:hidden; margin-top:4px; }
+      .hpbar > div{ height:100%; background:linear-gradient(180deg,#7ddb8a,#3fa34d); transition:width .45s ease; }
+      .hpbar > div.mid{ background:linear-gradient(180deg,#ffd35c,#e8a91c); }
+      .hpbar > div.low{ background:linear-gradient(180deg,#ff9d94,#d64541); }
+      .hp-num{ font-size:.78rem; font-weight:800; text-align:right; }
+      .dmg-pop{
+        position:absolute; font-family:"DotGothic16",sans-serif; font-size:1.7rem; color:#fff;
+        text-shadow:2px 2px 0 #b3271e, -1px -1px 0 #b3271e; pointer-events:none;
+        animation:pop .8s ease forwards; z-index:5;
+      }
+      .dmg-pop.crit{ color:#ffd35c; font-size:2.1rem; }
+      @keyframes pop{ 0%{ transform:translateY(6px) scale(.6); opacity:0 } 25%{ opacity:1; transform:translateY(-6px) scale(1.15)} 100%{ transform:translateY(-30px); opacity:0 } }
+      .throw-ball{
+        position:absolute; width:44px; height:44px; z-index:6; display:none;
+        left:16%; bottom:34%;
+      }
+      .throw-ball.go{ display:block; animation:throwB 0.9s ease forwards; }
+      @keyframes throwB{ 0%{ transform:translate(0,0) rotate(0) } 60%{ transform:translate(38vw,-90px) rotate(340deg) } 100%{ transform:translate(52vw,-46px) rotate(560deg) scale(.9) } }
+      @media (prefers-reduced-motion: reduce){ .throw-ball.go{ animation-duration:.01s; } .dmg-pop{ animation-duration:.01s; } }
+
+      /* メッセージボックス＆コマンド */
+      .msg-box{
+        margin-top:10px; border:3px solid var(--frame); border-radius:12px; background:var(--panel);
+        padding:12px 14px; min-height:76px; font-weight:800; font-size:1.08rem; line-height:1.5;
+        box-shadow:inset 0 0 0 3px rgba(232,169,28,.25);
+      }
+      .cmd-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+      .cmd-grid .btn{ font-size:1.05rem; padding:13px 8px; }
+      .q-area{ margin-top:10px; }
+      .q-text{
+        font-family:"DotGothic16",sans-serif; text-align:center;
+        font-size:clamp(2rem,9vw,3.2rem); letter-spacing:.04em; padding:8px 4px 2px;
+      }
+      .q-kind{ text-align:center; font-weight:800; opacity:.75; font-size:.9rem; }
+      .ans-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
+      .ans-btn{
+        font-family:"DotGothic16",sans-serif; font-size:1.7rem; padding:14px 6px;
+        border:3px solid var(--frame); border-radius:12px; cursor:pointer;
+        background:var(--panel); color:var(--ink); box-shadow:0 3px 0 rgba(0,0,0,.22);
+      }
+      .ans-btn:active{ transform:translateY(2px); }
+      .ans-btn.right{ background:#b9e7c0; border-color:#1e6b2c; }
+      .ans-btn.wrong{ background:#ffc4bd; border-color:#a02a22; }
+      @media (prefers-color-scheme: dark){ .ans-btn.right{ background:#1e4d28; } .ans-btn.wrong{ background:#5f1d17; } }
+
+      /* ===== 図鑑 ===== */
+      .zukan-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr)); gap:10px; }
+      .shop-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 2px; border-bottom:2px dashed rgba(43,33,24,.25); }
+      .shop-row:last-child{ border-bottom:none; }
+      .shop-name{ font-weight:800; font-size:1.05rem; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+      .shop-price{ color:#b97e0a; }
+      .shop-desc{ font-size:.85rem; font-weight:700; opacity:.8; margin-top:2px; }
+      .zukan-card{ border:3px solid var(--frame); border-radius:12px; background:var(--panel); padding:8px; text-align:center; }
+      .zukan-card .zm{ width:72px; height:72px; margin:0 auto; }
+      .zukan-card .z-name{ font-weight:800; font-size:.88rem; margin-top:2px; }
+      .zukan-card .z-no{ font-size:.72rem; font-weight:800; opacity:.6; }
+      .zukan-card.unknown{ opacity:.55; }
+      .zukan-card.unknown .zm{ filter:brightness(0) opacity(.35); }
+      .hidden{ display:none !important; }
+      .center{ text-align:center; }
+      .big-cta{ font-size:1.2rem; padding:14px 30px; }
+      .starter-row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:14px 0; }
+      .starter-card{
+        width:170px; cursor:pointer; font-family:inherit; color:var(--ink);
+        border:3px solid var(--frame); border-radius:14px; background:var(--panel); padding:12px;
+        box-shadow:0 3px 0 rgba(0,0,0,.2);
+      }
+      .starter-card .sm{ width:110px; height:110px; margin:0 auto; }
+      .starter-card .s-name2{ font-family:"DotGothic16",sans-serif; font-size:1.2rem; margin-top:4px; }
+      .starter-card .s-desc{ font-size:.82rem; font-weight:700; opacity:.8; }
+      .toast{
+        position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(20px);
+        background:var(--frame); color:#ffd35c; font-weight:800; padding:10px 20px; border-radius:999px;
+        opacity:0; pointer-events:none; transition:all .3s ease; z-index:50; max-width:92vw; text-align:center;
+      }
+      .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+      .ball-css{
+        border-radius:50%; border:3px solid #2b2118; position:relative; overflow:hidden;
+        background:linear-gradient(180deg,#e0574f 0 46%, #2b2118 46% 54%, #fff 54% 100%);
+        width:100%; height:100%;
+      }
+      .ball-css::after{
+        content:""; position:absolute; left:50%; top:50%; width:26%; height:26%;
+        transform:translate(-50%,-50%); background:#fff; border:3px solid #2b2118; border-radius:50%;
+      }
+      .ball-ico{ display:inline-block; border-radius:50%; border:2px solid #2b2118; position:relative; overflow:hidden;
+        background:linear-gradient(180deg,#e0574f 0 46%, #2b2118 46% 54%, #fff 54% 100%); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+
+      <!-- ===== タイトル画面 ===== -->
+      <section id="screen-title">
+        <div class="title-badge">KEISAN BATTLE RPG</div>
+        <h1 class="game-title">けいさんバトルRPG<br />けいもん！</h1>
+        <p class="title-sub">モンスターと たびする たしざん / ひきざん / くくの ぼうけん</p>
+        <div class="title-monsters" id="title-monsters"></div>
+        <div><button class="btn cool big-cta hidden" id="btn-continue" type="button">つづきから はじめる</button></div>
+        <div style="margin-top:10px;"><button class="btn primary big-cta" id="btn-start">ぼうけんに でかける</button></div>
+        <div style="margin-top:10px;"><button class="btn ghost hidden" id="btn-erase" type="button" style="padding:8px 14px;">セーブデータを けす</button></div>
+        <div style="margin:10px 0 4px;">
+          <button class="btn ghost sound-btn" type="button" style="padding:8px 14px;">🔊 おと：ON</button>
+        </div>
+        <div class="panel howto">
+          <div class="dotfont" style="font-size:1.15rem;">あそびかた</div>
+          <ul>
+            <li>マップを あるいて たんけんしよう！ くさむらを あるくと、やせいの モンスターが とびだしてくる！</li>
+            <li>かいふくセンターや ジムの たてものまで あるいて 行くと、かいふくや しょうぶが できる。</li>
+            <li>バトルでは けいさんもんだいに こたえると こうげきできる。あいても まいターン こうげきしてくる（たおした ターンだけ 反撃なし）。まちがえると あいての こうげきが 2回に なるから 気をつけよう！</li>
+            <li>てもちの モンスターには けいけんちバーが ついているよ。「つぎの レベルまで あと いくつか」が ひとめで 分かる！</li>
+            <li>てもちが ぜんいん たおれると、さいごに 訪れた まちの かいふくセンターに 運ばれる。おかねは 半分に なっちゃうけど、みんな 元気に なって 再開できるよ。</li>
+            <li>あいてが よわったときに ボールを なげると つかまえられる。</li>
+            <li>モンスターを たおすと おかねが もらえる。まちの ショップで ホカクボールや きずぐすりが 買えるよ。</li>
+            <li>タイプの あいしょうで ダメージが 変わる！「こうかは ばつぐん」を ねらおう（あいてからの こうげきも 同じだよ）。</li>
+            <li>バトル中は「こうたい」で てもちの モンスターと 交代できる。交代した ターンは あいての こうげきを うけるから、あいしょうの いい モンスターに 代えよう！</li>
+            <li>4つの まちを めぐり、ジムで リーダーに かって バッジを あつめよう。ジムは じゅんばんに ちょうせんする 決まり（つぎの ジムには まえの バッジが ひつよう）だけど、レベル制限は ないよ。まちが すすむほど モンスターも もんだいも つよくなる！</li>
+            <li>モンスターは ぜんぶで 40しゅるい！ おなじ モンスターも なんども つかまえられるよ。いろんな ばしょを たんけんして ずかんを うめよう！</li>
+            <li>てもちは 6たいまで。いっぱいの ときに つかまえると、パソコンに 自動で 送られるよ。かいふくセンターの パソコンで、てもちと パソコンの モンスターを あずけたり ひきだしたり できる。</li>
+            <li>バッジを 4つ あつめたら、さいごの マップで チャンピオンに ちょうせんできる！</li>
+            <li>どうろや ジムの 中には トレーナーが いるよ。近づいて 話しかけると バトル！ トレーナーは モンスターを 数たい 持っていて、ぜんぶ たおすと おかねが もらえる。トレーナーの モンスターは つかまえられないし、バトルからは にげられないよ。</li>
+            <li>ぼうけんは 自動で セーブされるよ（マップを いどうしたときや バトルが 終わったとき）。タイトル画面で「つづきから はじめる」を えらぶと、つづきから あそべるよ。セーブを けして はじめから あそぶことも できるよ。</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ===== スターター選択 ===== -->
+      <section id="screen-starter" class="hidden">
+        <h2 class="dotfont center" style="font-size:1.6rem;">さいしょの パートナーを えらぼう！</h2>
+        <p class="center" style="font-weight:700;">どの モンスターと ぼうけんに でかける？</p>
+        <div class="starter-row" id="starter-row"></div>
+      </section>
+
+      <!-- ===== マップ画面 ===== -->
+      <section id="screen-map" class="hidden">
+        <div class="hud">
+          <div class="chips">
+            <span class="chip"><span class="ball-ico" style="width:16px;height:16px;"></span>ボール × <span id="hud-balls">5</span></span>
+            <span class="chip">💰 おかね <span id="hud-money">200</span>円</span>
+            <span class="chip">つかまえた数 <span id="hud-caught">1</span> / 40</span>
+            <span class="chip">💻 パソコン <span id="hud-box">0</span> たい</span>
+          </div>
+          <div class="badges-row" id="hud-badges" aria-label="ジムバッジ"></div>
+          <button class="btn ghost" id="btn-fullscreen" style="padding:8px 12px;">ぜんがめん</button>
+          <button class="btn ghost sound-btn" type="button" style="padding:8px 12px;">🔊 おと：ON</button>
+        </div>
+
+        <div class="panel">
+          <div class="dotfont" style="font-size:1.2rem; margin-bottom:6px;">てもちの モンスター（<span id="party-count">1</span> / 6）</div>
+          <div class="party-row" id="party-row"></div>
+          <div style="font-weight:800; font-size:.88rem; margin-top:8px; opacity:.85;">💻 パソコンに いる モンスター：<span id="box-count">0</span> たい（かいふくセンターの パソコンで あずけ／ひきだしが できる）</div>
+          <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn ghost" id="btn-zukan">ずかんを みる</button>
+          </div>
+        </div>
+
+        <h3 class="sec-title">もんだいの しゅるい</h3>
+        <div class="qmode" role="radiogroup" aria-label="もんだいのしゅるい">
+          <label><input type="radio" name="qmode" value="mix" checked />ミックス</label>
+          <label><input type="radio" name="qmode" value="add" />たしざん</label>
+          <label><input type="radio" name="qmode" value="sub" />ひきざん</label>
+          <label><input type="radio" name="qmode" value="mul" />くく</label>
+        </div>
+
+        <h3 class="sec-title">ぼうけんの マップ ― あるいて たんけん！</h3>
+        <div class="field-wrap">
+          <div class="dotfont" id="map-title" style="font-size:1.3rem; margin-bottom:6px;">わかばタウン（まち 1 / 4）</div>
+          <div class="field" id="field" aria-label="歩けるフィールドマップ">
+            <div class="field-grid" id="field-grid"></div>
+            <div id="field-buildings"></div>
+            <div id="field-npcs"></div>
+            <div id="player" aria-hidden="true"></div>
+          </div>
+          <div class="field-msg" id="field-msg">くさむらを あるくと モンスターが あらわれるよ。たてものの 入口まで あるいて 行ってみよう！</div>
+          <div class="field-legend" id="field-legend" aria-label="マップのせつめい"></div>
+          <div class="dpad" role="group" aria-label="いどうボタン">
+            <span class="dpad-empty"></span>
+            <button type="button" data-dir="up" aria-label="うえに すすむ">▲</button>
+            <span class="dpad-empty"></span>
+            <button type="button" data-dir="left" aria-label="ひだりに すすむ">◀</button>
+            <span class="dpad-empty"></span>
+            <button type="button" data-dir="right" aria-label="みぎに すすむ">▶</button>
+            <span class="dpad-empty"></span>
+            <button type="button" data-dir="down" aria-label="したに すすむ">▼</button>
+            <span class="dpad-empty"></span>
+          </div>
+          <p class="key-hint">キーボードの ↑↓←→ キー（WASD）でも あるけるよ</p>
+        </div>
+      </section>
+
+      <!-- ===== バトル画面 ===== -->
+      <section id="screen-battle" class="hidden">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+          <button class="btn ghost sound-btn" type="button" style="padding:6px 12px;">🔊 おと：ON</button>
+        </div>
+        <div class="battle-stage" id="battle-stage">
+          <div class="plat enemy"></div>
+          <div class="plat player"></div>
+          <div class="stat-box enemy">
+            <div class="s-name"><span id="e-name">？？？</span><span>Lv.<span id="e-lv">3</span></span></div>
+            <div><span class="s-type" id="e-type">ノーマル</span></div>
+            <div class="hpbar"><div id="e-hpbar" style="width:100%"></div></div>
+            <div class="hp-num" id="e-team"></div>
+          </div>
+          <div class="fighter enemy" id="e-fighter"></div>
+          <div class="fighter player" id="p-fighter"></div>
+          <div class="stat-box player">
+            <div class="s-name"><span id="p-name">？？？</span><span>Lv.<span id="p-lv">5</span></span></div>
+            <div><span class="s-type" id="p-type">ノーマル</span></div>
+            <div class="hpbar"><div id="p-hpbar" style="width:100%"></div></div>
+            <div class="hp-num"><span id="p-hpnum">30</span> / <span id="p-hpmax">30</span></div>
+            <div class="xp-row"><span class="xp-tag">EXP</span><div class="xpbar"><div id="p-xpbar" style="width:0%"></div></div></div>
+            <div class="xp-num">けいけんち <span id="p-xpnow">0</span> / <span id="p-xpnext">0</span> ・ つぎのレベルまで あと <span id="p-xprest">0</span></div>
+          </div>
+          <div class="throw-ball" id="throw-ball"><div class="ball-css"></div></div>
+        </div>
+
+        <div class="msg-box" id="msg-box">やせいの モンスターが あらわれた！</div>
+
+        <div class="cmd-grid" id="cmd-grid">
+          <button class="btn primary" id="cmd-fight">たたかう（けいさん）</button>
+          <button class="btn cool" id="cmd-catch">ボール（×<span id="cmd-balls">5</span>）</button>
+          <button class="btn ghost" id="cmd-heal-item">きずぐすり</button>
+          <button class="btn ghost" id="cmd-switch">こうたい</button>
+          <button class="btn danger" id="cmd-run" style="grid-column:1 / -1;">にげる</button>
+        </div>
+
+        <div class="q-area hidden" id="switch-area">
+          <div class="q-kind">こうたいする モンスターを えらぼう（こうたいした ターンは あいての こうげきを うけるよ）</div>
+          <div class="party-row" id="switch-list" style="justify-content:center; margin-top:8px;"></div>
+          <div class="center" style="margin-top:10px;">
+            <button class="btn ghost" id="btn-switch-back">もどる</button>
+          </div>
+        </div>
+
+        <div class="q-area hidden" id="q-area">
+          <div class="q-kind" id="q-kind">たしざん</div>
+          <div class="q-text" id="q-text">3 ＋ 4 ＝ ？</div>
+          <div class="ans-grid" id="ans-grid"></div>
+          <div class="center" style="margin-top:10px;">
+            <button class="btn ghost" id="btn-q-back">もどる</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== エンディング画面 ===== -->
+      <section id="screen-ending" class="hidden">
+        <div class="panel center">
+          <div style="font-size:2.6rem;">👑🏆</div>
+          <h2 class="dotfont" style="font-size:1.9rem; margin:6px 0; line-height:1.4;">チャンピオンに かった！<br />ぼうけん クリア！！</h2>
+          <p style="font-weight:800;">4つの まちを めぐり、ジムバッジを あつめて、チャンピオン・ユウキにも しょうりした！<br />きみは けいさんマスターだ！ おめでとう！！</p>
+        </div>
+        <div class="panel" style="margin-top:12px;">
+          <div class="dotfont" style="font-size:1.2rem; margin-bottom:8px;">ぼうけんの せいか</div>
+          <p style="font-weight:800; margin:6px 0;">🏅 あつめた バッジ（4つ）</p>
+          <div id="ending-badges" style="font-weight:800; line-height:2.1;"></div>
+          <p style="font-weight:800; margin:10px 0 4px;">📖 ずかん：つかまえた モンスター <span id="ending-caught">0</span> / 40 しゅるい</p>
+          <p style="font-weight:800; margin:4px 0;">💻 パソコンに いる モンスター：<span id="ending-box">0</span> たい</p>
+          <p style="font-weight:800; margin:10px 0 6px;">🤝 てもちの モンスターと レベル</p>
+          <div class="party-row" id="ending-party"></div>
+        </div>
+        <div class="center" style="margin-top:16px;">
+          <button class="btn primary big-cta" id="btn-ending-back">マップに もどって あそびつづける</button>
+        </div>
+      </section>
+
+      <!-- ===== ショップ画面 ===== -->
+      <section id="screen-shop" class="hidden">
+        <h2 class="dotfont" style="font-size:1.5rem; margin:6px 0 4px;">🛒 ショップ</h2>
+        <p style="font-weight:800;">「いらっしゃい！ モンスターを たおして 貯めた おかねで アイテムが 買えるよ」</p>
+        <div class="panel">
+          <div style="font-weight:800; font-size:1.05rem;">💰 てもちの おかね：<span id="shop-money">0</span>円</div>
+          <div id="shop-items"></div>
+          <div id="shop-msg" style="font-weight:800; margin-top:10px; min-height:1.5em;" aria-live="polite"></div>
+        </div>
+        <div class="center" style="margin-top:16px;">
+          <button class="btn primary" id="btn-shop-back">おみせを でる</button>
+        </div>
+      </section>
+
+      <!-- ===== かいふくセンター画面 ===== -->
+      <section id="screen-center" class="hidden">
+        <h2 class="dotfont" style="font-size:1.5rem; margin:6px 0 4px;">🏥 かいふくセンター</h2>
+        <p style="font-weight:800;">「いらっしゃいませ！ モンスターの かいふくや、パソコンでの あずけ・ひきだしが できます」</p>
+        <div class="panel">
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn primary" id="btn-center-heal">💊 かいふくする</button>
+            <button class="btn cool" id="btn-center-pc">💻 パソコンを つかう</button>
+          </div>
+          <div style="font-weight:800; margin-top:12px;">てもち <span id="center-party-count">1</span> / 6 たい ・ パソコン <span id="center-box-count">0</span> たい</div>
+          <div id="center-msg" style="font-weight:800; margin-top:8px; min-height:1.5em;" aria-live="polite"></div>
+        </div>
+        <div class="center" style="margin-top:16px;">
+          <button class="btn primary" id="btn-center-back">センターを でる</button>
+        </div>
+      </section>
+
+      <!-- ===== パソコン（モンスター預かり）画面 ===== -->
+      <section id="screen-pc" class="hidden">
+        <h2 class="dotfont" style="font-size:1.5rem; margin:6px 0 4px;">💻 パソコン（モンスター ボックス）</h2>
+        <p style="font-weight:800;" id="pc-info">てもちと パソコンの あいだで モンスターを うつせるよ。</p>
+        <div class="panel">
+          <div class="dotfont" style="font-size:1.15rem; margin-bottom:6px;">てもち（<span id="pc-party-count">1</span> / 6）</div>
+          <div class="party-row" id="pc-party"></div>
+        </div>
+        <div class="panel" style="margin-top:12px;">
+          <div class="dotfont" style="font-size:1.15rem; margin-bottom:6px;">パソコン（<span id="pc-box-count">0</span> たい）</div>
+          <div class="party-row" id="pc-box"></div>
+        </div>
+        <div id="pc-msg" style="font-weight:800; margin-top:10px; min-height:1.5em;" aria-live="polite"></div>
+        <div class="center" style="margin-top:12px;">
+          <button class="btn primary" id="btn-pc-back">かいふくセンターに もどる</button>
+        </div>
+      </section>
+
+      <!-- ===== 図鑑画面 ===== -->
+      <section id="screen-zukan" class="hidden">
+        <h2 class="dotfont" style="font-size:1.5rem; margin:6px 0 10px;">モンスター ずかん</h2>
+        <div class="zukan-grid" id="zukan-grid"></div>
+        <div class="center" style="margin-top:16px;">
+          <button class="btn primary" id="btn-zukan-back">マップに もどる</button>
+        </div>
+      </section>
+
+    </div>
+    <div class="toast" id="toast"></div>
+
+    <script>
+      "use strict";
+      /* ================= モンスターデータ（全オリジナル） ================= */
+      function svgWrap(inner, bg){
+        return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img">' +
+          (bg ? '<circle cx="50" cy="52" r="44" fill="' + bg + '"/>' : '') + inner + '</svg>';
+      }
+      function eyes(x1, x2, y, r){
+        r = r || 3.4;
+        return '<circle cx="' + x1 + '" cy="' + y + '" r="' + r + '" fill="#2b2118"/>' +
+               '<circle cx="' + x2 + '" cy="' + y + '" r="' + r + '" fill="#2b2118"/>' +
+               '<circle cx="' + (x1 + 1.2) + '" cy="' + (y - 1.2) + '" r="1.2" fill="#fff"/>' +
+               '<circle cx="' + (x2 + 1.2) + '" cy="' + (y - 1.2) + '" r="1.2" fill="#fff"/>';
+      }
+      function cheeks(x1, x2, y){
+        return '<circle cx="' + x1 + '" cy="' + y + '" r="4" fill="#ff9d94" opacity=".75"/>' +
+               '<circle cx="' + x2 + '" cy="' + y + '" r="4" fill="#ff9d94" opacity=".75"/>';
+      }
+      var MONSTERS = [
+        { id:0, name:"ヒノマル", type:"ほのお", color:"#e0574f", desc:"あたまの ほのおが ゆらめく、げんきな ひよこモンスター。",
+          svg: svgWrap('<path d="M50 12 Q58 22 50 30 Q42 22 50 12Z" fill="#ff8c42"/><path d="M50 16 Q55 23 50 28 Q45 23 50 16Z" fill="#ffd35c"/><ellipse cx="50" cy="60" rx="27" ry="25" fill="#ffb74d"/><ellipse cx="50" cy="68" rx="16" ry="13" fill="#ffe0b2"/>' + eyes(41,59,56) + cheeks(33,67,64) + '<path d="M46 63 L54 63 L50 68Z" fill="#e0574f"/><path d="M38 84 L44 84 L41 90Z M56 84 L62 84 L59 90Z" fill="#e0574f"/>', "#ffe3d3") },
+        { id:1, name:"ミズタマ", type:"みず", color:"#2f7fc4", desc:"ぷるぷるの しずくの からだ。およぐのが だいすき。",
+          svg: svgWrap('<path d="M50 10 C50 10 76 44 76 62 A26 24 0 1 1 24 62 C24 44 50 10 50 10Z" fill="#64b5f6"/><ellipse cx="38" cy="58" rx="6" ry="10" fill="#bbdefb" opacity=".8"/>' + eyes(41,59,62) + cheeks(32,68,69) + '<path d="M45 70 Q50 74 55 70" stroke="#2b2118" stroke-width="2.4" fill="none" stroke-linecap="round"/>', "#d8ecff") },
+        { id:2, name:"ハッパリ", type:"くさ", color:"#3fa34d", desc:"あたまの はっぱで ひかりを あびて そだつ、のんびりや。",
+          svg: svgWrap('<path d="M50 30 Q34 8 20 16 Q30 34 50 30Z" fill="#66bb6a"/><path d="M50 30 Q58 6 74 12 Q70 32 50 30Z" fill="#43a047"/><ellipse cx="50" cy="62" rx="26" ry="24" fill="#a5d6a7"/><ellipse cx="50" cy="69" rx="15" ry="12" fill="#e8f5e9"/>' + eyes(41,59,58) + cheeks(33,67,65) + '<path d="M45 66 Q50 69 55 66" stroke="#2b2118" stroke-width="2.4" fill="none" stroke-linecap="round"/>', "#dcf2dc") },
+        { id:3, name:"ピカリン", type:"でんき", color:"#e8a91c", desc:"ほっぺに でんきを ためこむ。はしると バチバチ おとがする。",
+          svg: svgWrap('<path d="M30 26 L22 8 L38 18Z" fill="#ffd35c"/><path d="M70 26 L78 8 L62 18Z" fill="#ffd35c"/><circle cx="50" cy="58" r="27" fill="#ffe082"/><circle cx="31" cy="62" r="6.5" fill="#e0574f"/><circle cx="69" cy="62" r="6.5" fill="#e0574f"/>' + eyes(41,59,54) + '<path d="M45 64 Q50 67 55 64" stroke="#2b2118" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M76 74 L86 60 L82 76 L90 70 L78 88 L80 78Z" fill="#ffd35c" stroke="#b97e0a" stroke-width="1.4"/>', "#fff3c4") },
+        { id:4, name:"イワゴロ", type:"いわ", color:"#8d6e63", desc:"かたい いわの からだ。ころがって いどうするのが とくい。",
+          svg: svgWrap('<path d="M26 44 L38 26 L58 22 L76 38 L78 62 L64 82 L38 84 L24 66Z" fill="#a1887f"/><path d="M38 34 L52 30 L50 46 L36 48Z" fill="#bcaaa4"/><path d="M58 44 L70 50 L62 62 L52 54Z" fill="#8d6e63"/>' + eyes(42,58,56) + '<path d="M44 70 L58 70" stroke="#2b2118" stroke-width="3" stroke-linecap="round"/><circle cx="50" cy="16" r="6" fill="#bcaaa4"/>', "#e8ded8") },
+        { id:5, name:"ユキダル", type:"こおり", color:"#7db6e8", desc:"ゆきだるまの すがた。さむい ばしょで いきいきする。",
+          svg: svgWrap('<circle cx="50" cy="70" r="21" fill="#eef7ff"/><circle cx="50" cy="38" r="15" fill="#ffffff"/><path d="M36 28 L64 28 L58 16 L42 16Z" fill="#2f7fc4"/>' + eyes(44,56,38,2.8) + '<path d="M50 42 L58 45 L50 47Z" fill="#ff8c42"/><circle cx="50" cy="64" r="2.6" fill="#2f7fc4"/><circle cx="50" cy="73" r="2.6" fill="#2f7fc4"/><path d="M30 62 L18 54 M70 62 L82 54" stroke="#8d6e63" stroke-width="3.4" stroke-linecap="round"/>', "#e2f1ff") },
+        { id:6, name:"ホシゾラ", type:"エスパー", color:"#7e57c2", desc:"よぞらから まいおりた ほしのかたち。不思議な ちからをもつ。",
+          svg: svgWrap('<path d="M50 8 L60 36 L90 38 L66 56 L74 86 L50 68 L26 86 L34 56 L10 38 L40 36Z" fill="#b39ddb"/><path d="M50 22 L56 40 L74 41 L60 52 L65 70 L50 59 L35 70 L40 52 L26 41 L44 40Z" fill="#d1c4e9"/>' + eyes(43,57,50,3) + '<path d="M46 58 Q50 61 54 58" stroke="#2b2118" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="22" cy="18" r="2.4" fill="#ffd35c"/><circle cx="82" cy="24" r="2" fill="#ffd35c"/><circle cx="76" cy="80" r="2.2" fill="#ffd35c"/>', "#e9e2f7") },
+        { id:7, name:"カゼット", type:"ひこう", color:"#4db6ac", desc:"かぜに のって そらを まう とり。はやさが じまん。",
+          svg: svgWrap('<path d="M24 52 Q6 44 12 30 Q26 34 32 46Z" fill="#4db6ac"/><path d="M76 52 Q94 44 88 30 Q74 34 68 46Z" fill="#4db6ac"/><ellipse cx="50" cy="60" rx="24" ry="23" fill="#b2dfdb"/><ellipse cx="50" cy="67" rx="14" ry="12" fill="#ffffff"/><path d="M44 38 Q50 28 56 38 Q50 34 44 38Z" fill="#ffb74d"/>' + eyes(41,59,56) + '<path d="M46 62 L54 62 L50 68Z" fill="#ff8c42"/>' + cheeks(33,67,64), "#dcf5f1") },
+        { id:8, name:"ヨルネコ", type:"あく", color:"#5c6bc0", desc:"よるに かつどうする ネコ。つきあかりで めが ひかる。",
+          svg: svgWrap('<path d="M28 34 L24 12 L42 24Z" fill="#5c6bc0"/><path d="M72 34 L76 12 L58 24Z" fill="#5c6bc0"/><path d="M30 30 L28 18 L38 25Z M70 30 L72 18 L62 25Z" fill="#9fa8da"/><circle cx="50" cy="56" r="27" fill="#7986cb"/><ellipse cx="50" cy="66" rx="15" ry="11" fill="#c5cae9"/><circle cx="41" cy="54" r="4" fill="#ffd35c"/><circle cx="59" cy="54" r="4" fill="#ffd35c"/><circle cx="41" cy="54" r="1.8" fill="#2b2118"/><circle cx="59" cy="54" r="1.8" fill="#2b2118"/><path d="M46 66 Q50 63 54 66 M50 66 L50 69 M44 72 Q47 70 50 72 Q53 70 56 72" stroke="#2b2118" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M78 74 Q92 70 88 56" stroke="#5c6bc0" stroke-width="6" fill="none" stroke-linecap="round"/>', "#e3e6f7") },
+        { id:9, name:"ツキウサ", type:"フェアリー", color:"#f06292", desc:"つきの ひかりを あびると みみが ふわりと ひかる。",
+          svg: svgWrap('<ellipse cx="38" cy="20" rx="6" ry="15" fill="#f8bbd0" transform="rotate(-12 38 20)"/><ellipse cx="62" cy="20" rx="6" ry="15" fill="#f8bbd0" transform="rotate(12 62 20)"/><ellipse cx="38" cy="21" rx="2.6" ry="9" fill="#f06292" transform="rotate(-12 38 21)"/><ellipse cx="62" cy="21" rx="2.6" ry="9" fill="#f06292" transform="rotate(12 62 21)"/><circle cx="50" cy="58" r="26" fill="#fce4ec"/><ellipse cx="50" cy="66" rx="14" ry="11" fill="#ffffff"/>' + eyes(41,59,55) + cheeks(32,68,63) + '<path d="M47 63 Q50 65 53 63" stroke="#2b2118" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M72 22 a7 7 0 1 0 4 13 a8.5 8.5 0 1 1 -4 -13Z" fill="#ffd35c"/>', "#fdeef4") },
+        { id:10, name:"ドラゴンまる", type:"ドラゴン", color:"#c62828", desc:"ちいさな ドラゴン。ほのおを はけるように れんしゅう中。",
+          svg: svgWrap('<path d="M30 30 L18 16 L36 20Z" fill="#66bb6a"/><path d="M70 30 L82 16 L64 20Z" fill="#66bb6a"/><path d="M50 22 L44 10 L56 10Z" fill="#ffd35c"/><ellipse cx="50" cy="60" rx="26" ry="25" fill="#ef9a9a"/><ellipse cx="50" cy="68" rx="15" ry="13" fill="#ffecb3"/>' + eyes(41,59,55) + '<circle cx="45" cy="63" r="1.6" fill="#2b2118"/><circle cx="55" cy="63" r="1.6" fill="#2b2118"/><path d="M43 70 Q50 74 57 70" stroke="#2b2118" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M74 76 Q88 72 84 60 L92 66 Q90 82 76 84Z" fill="#e57373"/>', "#fde3e3") },
+        { id:11, name:"フェニックスまる", type:"ほのお", color:"#fb8c00", desc:"でんせつの ほのおのとり。なかなか すがたを みせない。",
+          svg: svgWrap('<path d="M22 44 Q6 30 14 14 Q28 22 32 38Z" fill="#fb8c00"/><path d="M78 44 Q94 30 86 14 Q72 22 68 38Z" fill="#fb8c00"/><path d="M50 26 Q42 10 50 4 Q58 10 50 26Z" fill="#ffd35c"/><path d="M38 24 Q30 12 38 6 Q46 14 44 26Z M62 24 Q70 12 62 6 Q54 14 56 26Z" fill="#ff7043"/><ellipse cx="50" cy="60" rx="25" ry="24" fill="#ffcc80"/><ellipse cx="50" cy="67" rx="14" ry="12" fill="#fff3e0"/>' + eyes(41,59,56) + '<path d="M45 63 L55 63 L50 70Z" fill="#e0574f"/><path d="M38 82 L44 92 L48 83 L52 92 L56 83 L62 82 L58 94 L42 94Z" fill="#ff7043"/>', "#ffedd6") },
+        { id:12, name:"ハネコロ", type:"むし", color:"#c0ca33", pow:0.9, hpf:0.9, desc:"まるい てんとうむし。はねを ひらくと キラキラ ひかる。",
+          svg: svgWrap('<circle cx="50" cy="62" r="25" fill="#e0574f"/><path d="M50 38 L50 86" stroke="#2b2118" stroke-width="3"/><circle cx="37" cy="54" r="4.6" fill="#2b2118"/><circle cx="63" cy="54" r="4.6" fill="#2b2118"/><circle cx="36" cy="71" r="3.6" fill="#2b2118"/><circle cx="64" cy="71" r="3.6" fill="#2b2118"/><circle cx="50" cy="31" r="11" fill="#37474f"/><path d="M44 22 Q38 12 32 10 M56 22 Q62 12 68 10" stroke="#37474f" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="46" cy="30" r="2.5" fill="#fff"/><circle cx="54" cy="30" r="2.5" fill="#fff"/><path d="M46.5 35 Q50 37 53.5 35" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/>', "#fdebd0") },
+        { id:13, name:"コロリス", type:"くさ", color:"#66bb6a", pow:0.9, hpf:1.0, desc:"ほっぺに どんぐりを ためこむ リス。はやく はしるのが とくい。",
+          svg: svgWrap('<path d="M72 82 Q94 66 86 40 Q98 62 90 80 Q84 92 68 90Z" fill="#8d6e63"/><ellipse cx="48" cy="62" rx="26" ry="25" fill="#ffb74d"/><ellipse cx="48" cy="69" rx="15" ry="13" fill="#ffe0b2"/><path d="M30 40 L26 24 L42 32Z M66 40 L70 24 L54 32Z" fill="#ffb74d"/><path d="M48 34 Q40 20 28 22 Q36 36 48 34Z" fill="#66bb6a"/>' + eyes(39,57,58) + cheeks(31,65,65) + '<ellipse cx="48" cy="66" rx="3.4" ry="2.6" fill="#8d6e63"/><path d="M42 74 Q48 77 54 74" stroke="#2b2118" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="70" cy="76" rx="6" ry="7.4" fill="#a1887f"/><path d="M70 69 L70 65" stroke="#6d4c41" stroke-width="2.4" stroke-linecap="round"/>', "#e6f2df") },
+        { id:14, name:"プニョラ", type:"フェアリー", color:"#f48fb1", pow:0.85, hpf:1.1, desc:"ぷにぷに ゼリーの からだ。さわると ひんやり きもちいい。",
+          svg: svgWrap('<path d="M50 16 C66 16 76 34 76 54 C76 74 64 84 50 84 C36 84 24 74 24 54 C24 34 34 16 50 16Z" fill="#f8bbd0" opacity=".92"/><ellipse cx="38" cy="46" rx="6" ry="10" fill="#ffffff" opacity=".55"/><path d="M50 4 L52.4 9.4 L58 10 L53.8 13.8 L55 19.4 L50 16.4 L45 19.4 L46.2 13.8 L42 10 L47.6 9.4Z" fill="#ffd35c"/>' + eyes(41,59,56) + cheeks(32,68,63) + '<path d="M45 65 Q50 68 55 65" stroke="#2b2118" stroke-width="2.2" fill="none" stroke-linecap="round"/>', "#fdeef4") },
+        { id:15, name:"ドクキノ", type:"どく", color:"#8e24aa", pow:1.0, hpf:1.0, desc:"どくの かさが じまんの キノコ。いつも ねむそうな めを している。",
+          svg: svgWrap('<path d="M18 50 A32 26 0 0 1 82 50 Z" fill="#8e24aa"/><circle cx="36" cy="36" r="5" fill="#e1bee7"/><circle cx="58" cy="30" r="6" fill="#e1bee7"/><circle cx="66" cy="42" r="4" fill="#e1bee7"/><path d="M36 50 L64 50 L60 82 Q50 86 40 82Z" fill="#f3e5f5"/><path d="M40 62 Q44 59 48 62 M52 62 Q56 59 60 62" stroke="#2b2118" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M45 72 Q50 70 55 72" stroke="#2b2118" stroke-width="2.2" fill="none" stroke-linecap="round"/>', "#f1e6f7") },
+        { id:16, name:"ラッコロ", type:"みず", color:"#26a69a", pow:1.0, hpf:1.05, desc:"おなかに かいがらを のせた ラッコ。およぐのが とても じょうず。",
+          svg: svgWrap('<ellipse cx="50" cy="62" rx="27" ry="24" fill="#8d6e63"/><ellipse cx="50" cy="68" rx="16" ry="13" fill="#d7ccc8"/><circle cx="32" cy="40" r="7" fill="#8d6e63"/><circle cx="68" cy="40" r="7" fill="#8d6e63"/><circle cx="32" cy="40" r="3.4" fill="#d7ccc8"/><circle cx="68" cy="40" r="3.4" fill="#d7ccc8"/>' + eyes(41,59,56) + '<ellipse cx="50" cy="63" rx="4.4" ry="3.2" fill="#2b2118"/><path d="M50 66 L50 69 M44 72 Q47 70 50 72 Q53 70 56 72" stroke="#2b2118" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M40 80 Q50 74 60 80 Q58 88 50 88 Q42 88 40 80Z" fill="#fff3e0" stroke="#bcaaa4" stroke-width="1.6"/><path d="M44 82 Q50 79 56 82" stroke="#bcaaa4" stroke-width="1.6" fill="none"/>', "#dcf0ee") },
+        { id:17, name:"シェルガ", type:"いわ", color:"#a1887f", pow:0.9, hpf:1.3, desc:"大きな まきがいの カラを せおった カタツムリ。とても かたい。",
+          svg: svgWrap('<circle cx="60" cy="52" r="27" fill="#bcaaa4"/><path d="M60 33 a19 19 0 1 1 -19 19 a13 13 0 1 0 13 -13 a8 8 0 1 1 -8 8" fill="none" stroke="#8d6e63" stroke-width="3.4"/><path d="M14 78 Q14 62 30 60 L58 60 Q70 60 70 70 Q70 78 58 78Z" fill="#ffe082"/><path d="M24 60 L20 44 M34 60 L32 46" stroke="#ffe082" stroke-width="5" stroke-linecap="round"/>' + eyes(20,32,42,2.8) + '<path d="M22 52 Q26 54 30 52" stroke="#2b2118" stroke-width="2" fill="none" stroke-linecap="round"/>', "#eee7dd") },
+        { id:18, name:"スイスイ", type:"むし", color:"#7cb342", pow:1.05, hpf:0.85, desc:"みずの うえを すべる アメンボ。あしが とても ながい。",
+          svg: svgWrap('<path d="M30 58 L12 44 M32 64 L14 76 M68 58 L88 44 M66 64 L86 76 M38 68 L30 84 M62 68 L70 84" stroke="#33691e" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="50" cy="60" rx="19" ry="11" fill="#aed581"/><ellipse cx="50" cy="56" rx="11" ry="6" fill="#dcedc8"/>' + eyes(44,56,54,2.6) + '<path d="M40 44 Q34 32 26 30 M60 44 Q66 32 74 30" stroke="#33691e" stroke-width="2.2" fill="none" stroke-linecap="round"/>', "#e6f2dc") },
+        { id:19, name:"サボテンマル", type:"くさ", color:"#43a047", pow:1.0, hpf:1.15, desc:"まるい サボテン。あたまの はなが さくと うれしそうに ゆれる。",
+          svg: svgWrap('<path d="M26 56 Q14 52 16 40 Q24 42 27 48Z M74 56 Q86 52 84 40 Q76 42 73 48Z" fill="#43a047"/><ellipse cx="50" cy="60" rx="24" ry="25" fill="#66bb6a"/><path d="M42 38 L42 82 M58 38 L58 82" stroke="#43a047" stroke-width="2.2"/>' + eyes(42,58,57) + cheeks(34,66,64) + '<path d="M45 65 Q50 68 55 65" stroke="#2b2118" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="50" cy="31" r="5.4" fill="#f06292"/><circle cx="50" cy="31" r="2.2" fill="#ffd35c"/>', "#e2f2e0") },
+        { id:20, name:"デンカエル", type:"でんき", color:"#e8a91c", pow:1.1, hpf:0.95, desc:"ほっぺの でんきぶくろが バチバチ 光る カエル。",
+          svg: svgWrap('<circle cx="36" cy="34" r="8" fill="#ffee58"/><circle cx="64" cy="34" r="8" fill="#ffee58"/><circle cx="36" cy="33" r="3.4" fill="#2b2118"/><circle cx="64" cy="33" r="3.4" fill="#2b2118"/><ellipse cx="50" cy="62" rx="27" ry="23" fill="#ffee58"/><ellipse cx="50" cy="69" rx="16" ry="12" fill="#fff9c4"/><circle cx="29" cy="62" r="6" fill="#e0574f"/><circle cx="71" cy="62" r="6" fill="#e0574f"/><path d="M38 62 Q50 72 62 62" stroke="#2b2118" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M84 78 L92 66 L88 78 L94 74 L86 88 L87 79Z" fill="#ffd35c" stroke="#b97e0a" stroke-width="1.2"/>', "#fff6cf") },
+        { id:21, name:"モグドン", type:"じめん", color:"#a1887f", pow:1.05, hpf:1.1, desc:"つちを ほるのが とくいな モグラ。大きな つめが じまん。",
+          svg: svgWrap('<ellipse cx="50" cy="64" rx="26" ry="22" fill="#8d6e63"/><ellipse cx="50" cy="70" rx="14" ry="10" fill="#bcaaa4"/><ellipse cx="50" cy="64" rx="6" ry="4.6" fill="#f48fb1"/>' + eyes(40,60,52) + '<path d="M22 72 L12 82 L20 80 L17 88 L28 78Z M78 72 L88 82 L80 80 L83 88 L72 78Z" fill="#efebe9" stroke="#8d6e63" stroke-width="1.4"/><path d="M30 88 Q50 80 70 88 L70 92 L30 92Z" fill="#6d4c41"/>', "#eee5dc") },
+        { id:22, name:"コウモリン", type:"あく", color:"#5e35b1", pow:1.1, hpf:0.85, desc:"どうくつに すむ コウモリ。よるに なると 元気いっぱい。",
+          svg: svgWrap('<path d="M26 50 Q6 44 10 26 Q22 32 28 40Z M74 50 Q94 44 90 26 Q78 32 72 40Z" fill="#4527a0"/><path d="M32 36 L28 20 L44 30Z M68 36 L72 20 L56 30Z" fill="#5e35b1"/><path d="M33 33 L31 25 L40 29Z M67 33 L69 25 L60 29Z" fill="#9fa8da"/><circle cx="50" cy="58" r="25" fill="#5e35b1"/><circle cx="41" cy="55" r="3.8" fill="#ffd35c"/><circle cx="59" cy="55" r="3.8" fill="#ffd35c"/><circle cx="41" cy="55" r="1.7" fill="#2b2118"/><circle cx="59" cy="55" r="1.7" fill="#2b2118"/><path d="M43 66 Q50 70 57 66 L54 71 L51 67 L48 71 L45 67Z" fill="#ffffff"/>', "#e2e4f5") },
+        { id:23, name:"ユーレイ", type:"ゴースト", color:"#7e57c2", pow:1.1, hpf:0.9, desc:"ふわふわ うかぶ おばけ。いたずらが だいすき。",
+          svg: svgWrap('<path d="M28 84 L28 46 A22 24 0 0 1 72 46 L72 84 L62 76 L54 86 L46 76 L38 86 L30 77Z" fill="#ede7f6"/><ellipse cx="41" cy="50" rx="4" ry="5.6" fill="#311b92"/><ellipse cx="59" cy="50" rx="4" ry="5.6" fill="#311b92"/><ellipse cx="50" cy="63" rx="3.6" ry="4.6" fill="#311b92"/><circle cx="32" cy="60" r="4" fill="#b39ddb" opacity=".8"/><circle cx="68" cy="60" r="4" fill="#b39ddb" opacity=".8"/>', "#e9e2f7") },
+        { id:24, name:"ホウセキ", type:"はがね", color:"#78909c", pow:1.0, hpf:1.2, desc:"すいしょうの かたまりから 生まれた。キラキラ 光る。",
+          svg: svgWrap('<path d="M50 8 L62 34 L50 46 L38 34Z" fill="#80deea"/><path d="M26 30 L40 44 L30 56 L20 42Z" fill="#4dd0e1"/><path d="M74 30 L80 42 L70 56 L60 44Z" fill="#4dd0e1"/><path d="M32 62 L50 52 L68 62 L62 84 L38 84Z" fill="#90a4ae"/>' + eyes(43,57,68,3) + '<path d="M45 76 Q50 78 55 76" stroke="#2b2118" stroke-width="2.2" fill="none" stroke-linecap="round"/>', "#e2f4f7") },
+        { id:25, name:"ドクガス", type:"どく", color:"#7b1fa2", pow:1.05, hpf:1.0, desc:"もくもくの ガスの からだ。ちかづくと くさい においがする。",
+          svg: svgWrap('<circle cx="36" cy="58" r="15" fill="#ab47bc"/><circle cx="56" cy="48" r="17" fill="#ba68c8"/><circle cx="64" cy="66" r="14" fill="#ab47bc"/><circle cx="46" cy="68" r="13" fill="#ba68c8"/>' + eyes(44,58,54) + '<path d="M44 66 Q47 63 50 66 Q53 69 56 66" stroke="#2b2118" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="76" cy="30" r="5" fill="#ce93d8"/><circle cx="84" cy="20" r="3.4" fill="#ce93d8"/>', "#f3e5f7") },
+        { id:26, name:"サンダーバード", type:"でんき", color:"#f9a825", pow:1.25, hpf:1.0, desc:"かみなりの くもに すむ 大きな とり。はねが でんきを まとう。",
+          svg: svgWrap('<path d="M22 50 Q4 40 10 22 Q24 30 30 42Z M78 50 Q96 40 90 22 Q76 30 70 42Z" fill="#f9a825"/><path d="M50 30 L44 12 L53 22 L58 8 L61 24 L70 16 L62 32Z" fill="#ffd35c"/><ellipse cx="50" cy="60" rx="24" ry="23" fill="#ffe082"/><ellipse cx="50" cy="67" rx="13" ry="11" fill="#fff8e1"/>' + eyes(41,59,55) + '<path d="M44 62 L56 62 L50 70Z" fill="#e0574f"/><path d="M74 74 L84 62 L81 75 L89 70 L79 86 L80 76Z" fill="#ffd35c" stroke="#b97e0a" stroke-width="1.3"/>', "#fdf0cd") },
+        { id:27, name:"ユキオオカミ", type:"こおり", color:"#64b5f6", pow:1.2, hpf:1.05, desc:"ゆきやまの オオカミ。するどい キバと 白い たてがみが じまん。",
+          svg: svgWrap('<path d="M28 40 L22 16 L44 28Z M72 40 L78 16 L56 28Z" fill="#90caf9"/><path d="M30 34 L27 23 L39 29Z M70 34 L73 23 L61 29Z" fill="#e3f2fd"/><ellipse cx="50" cy="58" rx="26" ry="25" fill="#e3f2fd"/><path d="M50 34 L56 48 L50 54 L44 48Z" fill="#bbdefb"/><ellipse cx="50" cy="70" rx="11" ry="9" fill="#ffffff"/><ellipse cx="50" cy="66" rx="4.2" ry="3.2" fill="#37474f"/><circle cx="38" cy="52" r="3.6" fill="#1565c0"/><circle cx="62" cy="52" r="3.6" fill="#1565c0"/><path d="M44 76 Q50 79 56 76 L53 80 L50 77 L47 80Z" fill="#ffffff" stroke="#90a4ae" stroke-width=".8"/>', "#e8f4fd") },
+        { id:28, name:"ヨウガン", type:"ほのお", color:"#d84315", pow:1.2, hpf:1.1, desc:"マグマの なかに すむ トカゲ。からだの ひびが 赤く 光る。",
+          svg: svgWrap('<path d="M30 34 Q20 24 26 12 Q36 20 36 32Z M70 34 Q80 24 74 12 Q64 20 64 32Z" fill="#5d4037"/><ellipse cx="50" cy="60" rx="26" ry="24" fill="#6d4c41"/><path d="M34 50 L44 56 L38 64 M60 46 L56 56 L64 62 M44 74 L52 68 L58 76" stroke="#ff7043" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="41" cy="54" r="3.8" fill="#ffab40"/><circle cx="59" cy="54" r="3.8" fill="#ffab40"/><circle cx="41" cy="54" r="1.7" fill="#2b2118"/><circle cx="59" cy="54" r="1.7" fill="#2b2118"/><path d="M43 68 L47 65 L51 68 L55 65 L57 68" stroke="#ffccbc" stroke-width="2" fill="none" stroke-linecap="round"/>', "#fbe3d3") },
+        { id:29, name:"テツゴーレム", type:"はがね", color:"#607d8b", pow:1.15, hpf:1.3, desc:"てつの かたまりの ゴーレム。とても 重くて 力持ち。",
+          svg: svgWrap('<rect x="28" y="34" width="44" height="40" rx="8" fill="#90a4ae"/><rect x="34" y="42" width="32" height="16" rx="4" fill="#37474f"/><circle cx="44" cy="50" r="3.2" fill="#69f0ae"/><circle cx="56" cy="50" r="3.2" fill="#69f0ae"/><path d="M43 66 L57 66" stroke="#37474f" stroke-width="3" stroke-linecap="round"/><path d="M50 34 L50 22" stroke="#78909c" stroke-width="3.4"/><circle cx="50" cy="18" r="4.6" fill="#ffd35c"/><rect x="18" y="44" width="10" height="20" rx="4" fill="#78909c"/><rect x="72" y="44" width="10" height="20" rx="4" fill="#78909c"/><path d="M38 80 L46 80 L42 88Z M54 80 L62 80 L58 88Z" fill="#78909c"/>', "#e6ecef") },
+        { id:30, name:"リュウセイ", type:"ドラゴン", color:"#5e35b1", pow:1.3, hpf:1.15, desc:"ほしの ちからを もつ りゅう。めったに すがたを 見せない。",
+          svg: svgWrap('<path d="M30 32 Q18 20 24 8 Q36 16 37 29Z M70 32 Q82 20 76 8 Q64 16 63 29Z" fill="#ffd35c"/><path d="M50 24 L44 10 L56 10Z" fill="#b39ddb"/><ellipse cx="50" cy="60" rx="26" ry="25" fill="#7e57c2"/><ellipse cx="50" cy="68" rx="15" ry="13" fill="#d1c4e9"/>' + eyes(41,59,55) + '<circle cx="45" cy="63" r="1.6" fill="#2b2118"/><circle cx="55" cy="63" r="1.6" fill="#2b2118"/><path d="M42 71 Q50 75 58 71" stroke="#2b2118" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M24 62 Q12 60 14 50 M76 62 Q88 60 86 50" stroke="#ffd35c" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="20" cy="20" r="2.2" fill="#ffd35c"/><circle cx="82" cy="16" r="1.8" fill="#ffd35c"/>', "#e9e2f7") },
+        { id:31, name:"ツキヨミ", type:"エスパー", color:"#9575cd", pow:1.15, hpf:1.0, desc:"つきの ひかりで ねむりを さそう。ゆめを 食べるという うわさ。",
+          svg: svgWrap('<path d="M62 14 A34 34 0 1 0 62 86 A27 27 0 1 1 62 14Z" fill="#9575cd"/><path d="M40 32 L42 38 L48 38 L43.4 41.6 L45 47.4 L40 44 L35 47.4 L36.6 41.6 L32 38 L38 38Z" fill="#ffd35c"/>' + eyes(34,48,58,3) + '<path d="M37 68 Q41 70.4 45 68" stroke="#2b2118" stroke-width="2.2" fill="none" stroke-linecap="round"/><circle cx="72" cy="34" r="2.2" fill="#ffd35c"/><circle cx="80" cy="52" r="1.8" fill="#ffd35c"/><circle cx="70" cy="68" r="2" fill="#ffd35c"/>', "#ece5f7") },
+        { id:32, name:"ヤミウマ", type:"あく", color:"#311b92", pow:1.25, hpf:1.05, desc:"まよなかに だけ あらわれる 黒い うま。たてがみが ゆらめく。",
+          svg: svgWrap('<path d="M50 36 L44 12 L56 14Z" fill="#cfd8dc"/><ellipse cx="50" cy="60" rx="25" ry="24" fill="#3949ab"/><path d="M28 52 Q20 34 32 24 Q30 40 34 48Z M72 52 Q80 34 68 24 Q70 40 66 48Z" fill="#1a237e"/><ellipse cx="50" cy="70" rx="12" ry="9" fill="#5c6bc0"/><circle cx="45" cy="70" r="1.8" fill="#1a237e"/><circle cx="55" cy="70" r="1.8" fill="#1a237e"/><circle cx="40" cy="56" r="3.8" fill="#ff5252"/><circle cx="60" cy="56" r="3.8" fill="#ff5252"/>', "#e0e3f2") },
+        { id:33, name:"シラトリ", type:"ひこう", color:"#4fc3f7", pow:1.15, hpf:1.0, desc:"白い 大きな とり。みずうみの うえを ゆうがに とぶ。",
+          svg: svgWrap('<path d="M20 56 Q6 46 12 32 Q24 38 28 48Z" fill="#eceff1"/><ellipse cx="52" cy="64" rx="26" ry="19" fill="#ffffff"/><path d="M66 52 Q84 44 82 26 Q92 44 78 56 Q70 60 64 58Z" fill="#ffffff"/><circle cx="76" cy="30" r="8.4" fill="#ffffff"/><circle cx="79" cy="28" r="2.6" fill="#2b2118"/><path d="M83 30 L94 34 L83 37Z" fill="#ff8c42"/><path d="M30 78 Q50 84 72 76" stroke="#cfd8dc" stroke-width="2.4" fill="none"/>', "#e8f4fb") },
+        { id:34, name:"カゼノコ", type:"ひこう", color:"#80deea", pow:0.9, hpf:0.9, desc:"かぜの ようせい。うずまきの くもに のって そらを とぶ。",
+          svg: svgWrap('<circle cx="36" cy="62" r="13" fill="#e0f7fa"/><circle cx="54" cy="54" r="15" fill="#e0f7fa"/><circle cx="66" cy="64" r="11" fill="#e0f7fa"/><rect x="30" y="58" width="44" height="14" fill="#e0f7fa"/><path d="M54 40 Q50 26 60 22 Q64 34 56 41Z" fill="#66bb6a"/>' + eyes(46,60,56,3) + '<path d="M49 63 Q53 65.4 57 63" stroke="#2b2118" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M28 78 Q40 84 52 78" stroke="#80deea" stroke-width="2.4" fill="none" stroke-linecap="round"/>', "#e6f9fc") },
+        { id:35, name:"ヒダネ", type:"ほのお", color:"#ff7043", pow:0.95, hpf:0.9, desc:"ちいさな ひのこ モンスター。さむい 日に みんなを あたためる。",
+          svg: svgWrap('<ellipse cx="50" cy="84" rx="20" ry="6" fill="#5d4037"/><path d="M50 10 Q66 30 64 50 Q63 70 50 74 Q37 70 36 50 Q34 30 50 10Z" fill="#ff7043"/><path d="M50 30 Q59 42 58 53 Q57 65 50 67 Q43 65 42 53 Q41 42 50 30Z" fill="#ffb74d"/>' + eyes(44,56,52,3) + '<path d="M46 60 Q50 62.6 54 60" stroke="#2b2118" stroke-width="2.2" fill="none" stroke-linecap="round"/>', "#fdeadd") },
+        { id:36, name:"ユキンコ", type:"こおり", color:"#81d4fa", pow:1.0, hpf:1.0, desc:"マフラーを まいた ゆきの こども。すべって いどうするのが すき。",
+          svg: svgWrap('<circle cx="50" cy="66" r="20" fill="#eef7ff"/><circle cx="50" cy="36" r="14.6" fill="#ffffff"/><path d="M35.6 29.4 a15 15 0 0 1 28.8 0 l0 5.2 -28.8 0Z" fill="#e0574f"/><circle cx="34" cy="38" r="5" fill="#e0574f"/><circle cx="66" cy="38" r="5" fill="#e0574f"/>' + eyes(44,56,36,2.6) + '<path d="M50 40 L57 42.6 L50 44.6Z" fill="#ff8c42"/><path d="M36 52 Q50 58 64 52 L64 58 Q50 64 36 58Z" fill="#2f7fc4"/><rect x="56" y="56" width="6.4" height="11" rx="2" fill="#2f7fc4"/><circle cx="50" cy="64" r="2.4" fill="#2f7fc4"/><circle cx="50" cy="72" r="2.4" fill="#2f7fc4"/>', "#e6f4fc") },
+        { id:37, name:"ミズクラゲ", type:"みず", color:"#4dd0e1", pow:1.0, hpf:1.05, desc:"ぷかぷか うかぶ クラゲ。あしが ゆらゆら 光る。",
+          svg: svgWrap('<path d="M26 52 A24 20 0 0 1 74 52 Q68 58 62 52 Q56 58 50 52 Q44 58 38 52 Q32 58 26 52Z" fill="#80deea"/><ellipse cx="40" cy="40" rx="6" ry="4" fill="#e0f7fa" opacity=".8"/><path d="M34 56 Q30 66 34 74 Q38 82 34 90 M46 56 Q44 66 46 74 Q48 82 46 88 M58 56 Q56 66 58 74 Q60 82 58 90 M68 56 Q72 66 68 76" stroke="#4dd0e1" stroke-width="3.4" fill="none" stroke-linecap="round"/>' + eyes(42,58,44,3) + cheeks(34,66,48) + '<path d="M46 49 Q50 51.4 54 49" stroke="#2b2118" stroke-width="2" fill="none" stroke-linecap="round"/>', "#e2f6fa") },
+        { id:38, name:"ツチノコ", type:"じめん", color:"#b08968", pow:1.1, hpf:1.1, desc:"ずんぐりした まぼろしの ヘビ。ころがって いどうする。",
+          svg: svgWrap('<path d="M18 72 Q18 56 36 54 L64 54 Q82 54 82 66 Q82 78 66 78 L30 78 Q18 78 18 72Z" fill="#b08968"/><path d="M64 54 Q78 44 74 30 Q88 40 82 56 Q76 62 68 60Z" fill="#b08968"/><circle cx="30" cy="62" r="3.4" fill="#8d6e63"/><circle cx="48" cy="60" r="3.4" fill="#8d6e63"/><circle cx="58" cy="70" r="3" fill="#8d6e63"/>' + eyes(69,79,40,2.8) + '<path d="M84 48 L92 45 M84 48 L92 51" stroke="#e0574f" stroke-width="2" stroke-linecap="round"/>', "#f0e7da") },
+        { id:39, name:"オーロラ", type:"エスパー", color:"#26a69a", pow:1.3, hpf:1.0, desc:"オーロラの つのを もつ シカ。よぞらに だけ あらわれる めずらしい モンスター。",
+          svg: svgWrap('<path d="M32 34 Q20 22 24 8 Q34 16 36 28Z M68 34 Q80 22 76 8 Q66 16 64 28Z" fill="#64ffda"/><path d="M36 30 Q30 14 40 8 Q42 20 40 30Z M64 30 Q70 14 60 8 Q58 20 60 30Z" fill="#ea80fc"/><ellipse cx="50" cy="60" rx="25" ry="24" fill="#4db6ac"/><ellipse cx="50" cy="68" rx="13" ry="11" fill="#e0f2f1"/>' + eyes(41,59,56) + '<ellipse cx="50" cy="66" rx="3.6" ry="2.6" fill="#2b2118"/><path d="M45 73 Q50 75.4 55 73" stroke="#2b2118" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M28 48 L29.4 51.6 L33 51.8 L30.2 54 L31.2 57.4 L28 55.4 L24.8 57.4 L25.8 54 L23 51.8 L26.6 51.6Z" fill="#ffd35c"/>', "#e2f5f1") }
+      ];
+
+      var AREAS = [
+        { id:"kusa", name:"わかばの くさむら", desc:"はじまりの 草原。やさしい モンスターが すむ。", lv:[2,4], pool:[0,1,2,3], bg:"" },
+        { id:"mizu", name:"キラキラ みずべ", desc:"川と 池の エリア。みずタイプが 多い。", lv:[4,7], pool:[1,2,5,7], bg:"" },
+        { id:"yama", name:"ゴツゴツ やまみち", desc:"岩山の さかみち。手強い あいてが いる。", lv:[6,9], pool:[3,4,7,8], bg:"" },
+        { id:"yoru", name:"まよなかの もり", desc:"暗い 森。めずらしい モンスターの 気配…。", lv:[8,12], pool:[6,8,9,10], bg:"night" }
+      ];
+      var GYMS = [
+        { id:"gym1", name:"キラリ ジム", leader:"リーダー・ヒカリ", type:"でんき", badge:"⚡", badgeName:"ボルトバッジ", mon:3, lv:8,  need:5,
+          team:[{mid:20,lv:6},{mid:3,lv:7},{mid:3,lv:8}],
+          lineBefore:"でんきの パワー、とくと 見せてあげる！",
+          lineWin:"すごい！ その ちから、みとめるわ！ バッジを あげる！",
+          lineLose:"まだまだ れんしゅうが たりないみたい！ でなおしてきてね" },
+        { id:"gym2", name:"シズク ジム", leader:"リーダー・シズク", type:"みず", badge:"💧", badgeName:"シズクバッジ", mon:1, lv:12, need:9,
+          team:[{mid:37,lv:10},{mid:16,lv:11},{mid:1,lv:12}],
+          lineBefore:"みずの おどりで まいらせてあげる！",
+          lineWin:"まいった！ きみの バトル、すてきだったわ。バッジを どうぞ",
+          lineLose:"あら、そんなもの？ もっと れんしゅうしてきてね" },
+        { id:"gym3", name:"ホノオ ジム", leader:"リーダー・カエン", type:"ほのお", badge:"🔥", badgeName:"フレイムバッジ", mon:11, lv:16, need:13,
+          team:[{mid:35,lv:14},{mid:0,lv:15},{mid:11,lv:16}],
+          lineBefore:"おれの ほのおは だれにも けせないぜ！ かかってこい！",
+          lineWin:"ぐおお…！ きみの ねつさに まけた！ バッジは おまえの ものだ！",
+          lineLose:"ははっ！ ほのおは まだまだ これからだ！ でなおしてこい！" },
+        { id:"gym4", name:"リュウセイ ジム", leader:"リーダー・セイラ", type:"ドラゴン", badge:"🐉", badgeName:"ドラゴンバッジ", mon:10, lv:20, need:17,
+          team:[{mid:10,lv:18},{mid:10,lv:19},{mid:30,lv:20}],
+          lineBefore:"りゅうの ちから、とくと 味わいなさい！",
+          lineWin:"すばらしい…！ りゅうたちも よろこんでいるわ。バッジを 受けとって",
+          lineLose:"りゅうの こころが 読めていないようね。でなおしてらっしゃい" }
+      ];
+      /* チャンピオン（人とのバトル：5たい持ち） */
+      var CHAMPION = {
+        name:"チャンピオン・ユウキ",
+        team:[{mid:39,lv:22},{mid:26,lv:23},{mid:27,lv:23},{mid:30,lv:24},{mid:11,lv:24}],
+        lineBefore:"4つの バッジを あつめた チャレンジャーか！ 全力で むかえうつぞ！",
+        lineWin:"かんぺきな バトルだった…！ きみこそ あたらしい チャンピオンだ！",
+        lineLose:"まだまだ！ チャンピオンの 座は そう かんたんには わたさない！"
+      };
+
+      /* ================= 人の ドット絵風キャラクター（全オリジナル） =================
+         look: { style:"cap"|"spiky"|"bob"|"band"|"crown", c1:髪/帽子の色, c2:帽子のつば, shirt, stripe, pants } */
+      function npcSvg(o){
+        var skin = o.skin || "#ffcf9e";
+        var hairBack = "", hairFront = "";
+        if(o.style === "bob"){
+          hairBack = '<circle cx="24" cy="15" r="9.6" fill="' + o.c1 + '"/>' +
+            '<rect x="14.2" y="14" width="4.6" height="14" rx="2" fill="' + o.c1 + '"/>' +
+            '<rect x="29.2" y="14" width="4.6" height="14" rx="2" fill="' + o.c1 + '"/>';
+          hairFront = '<path d="M16.4 14.6 a7.6 7.6 0 0 1 15.2 0 Z" fill="' + o.c1 + '"/>';
+        } else if(o.style === "cap"){
+          hairFront = '<path d="M15.5 16 a8.5 8.5 0 0 1 17 0 Z" fill="' + o.c1 + '"/>' +
+            '<rect x="14" y="15.5" width="20" height="3" rx="1.5" fill="' + (o.c2 || o.c1) + '"/>';
+        } else if(o.style === "spiky"){
+          hairFront = '<path d="M16 16 L17.5 6.5 L21 12 L24 4.5 L27 12 L30.5 6.5 L32 16 a8.5 8.5 0 0 0 -16 0Z" fill="' + o.c1 + '"/>';
+        } else if(o.style === "band"){
+          hairFront = '<path d="M15.8 13.4 a8.2 8.2 0 0 1 16.4 0 Z" fill="#3a2c14"/>' +
+            '<rect x="15" y="12.2" width="18" height="3.6" rx="1.6" fill="' + o.c1 + '"/>';
+        } else if(o.style === "crown"){
+          hairFront = '<path d="M17 10.5 L19 4.5 L22 8.5 L24 3.5 L26 8.5 L29 4.5 L31 10.5Z" fill="#ffd35c" stroke="#b97e0a" stroke-width="1"/>';
+        }
+        return '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" role="img">' +
+          '<path d="M14 44 L18 34 L22 34 L21 44Z M26 34 L30 34 L34 44Z" fill="' + (o.pants || "#37474f") + '"/>' +
+          '<rect x="15" y="24" width="18" height="12" rx="3" fill="' + o.shirt + '"/>' +
+          '<rect x="21" y="24" width="6" height="12" fill="' + (o.stripe || "#ffffff") + '" opacity=".85"/>' +
+          hairBack +
+          '<circle cx="24" cy="17" r="8" fill="' + skin + '"/>' +
+          hairFront +
+          '<circle cx="21" cy="18" r="1.3" fill="#2b2118"/><circle cx="27" cy="18" r="1.3" fill="#2b2118"/>' +
+          '<path d="M21.5 21.5 Q24 23 26.5 21.5" stroke="#2b2118" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>';
+      }
+
+      /* ================= 状態 ================= */
+      var S = {
+        started:false,
+        party:[],            // {mid, lv, xp, hp, maxhp}（てもちは 最大6たい）
+        box:[],              // パソコンに あずけている モンスター {mid, lv, xp, hp, maxhp}
+        active:0,
+        balls:5,
+        potions:2,
+        money:200,
+        badges:{},
+        defeatedTrainers:{}, // たおした どうろトレーナーの id（true で 再戦しない）
+        seen:{},
+        qmode:"mix",
+        battle:null
+      };
+      /* 種族ごとの 強さのちがい：hpf=HPの倍率（かたい種族は大）、pow=こうげきの倍率。未指定は 1倍 */
+      function maxHpFor(lv, mid){
+        var f = (mid != null && MONSTERS[mid] && MONSTERS[mid].hpf) || 1;
+        return Math.round((26 + lv * 6) * f);
+      }
+      function atkFor(lv){ return 6 + lv * 1.6; }
+      function xpNext(lv){ return 14 + lv * 10; }
+      /* 経験値バー＋数値の共通表示（てもち一覧・パソコン・こうたい・エンディングで使う）
+         p.xp は「今のレベルになってから貯まった経験値」、xpNext(lv) が 次のレベルに必要な量 */
+      function xpHtml(p){
+        var next = xpNext(p.lv), rest = next - p.xp;
+        var pct = Math.max(0, Math.min(100, Math.round(p.xp / next * 100)));
+        return '<div class="mini-xp"><div style="width:' + pct + '%"></div></div>' +
+          '<div class="p-xp">けいけんち ' + p.xp + ' / ' + next + '</div>' +
+          '<div class="p-xp">つぎの レベルまで あと ' + rest + '</div>';
+      }
+      function newMember(mid, lv){
+        return { mid:mid, lv:lv, xp:0, hp:maxHpFor(lv, mid), maxhp:maxHpFor(lv, mid) };
+      }
+      function activeMon(){ return S.party[S.active]; }
+
+      /* ================= 画面切り替え ================= */
+      var screens = ["title","starter","map","battle","zukan","ending","shop","center","pc"];
+      function show(name){
+        screens.forEach(function(s){
+          document.getElementById("screen-" + s).classList.toggle("hidden", s !== name);
+        });
+        window.scrollTo(0,0);
+        if(name === "title" || name === "starter") playBgm("title");
+        else if(name === "map") updateFieldBgm();
+        else if(name === "center" || name === "pc") playBgm("center");
+        else if(name === "ending") playBgm("victory");
+        // バトル画面の曲は startBattleBase／勝敗で、ずかんは フィールドの曲のまま切り替える
+      }
+      var toastTimer = null;
+      function toast(text){
+        var t = document.getElementById("toast");
+        t.textContent = text; t.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2400);
+      }
+
+      /* ================= 効果音＆BGM（WebAudio） =================
+         おとボタン（.sound-btn）1つで 効果音と BGMを まとめて ON/OFF する */
+      var AC = null;
+      var soundOn = true;
+      function ensureAudio(){
+        try{
+          if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+          if(AC.state === "suspended") AC.resume();
+        }catch(e){}
+      }
+      function syncSoundBtns(){
+        document.querySelectorAll(".sound-btn").forEach(function(b){
+          b.textContent = soundOn ? "🔊 おと：ON" : "🔇 おと：OFF";
+          b.setAttribute("aria-pressed", soundOn ? "true" : "false");
+        });
+      }
+      function toggleSound(){
+        soundOn = !soundOn;
+        syncSoundBtns();
+        if(!soundOn){
+          if(bgmState.timer){ clearTimeout(bgmState.timer); bgmState.timer = null; }
+        } else {
+          ensureAudio();
+          restartBgm();
+          sfx("ok");
+        }
+      }
+      function beep(freq, dur, type, vol, when){
+        if(!soundOn) return;
+        try{
+          if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+          if(AC.state === "suspended") AC.resume();
+          var o = AC.createOscillator(), g = AC.createGain();
+          o.type = type || "square"; o.frequency.value = freq;
+          g.gain.value = vol || 0.05;
+          var t = AC.currentTime + (when || 0);
+          o.connect(g); g.connect(AC.destination);
+          o.start(t); g.gain.exponentialRampToValueAtTime(0.0001, t + (dur || 0.12));
+          o.stop(t + (dur || 0.12) + 0.02);
+        }catch(e){}
+      }
+      function sfx(kind){
+        if(kind === "hit"){ beep(220, .1, "square", .06); beep(140, .14, "square", .06, .05); }
+        if(kind === "crit"){ beep(520, .08, "square", .07); beep(300, .16, "sawtooth", .06, .06); }
+        if(kind === "hurt"){ beep(160, .12, "sawtooth", .05); }
+        if(kind === "ok"){ beep(660, .09, "square", .05); beep(880, .12, "square", .05, .09); }
+        if(kind === "ng"){ beep(200, .15, "sawtooth", .05); beep(150, .2, "sawtooth", .05, .1); }
+        if(kind === "catch"){ [523,659,784,1046].forEach(function(f,i){ beep(f, .12, "square", .05, i * .1); }); }
+        /* レベルアップ：上昇アルペジオに 倍音ベルを 重ね、最後は 和音で 締める 豪華な ファンファーレ。
+           重なる音は 1つずつ 音量を 抑えて、合計が 割れないように 配分している */
+        if(kind === "level"){
+          [523,659,784,1046].forEach(function(f,i){
+            beep(f, .16, "square", .030, i * .085);
+            beep(f * 2, .24, "sine", .013, i * .085 + .02);
+          });
+          [523,659,784,1046].forEach(function(f){
+            beep(f, .55, "triangle", .024, .36);
+            beep(f * 2, .5, "sine", .009, .36);
+          });
+          beep(1318, .6, "sine", .015, .36);
+          beep(1568, .55, "sine", .011, .45);
+        }
+        /* 敵を たおした：低い 一撃で スカッと 決めてから、短い 勝利ジングル */
+        if(kind === "win"){
+          beep(160, .16, "sine", .085);
+          beep(340, .07, "sawtooth", .042);
+          beep(190, .12, "sawtooth", .038, .06);
+          [659,784,988,1318].forEach(function(f,i){
+            beep(f, .13, "square", .028, .14 + i * .07);
+            beep(f * 2, .16, "sine", .010, .14 + i * .07);
+          });
+          beep(1046, .36, "triangle", .026, .44);
+          beep(1318, .36, "triangle", .026, .44);
+          beep(784, .36, "triangle", .020, .44);
+        }
+        /* 捕獲成功：ベルの キラキラした 上昇ファンファーレ（失敗の 下降音と はっきり 区別） */
+        if(kind === "catchwin"){
+          [784,988,1175,1568].forEach(function(f,i){
+            beep(f, .2, "sine", .028, i * .08);
+            beep(f, .12, "square", .014, i * .08);
+          });
+          [523,659,784,1046].forEach(function(f){ beep(f, .5, "triangle", .022, .34); });
+          beep(2093, .5, "sine", .011, .34);
+          beep(1568, .45, "sine", .013, .43);
+        }
+        /* 捕獲失敗：下降する 残念な音 */
+        if(kind === "break"){
+          beep(520, .12, "square", .036);
+          beep(392, .13, "square", .036, .11);
+          beep(262, .26, "square", .036, .23);
+        }
+        /* チャンピオン勝利：いちばん 豪華な 大ファンファーレ（アルペジオ→和音の連打→長い余韻の最終和音） */
+        if(kind === "champion"){
+          [392,523,659,784,1046,1318].forEach(function(f,i){
+            beep(f, .2, "square", .024, i * .1);
+            beep(f * 2, .26, "sine", .010, i * .1 + .02);
+          });
+          [[523,659,784],[587,740,880],[659,831,988]].forEach(function(ch, ci){
+            ch.forEach(function(f){ beep(f, .22, "triangle", .022, .68 + ci * .17); });
+          });
+          [262,523,659,784,1046].forEach(function(f){ beep(f, 1.5, "triangle", .020, 1.22); });
+          [1046,1318,1568,2093].forEach(function(f,i){ beep(f, 1.3, "sine", .009, 1.22 + i * .06); });
+          beep(131, 1.5, "sine", .028, 1.22);
+        }
+        if(kind === "throw"){ beep(300, .2, "sine", .06); beep(600, .25, "sine", .04, .12); }
+      }
+
+      /* ================= BGM（場面ごとに ちがう曲を ループ再生） =================
+         mel/bas は MIDIノート番号の 16ステップ列（0 は 休符） */
+      function midiHz(m){ return 440 * Math.pow(2, (m - 69) / 12); }
+      var BGM_TRACKS = {
+        "title":   { stepMs:330, type:"triangle", vol:.040, mel:[72,76,79,76,74,76,72,0,69,72,76,74,72,0,67,0],   bas:[48,0,0,55,50,0,0,55,48,0,0,55,43,0,55,0] },
+        "town":    { stepMs:250, type:"triangle", vol:.038, mel:[72,74,76,74,79,76,74,72,74,76,79,81,79,76,74,0], bas:[48,0,55,0,53,0,55,0,50,0,55,0,48,0,55,0] },
+        /* どうろ曲は「明るい長調・歩くテンポ・冒険のワクワク感」を参考にした完全オリジナル。どうくつは静かで神秘的に */
+        "field-a": { stepMs:240, type:"triangle", vol:.040, mel:[72,76,79,76,81,79,76,74,76,79,81,79,76,74,72,0],       bas:[48,0,55,0,53,0,55,0,48,0,55,0,53,0,55,0] },
+        "field-b": { stepMs:255, type:"triangle", vol:.040, mel:[74,79,83,79,81,83,81,79,78,79,81,83,81,79,74,0],       bas:[43,0,50,0,48,0,50,0,43,0,50,0,45,0,50,0] },
+        "field-c": { stepMs:210, type:"square",   vol:.024, mel:[74,78,81,78,79,81,83,81,78,81,86,81,83,81,78,0],       bas:[50,0,57,0,55,0,57,0,50,0,57,0,52,0,57,0] },
+        "field-d": { stepMs:430, type:"sine",     vol:.045, mel:[69,0,0,0,72,0,71,0,69,0,0,0,64,0,67,0],                 bas:[45,0,0,0,41,0,0,0,43,0,0,0,40,0,0,0] },
+        "center":  { stepMs:320, type:"triangle", vol:.042, mel:[76,79,84,79,81,79,76,0,77,81,84,81,79,76,74,0], bas:[48,0,55,0,53,0,55,0,50,0,57,0,48,0,55,0] },
+        /* バトル曲は 速いテンポ・短調の緊張リフ・疾走するベースで作った完全オリジナル。
+           野生→ジム→チャンピオンの順に テンポと密度を上げて 緊張感を段階式に強める */
+        "battle":  { stepMs:150, type:"square",   vol:.030, mel:[74,74,0,77,0,74,0,81,79,77,76,77,74,0,70,72],   bas:[50,50,0,50,50,0,53,0,48,48,0,48,55,0,53,0] },
+        "gym":     { stepMs:132, type:"sawtooth", vol:.020, mel:[69,72,69,0,76,0,69,72,74,72,69,68,69,0,64,68], bas:[45,45,45,0,45,45,0,52,43,43,43,0,44,44,45,45] },
+        "champion":{ stepMs:112, type:"sawtooth", vol:.022, mel:[74,0,74,77,81,0,79,77,76,77,79,81,82,81,79,77,86,0,84,82,81,79,77,76,74,77,79,81,79,0,76,0], bas:[38,50,38,50,38,50,38,50,41,53,41,53,43,55,43,55,38,50,38,50,36,48,36,48,34,46,34,46,45,57,45,57] },
+        "victory": { stepMs:175, type:"square",   vol:.037, mel:[72,76,79,84,0,84,79,84,86,84,79,76,79,0,72,0],   bas:[48,0,55,0,53,0,55,0,50,0,55,0,48,0,55,0] },
+        "defeat":  { stepMs:320, type:"triangle", vol:.040, mel:[69,67,64,62,60,0,62,0,64,0,0,0,0,0,0,0],         bas:[45,0,0,0,41,0,0,0,43,0,0,0,45,0,0,0] }
+      };
+      var bgmState = { want:null, timer:null, step:0 };
+      var centerHoldUntil = 0;
+      function bgmNote(midi, dur, type, vol){
+        if(!soundOn) return;
+        try{
+          ensureAudio();
+          if(!AC || AC.state !== "running") return;
+          var o = AC.createOscillator(), g = AC.createGain();
+          o.type = type || "triangle"; o.frequency.value = midiHz(midi);
+          var t = AC.currentTime;
+          g.gain.setValueAtTime(vol, t);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+          o.connect(g); g.connect(AC.destination);
+          o.start(t); o.stop(t + dur + 0.02);
+        }catch(e){}
+      }
+      function bgmTick(){
+        var tr = BGM_TRACKS[bgmState.want];
+        if(!tr || !soundOn){ bgmState.timer = null; return; }
+        var i = bgmState.step % tr.mel.length;
+        var m = tr.mel[i];
+        var b = tr.bas ? tr.bas[i % tr.bas.length] : 0;
+        if(m) bgmNote(m, tr.stepMs / 1000 * 0.92, tr.type, tr.vol);
+        if(b) bgmNote(b, tr.stepMs / 1000 * 0.95, "triangle", tr.vol * 0.8);
+        bgmState.step++;
+        bgmState.timer = setTimeout(bgmTick, tr.stepMs);
+      }
+      function restartBgm(){
+        if(bgmState.timer){ clearTimeout(bgmState.timer); bgmState.timer = null; }
+        if(soundOn && bgmState.want) bgmTick();
+      }
+      function playBgm(name){
+        if(!name || !BGM_TRACKS[name]) return;
+        if(bgmState.want === name && bgmState.timer) return;
+        bgmState.want = name;
+        bgmState.step = 0;
+        restartBgm();
+      }
+      function updateFieldBgm(){
+        if(S.battle) return;
+        if(Date.now() < centerHoldUntil) return;
+        playBgm(curMapDef().bgm || "town");
+      }
+      function playCenterBgm(){
+        centerHoldUntil = Date.now() + 2800;
+        playBgm("center");
+        setTimeout(function(){
+          centerHoldUntil = 0;
+          if(!S.battle && !document.getElementById("screen-map").classList.contains("hidden")) updateFieldBgm();
+        }, 2900);
+      }
+
+      /* ================= 問題生成 ================= */
+      function rnd(a,b){ return a + Math.floor(Math.random() * (b - a + 1)); }
+      function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+      function makeQuestion(kind, power){
+        // power: 難しさ 1..3
+        var q = {};
+        if(kind === "add"){
+          // たしざんは 小学1年生の範囲だけ（野生・ジム・チャンピオン共通、powerによらない）：
+          // 1けた＋1けた のみ、答えは 20まで（くり上がり含む）。2けたの たしざんは 出さない
+          var a = rnd(1,9), b = rnd(1,9);
+          if(Math.random() < 0.45){
+            // ときどき くり上がりのない たしざん（答え10まで）
+            a = rnd(1,8); b = rnd(1, 10 - a);
+          }
+          q.text = a + " ＋ " + b + " ＝ ？"; q.ans = a + b; q.label = "たしざん";
+        } else if(kind === "sub"){
+          var x, y;
+          if(power <= 1){ x = rnd(8,30); y = rnd(2, x - 1); }
+          else if(power === 2){ x = rnd(35,80); y = rnd(13, x - 5); }
+          else { x = rnd(70,120); y = rnd(28, x - 9); }
+          q.text = x + " － " + y + " ＝ ？"; q.ans = x - y; q.label = "ひきざん";
+        } else {
+          var m = rnd(2,9), n = rnd(2,9);
+          if(power >= 3 && Math.random() < .4){ m = rnd(6,9); n = rnd(6,9); }
+          q.text = m + " × " + n + " ＝ ？"; q.ans = m * n; q.label = "くく";
+        }
+        // 選択肢
+        var opts = [q.ans];
+        var guard = 0;
+        while(opts.length < 4 && guard++ < 60){
+          var d = q.ans + pick([-10,-9,-8,-5,-4,-3,-2,-1,1,2,3,4,5,8,9,10,11]);
+          if(d >= 0 && opts.indexOf(d) < 0) opts.push(d);
+        }
+        // シャッフル
+        for(var i = opts.length - 1; i > 0; i--){
+          var j = Math.floor(Math.random() * (i + 1));
+          var tmp = opts[i]; opts[i] = opts[j]; opts[j] = tmp;
+        }
+        q.opts = opts;
+        return q;
+      }
+      function questionKind(){
+        if(S.qmode !== "mix") return S.qmode;
+        return pick(["add","sub","mul"]);
+      }
+
+      /* ================= マップ描画 ================= */
+      function renderHud(){
+        document.getElementById("hud-balls").textContent = S.balls;
+        document.getElementById("hud-money").textContent = S.money;
+        syncCounts();
+        var caught = Object.keys(S.seen).filter(function(k){ return S.seen[k] === 2; }).length;
+        document.getElementById("hud-caught").textContent = Math.max(caught, S.party.length ? caught : 0);
+        var bh = document.getElementById("hud-badges");
+        bh.innerHTML = "";
+        GYMS.forEach(function(g){
+          var d = document.createElement("span");
+          d.className = "badge-ico" + (S.badges[g.id] ? " got" : "");
+          d.style.background = S.badges[g.id] ? "#ffe9a8" : "#cfd6dd";
+          d.textContent = g.badge;
+          d.title = g.badgeName;
+          bh.appendChild(d);
+        });
+      }
+      function renderParty(){
+        syncCounts();
+        var row = document.getElementById("party-row");
+        row.innerHTML = "";
+        S.party.forEach(function(p, i){
+          var m = MONSTERS[p.mid];
+          var b = document.createElement("button");
+          b.className = "party-card" + (i === S.active ? " sel" : "");
+          var pct = Math.max(0, Math.round(p.hp / p.maxhp * 100));
+          b.innerHTML = '<div class="pm">' + m.svg + '</div>' +
+            '<div class="p-name">' + m.name + '</div>' +
+            '<div class="p-lv">Lv.' + p.lv + '（' + m.type + '）</div>' +
+            '<div class="mini-hp"><div style="width:' + pct + '%"></div></div>' +
+            '<div class="p-lv">HP ' + p.hp + ' / ' + p.maxhp + '</div>' + xpHtml(p);
+          b.addEventListener("click", function(){
+            S.active = i; renderParty();
+            toast(m.name + " を バトルの パートナーに した！");
+          });
+          row.appendChild(b);
+        });
+      }
+      /* ================= フィールド（歩けるタイルマップ × 全9マップ） =================
+         構成: 町1 → ルート1 → 町2 → ルート2 → 町3 → どうくつ → 町4 → チャンピオンロード → チャンピオンの間
+         記号: #=木(通行不可) .=みち f=花畑 h=民家(通行不可) w=池(通行不可) x=岩(通行不可)
+         a/b/c/d=くさむら（マップの wild 設定で エンカウント） K=どうくつの壁(通行不可) o=どうくつの通路 C=どうくつの床(エンカウント)
+         P/p=かいふくセンター(屋根/入口) Q/q,R/r,S/s,T/t=ジム1〜4(屋根/入口) Y/Z=チャンピオンの間(屋根/入口)
+         </>=マップの はしの 出口（あるくと つぎ／まえの マップへ） */
+      var FIELD_COLS = 14, FIELD_ROWS = 10;
+      var MAPS = [
+        { name:"わかばタウン", tag:"まち 1 / 4", tier:1, bgm:"town",
+          arrive:"わかばタウン。かいふくセンターと キラリ ジムが あるよ。みぎの どうろへ すすもう！",
+          rows:[
+            "##############",
+            "#QQ..PPP..UU.#",
+            "#q....p...u..#",
+            "#............#",
+            "#..ff........>",
+            "#............>",
+            "#..h....ff...#",
+            "#.......ff.h.#",
+            "#............#",
+            "##############"
+          ],
+          buildings:[
+            { col:1, row:1, w:2, roof:"⚡", roofBg:"#e8a91c", name:"キラリ ジム" },
+            { col:5, row:1, w:3, roof:"＋", roofBg:"#e0574f", name:"かいふくセンター" },
+            { col:10, row:1, w:2, roof:"🛒", roofBg:"#3fa34d", name:"ショップ" }
+          ],
+          doors:{ p:{ kind:"center" }, q:{ kind:"gym", gym:0 }, u:{ kind:"shop" } },
+          doorFront:{ p:[5,3], q:[1,3], u:[10,3] },
+          wild:null },
+        { name:"1ばんどうろ", tag:"ルート", tier:1, bgm:"field-a",
+          arrive:"1ばんどうろに ついた！ くさむらを あるくと やせいモンスターが あらわれるよ。",
+          rows:[
+            "##############",
+            "#..aa....aa..#",
+            "#..aa..f.....#",
+            "#.....aa.....#",
+            "<....aaa.....>",
+            "<............>",
+            "#..aa....x...#",
+            "#..aa........#",
+            "#.....aa..aa.#",
+            "##############"
+          ],
+          buildings:[], doors:{}, doorFront:{},
+          wild:{ tiles:"a", icon:"🌿", pool:[0,1,2,3,12,13,14,15,34,35], lv:[2,4], rate:0.30, bg:"", label:"くさむら Lv.2〜4" },
+          npcs:[
+            { id:"tr1", kind:"trainer", x:9, y:4, name:"かけっこ少年 ハヤト", short:"ハヤト",
+              look:{ style:"cap", c1:"#3fa34d", c2:"#2e7d32", shirt:"#ff8c42", stripe:"#ffffff", pants:"#37474f" },
+              team:[{mid:12,lv:3},{mid:0,lv:4}], prize:300,
+              lineBefore:"ぼくと しょうぶだ！ かけっこも バトルも まけないぞ！",
+              lineWin:"まけた〜！ きみ、はやくて つよいね！",
+              lineLose:"やったあ、ぼくの かちだ！ もっと れんしゅうしてきてね！",
+              after:"きみとの バトル、たのしかった！ また たたかいたいな！" }
+          ] },
+        { name:"みずべタウン", tag:"まち 2 / 4", tier:2, bgm:"town",
+          arrive:"みずべタウンに ついた！ シズク ジムと かいふくセンターが あるよ。",
+          rows:[
+            "##############",
+            "#RR..PPP..UU.#",
+            "#r....p...u..#",
+            "#.........ww.#",
+            "<............>",
+            "<.....ff.....>",
+            "#..h..ff..w..#",
+            "#............#",
+            "#..ff.....h..#",
+            "##############"
+          ],
+          buildings:[
+            { col:1, row:1, w:2, roof:"💧", roofBg:"#2f7fc4", name:"シズク ジム" },
+            { col:5, row:1, w:3, roof:"＋", roofBg:"#e0574f", name:"かいふくセンター" },
+            { col:10, row:1, w:2, roof:"🛒", roofBg:"#3fa34d", name:"ショップ" }
+          ],
+          doors:{ p:{ kind:"center" }, r:{ kind:"gym", gym:1 }, u:{ kind:"shop" } },
+          doorFront:{ p:[5,3], r:[1,3], u:[10,3] },
+          wild:null },
+        { name:"2ばんどうろ", tag:"ルート", tier:2, bgm:"field-b",
+          arrive:"2ばんどうろ。みずべの くさむらは 少し つよい モンスターが いる！",
+          rows:[
+            "##############",
+            "#..bb....ww..#",
+            "#..bb...www..#",
+            "#......bb....#",
+            "<....bbb.....>",
+            "<............>",
+            "#..bb....bb..#",
+            "#.....w..bb..#",
+            "#..bb........#",
+            "##############"
+          ],
+          buildings:[], doors:{}, doorFront:{},
+          wild:{ tiles:"b", icon:"🎋", pool:[1,2,5,7,13,16,17,18,19,20,36,37], lv:[4,7], rate:0.30, bg:"", label:"みずべの くさむら Lv.4〜7" },
+          npcs:[
+            { id:"tr2", kind:"trainer", x:9, y:4, name:"つりびと ウミオ", short:"ウミオ",
+              look:{ style:"band", c1:"#2f7fc4", shirt:"#7db6e8", stripe:"#ffffff", pants:"#5d4037" },
+              team:[{mid:37,lv:5},{mid:16,lv:6}], prize:450,
+              lineBefore:"おっ、いい モンスターを つれてるな！ おじさんと しょうぶだ！",
+              lineWin:"まいった！ 大物が かかった 気分だ…！",
+              lineLose:"ほらな、おじさんの かちだ！ つりも バトルも なかなかだろ？",
+              after:"いい バトルだった！ たまには つりも して いきな。" }
+          ] },
+        { name:"やまのタウン", tag:"まち 3 / 4", tier:3, bgm:"town",
+          arrive:"やまのタウンに ついた！ ホノオ ジムは ここだ。だいぶ つよい あいてが ふえてきた！",
+          rows:[
+            "##############",
+            "#SS..PPP..UU.#",
+            "#s....p...u..#",
+            "#....x.......#",
+            "<............>",
+            "<.....ff.....>",
+            "#..h..ff..x..#",
+            "#............#",
+            "#..x......h..#",
+            "##############"
+          ],
+          buildings:[
+            { col:1, row:1, w:2, roof:"🔥", roofBg:"#d64541", name:"ホノオ ジム" },
+            { col:5, row:1, w:3, roof:"＋", roofBg:"#e0574f", name:"かいふくセンター" },
+            { col:10, row:1, w:2, roof:"🛒", roofBg:"#3fa34d", name:"ショップ" }
+          ],
+          doors:{ p:{ kind:"center" }, s:{ kind:"gym", gym:2 }, u:{ kind:"shop" } },
+          doorFront:{ p:[5,3], s:[1,3], u:[10,3] },
+          wild:null },
+        { name:"どうくつ", tag:"ルート", tier:3, bgm:"field-d", cave:true,
+          arrive:"どうくつに 入った！ 暗い ゆかを あるくと モンスターが あらわれる… 気をつけて！",
+          rows:[
+            "KKKKKKKKKKKKKK",
+            "KooCCCoooCCCoK",
+            "KooCCCKoCCCooK",
+            "KoooooKooooCoK",
+            "<ooCCCoooCCCo>",
+            "<oooooooooooo>",
+            "KooCCCoKKooCoK",
+            "KooCCCoooooCoK",
+            "KoooooCCCooooK",
+            "KKKKKKKKKKKKKK"
+          ],
+          buildings:[], doors:{}, doorFront:{},
+          wild:{ tiles:"C", icon:"🕳️", pool:[4,3,8,10,21,22,23,24,25,38], lv:[7,10], rate:0.32, bg:"night", label:"どうくつの ゆか Lv.7〜10" } },
+        { name:"ほしぞらタウン", tag:"まち 4 / 4", tier:4, bgm:"town",
+          arrive:"ほしぞらタウンに ついた！ さいごの リュウセイ ジムが ある。もんだいも いちばん むずかしい！",
+          rows:[
+            "##############",
+            "#TT..PPP..UU.#",
+            "#t....p...u..#",
+            "#.........dd.#",
+            "<............>",
+            "<.....ff.....>",
+            "#..h..ff.....#",
+            "#..dd......h.#",
+            "#............#",
+            "##############"
+          ],
+          buildings:[
+            { col:1, row:1, w:2, roof:"🐉", roofBg:"#7e57c2", name:"リュウセイ ジム" },
+            { col:5, row:1, w:3, roof:"＋", roofBg:"#e0574f", name:"かいふくセンター" },
+            { col:10, row:1, w:2, roof:"🛒", roofBg:"#3fa34d", name:"ショップ" }
+          ],
+          doors:{ p:{ kind:"center" }, t:{ kind:"gym", gym:3 }, u:{ kind:"shop" } },
+          doorFront:{ p:[5,3], t:[1,3], u:[10,3] },
+          wild:null },
+        { name:"チャンピオンロード", tag:"ルート", tier:4, bgm:"field-c",
+          arrive:"チャンピオンロード！ つよい モンスターが たくさん いる きけんな どうろだ。",
+          rows:[
+            "##############",
+            "#..dd....dd..#",
+            "#..dd..x.....#",
+            "#.....dd.....#",
+            "<....ddd.....>",
+            "<............>",
+            "#..dd....dd..#",
+            "#..x.....dd..#",
+            "#.....dd.....#",
+            "##############"
+          ],
+          buildings:[], doors:{}, doorFront:{},
+          wild:{ tiles:"d", icon:"🌲", pool:[6,8,9,10,11,26,27,28,29,30,31,32,33,39], lv:[10,14], rate:0.32, bg:"night", label:"くさむら Lv.10〜14" },
+          npcs:[
+            { id:"tr3", kind:"trainer", x:9, y:4, name:"エリートトレーナー リン", short:"リン",
+              look:{ style:"spiky", c1:"#5e35b1", shirt:"#37474f", stripe:"#d64541", pants:"#263238" },
+              team:[{mid:27,lv:12},{mid:30,lv:13}], prize:900,
+              lineBefore:"チャンピオンを めざす者同士、力だめしと いこう！",
+              lineWin:"すごい…！ きみなら チャンピオンにも かてるかも しれない！",
+              lineLose:"ふふ、私の かち。チャンピオンへの 道は まだ 遠いわよ。",
+              after:"チャンピオンの間は すぐ そこよ。がんばって！" }
+          ] },
+        { name:"チャンピオンの間", tag:"さいごの マップ", tier:5, bgm:"champion",
+          arrive:"チャンピオンの間に ついた！ バッジを 4つ あつめた者だけが チャンピオンに ちょうせんできる。",
+          rows:[
+            "##############",
+            "#...YYYY.....#",
+            "#....Z.......#",
+            "#............#",
+            "<............#",
+            "<............#",
+            "#..ff....ff..#",
+            "#............#",
+            "#.....ff.....#",
+            "##############"
+          ],
+          buildings:[
+            { col:4, row:1, w:4, roof:"👑", roofBg:"#b97e0a", name:"チャンピオンの間" }
+          ],
+          doors:{},
+          doorFront:{},
+          npcs:[
+            { kind:"champion", x:5, y:3, name:"チャンピオン・ユウキ", short:"ユウキ",
+              look:{ style:"crown", c1:"#ffd35c", shirt:"#fff8e1", stripe:"#e8a91c", pants:"#b97e0a" } }
+          ],
+          wild:null },
+        /* ===== ジム内部マップ（GYM_MAP_START=9 から 4つ）: 入口の ▼マットで 町へ もどる。奥に リーダーが いる ===== */
+        { name:"キラリ ジム", tag:"ジムの 中", tier:1, bgm:"town", interior:true,
+          arrive:"",
+          rows:[
+            "KKKKKKKKKKKKKK",
+            "K............K",
+            "K............K",
+            "K.ff......ff.K",
+            "K............K",
+            "K............K",
+            "K............K",
+            "K............K",
+            "K.....DD.....K",
+            "KKKKKKKKKKKKKK"
+          ],
+          buildings:[], doors:{ D:{ kind:"leavegym", to:0, x:1, y:3 } }, doorFront:{},
+          npcs:[{ kind:"gym", gym:0, x:6, y:2, name:"リーダー・ヒカリ", short:"ヒカリ",
+            look:{ style:"bob", c1:"#e8a91c", shirt:"#ffd35c", stripe:"#e0574f", pants:"#8d6e63" } }],
+          wild:null },
+        { name:"シズク ジム", tag:"ジムの 中", tier:2, bgm:"town", interior:true,
+          arrive:"",
+          rows:[
+            "KKKKKKKKKKKKKK",
+            "K............K",
+            "K............K",
+            "K.ff......ff.K",
+            "K............K",
+            "K............K",
+            "K............K",
+            "K............K",
+            "K.....DD.....K",
+            "KKKKKKKKKKKKKK"
+          ],
+          buildings:[], doors:{ D:{ kind:"leavegym", to:2, x:1, y:3 } }, doorFront:{},
+          npcs:[{ kind:"gym", gym:1, x:6, y:2, name:"リーダー・シズク", short:"シズク",
+            look:{ style:"bob", c1:"#2f7fc4", shirt:"#7db6e8", stripe:"#ffffff", pants:"#37474f" } }],
+          wild:null },
+        { name:"ホノオ ジム", tag:"ジムの 中", tier:3, bgm:"town", interior:true,
+          arrive:"",
+          rows:[
+            "KKKKKKKKKKKKKK",
+            "K............K",
+            "K............K",
+            "K.ff......ff.K",
+            "K............K",
+            "K............K",
+            "K............K",
+            "K............K",
+            "K.....DD.....K",
+            "KKKKKKKKKKKKKK"
+          ],
+          buildings:[], doors:{ D:{ kind:"leavegym", to:4, x:1, y:3 } }, doorFront:{},
+          npcs:[{ kind:"gym", gym:2, x:6, y:2, name:"リーダー・カエン", short:"カエン",
+            look:{ style:"spiky", c1:"#d64541", shirt:"#e0574f", stripe:"#ffd35c", pants:"#37474f" } }],
+          wild:null },
+        { name:"リュウセイ ジム", tag:"ジムの 中", tier:4, bgm:"town", interior:true,
+          arrive:"",
+          rows:[
+            "KKKKKKKKKKKKKK",
+            "K............K",
+            "K............K",
+            "K.ff......ff.K",
+            "K............K",
+            "K............K",
+            "K............K",
+            "K............K",
+            "K.....DD.....K",
+            "KKKKKKKKKKKKKK"
+          ],
+          buildings:[], doors:{ D:{ kind:"leavegym", to:6, x:1, y:3 } }, doorFront:{},
+          npcs:[{ kind:"gym", gym:3, x:6, y:2, name:"リーダー・セイラ", short:"セイラ",
+            look:{ style:"bob", c1:"#7e57c2", shirt:"#b39ddb", stripe:"#ffffff", pants:"#37474f" } }],
+          wild:null }
+      ];
+      var GYM_MAP_START = 9; // ジム内部マップの 開始インデックス（MAPS の 9番目から 4つ）
+      var curMap = 0;      // いま いる マップの 番号
+      var lastTown = 0;    // 最後に 訪れた 町の マップ番号（全滅時に センターへ 運ばれる 先）
+      var builtMap = -1;   // 描画ずみの マップ番号
+      function curMapDef(){ return MAPS[curMap]; }
+      var BLOCKED = { "#":1, "P":1, "Q":1, "R":1, "S":1, "T":1, "Y":1, "Z":1, "U":1, "K":1, "h":1, "w":1, "x":1 };
+      /* 建物は マップごとに MAPS[].buildings で 定義する */
+      var PLAYER_SVG =
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="しゅじんこう">' +
+        '<path d="M14 44 L18 34 L22 34 L21 44Z M26 34 L30 34 L34 44Z" fill="#37474f"/>' +
+        '<rect x="15" y="24" width="18" height="12" rx="3" fill="#2f7fc4"/>' +
+        '<rect x="21" y="24" width="6" height="12" fill="#ffd35c"/>' +
+        '<circle cx="24" cy="17" r="8" fill="#ffcf9e"/>' +
+        '<path d="M15.5 16 a8.5 8.5 0 0 1 17 0 Z" fill="#d64541"/>' +
+        '<rect x="14" y="15.5" width="20" height="3" rx="1.5" fill="#b3271e"/>' +
+        '<circle cx="21" cy="18" r="1.3" fill="#2b2118"/><circle cx="27" cy="18" r="1.3" fill="#2b2118"/>' +
+        '<path d="M21.5 21.5 Q24 23 26.5 21.5" stroke="#2b2118" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>';
+      var player = { x:5, y:2, dir:"down", moving:false };
+      var fieldBuilt = false;
+      var pendingReturn = null; // バトル後、建物の正面に戻す位置
+
+      function tileAt(x, y){
+        if(x < 0 || y < 0 || x >= FIELD_COLS || y >= FIELD_ROWS) return "#";
+        return MAPS[curMap].rows[y].charAt(x);
+      }
+      function tileClass(ch){
+        if(ch === "#") return "tree";
+        if(ch === ".") return "path";
+        if(ch === "f") return "flower";
+        if(ch === "w") return "water";
+        if(ch === "x") return "rock";
+        if(ch === "a") return "grass-a";
+        if(ch === "b") return "grass-b";
+        if(ch === "c") return "grass-c";
+        if(ch === "d") return "grass-d";
+        if(ch === "K") return "cavewall";
+        if(ch === "C") return "cavefloor";
+        if(ch === "o") return "cavepath";
+        if(ch === "h") return "house";
+        if(ch === "D") return "path exit-d";
+        if(ch === "<") return "path exit-l";
+        if(ch === ">") return "path exit-r";
+        return "under"; // 建物の下・入口
+      }
+      function buildField(){
+        var def = curMapDef();
+        document.getElementById("field").className = "field" + (def.cave ? " cave" : "");
+        document.getElementById("map-title").textContent = def.name + "（" + def.tag + "）";
+        var grid = document.getElementById("field-grid");
+        grid.innerHTML = "";
+        for(var y = 0; y < FIELD_ROWS; y++){
+          for(var x = 0; x < FIELD_COLS; x++){
+            var d = document.createElement("div");
+            d.className = "tile " + tileClass(tileAt(x, y));
+            grid.appendChild(d);
+          }
+        }
+        var bw = document.getElementById("field-buildings");
+        bw.innerHTML = "";
+        def.buildings.forEach(function(b){
+          var el = document.createElement("div");
+          el.className = "building";
+          el.style.left = (b.col * 100 / FIELD_COLS) + "%";
+          el.style.top = (b.row * 100 / FIELD_ROWS) + "%";
+          el.style.width = (b.w * 100 / FIELD_COLS) + "%";
+          el.style.height = (200 / FIELD_ROWS) + "%";
+          el.innerHTML = '<div class="b-roof" style="background:' + b.roofBg + ';">' + b.roof + '</div>' +
+            '<div class="b-body"><div class="b-name">' + b.name + '</div><div class="b-door"></div></div>';
+          bw.appendChild(el);
+        });
+        var nw = document.getElementById("field-npcs");
+        nw.innerHTML = "";
+        (def.npcs || []).forEach(function(npc){
+          var el = document.createElement("div");
+          el.className = "npc";
+          el.style.left = (npc.x * 100 / FIELD_COLS) + "%";
+          el.style.top = (npc.y * 100 / FIELD_ROWS) + "%";
+          el.innerHTML = '<span class="npc-name">' + npc.short + '</span>' + npcSvg(npc.look);
+          nw.appendChild(el);
+        });
+        document.getElementById("player").innerHTML = PLAYER_SVG;
+        fieldBuilt = true;
+        builtMap = curMap;
+        renderLegend();
+        placePlayer(true);
+      }
+      function placePlayer(instant){
+        var el = document.getElementById("player");
+        if(instant) el.style.transition = "none";
+        el.style.left = (player.x * 100 / FIELD_COLS) + "%";
+        el.style.top = (player.y * 100 / FIELD_ROWS) + "%";
+        el.style.transform = (player.dir === "left") ? "scaleX(-1)" : "scaleX(1)";
+        if(instant){ void el.offsetWidth; el.style.transition = ""; }
+      }
+      function setFieldMsg(t){ document.getElementById("field-msg").textContent = t; }
+      function renderLegend(){
+        var def = curMapDef();
+        var items = [];
+        if(def.wild) items.push(def.wild.icon + " " + def.wild.label);
+        def.buildings.forEach(function(b){ items.push(b.roof + " " + b.name); });
+        (def.npcs || []).forEach(function(npc){
+          if(npc.kind === "trainer") items.push("⚔️ " + npc.name + "（近づいて 話しかけると バトル）");
+          else if(npc.kind === "gym") items.push("🏆 " + npc.name + "（話しかけると バトル）");
+          else if(npc.kind === "champion") items.push("👑 " + npc.name + "（バッジ4つで ちょうせんできる）");
+        });
+        var joined = def.rows.join("");
+        if(joined.indexOf(">") >= 0) items.push("▶ マップの はしまで あるくと つぎの マップへ");
+        if(joined.indexOf("<") >= 0) items.push("◀ もどる ことも できる");
+        if(def.interior) items.push("▼ したの マットに のると ジムを 出られる");
+        document.getElementById("field-legend").innerHTML =
+          items.map(function(t){ return "<span>" + t + "</span>"; }).join("");
+      }
+      function changeMap(delta, row){
+        var next = curMap + delta;
+        if(next < 0 || next >= MAPS.length) return;
+        curMap = next;
+        if(curMapDef().doorFront.p) lastTown = curMap;
+        player.x = delta > 0 ? 1 : FIELD_COLS - 2;
+        player.y = row;
+        buildField();
+        sfx("ok");
+        setFieldMsg(curMapDef().arrive);
+        updateFieldBgm();
+        saveGame();
+      }
+      /* マップを またぐ テレポート（ジムの 出入りなど） */
+      function goToMap(idx, x, y){
+        curMap = idx;
+        if(curMapDef().doorFront.p) lastTown = curMap;
+        player.x = x; player.y = y;
+        buildField();
+        updateFieldBgm();
+        saveGame();
+      }
+      /* ================= NPC（人）に 話しかける ================= */
+      function npcAt(x, y){
+        var list = curMapDef().npcs || [];
+        for(var i = 0; i < list.length; i++){ if(list[i].x === x && list[i].y === y) return list[i]; }
+        return null;
+      }
+      function talkToNpc(npc){
+        if(S.battle) return;
+        if(npc.kind === "trainer"){
+          if(S.defeatedTrainers[npc.id]){
+            setFieldMsg(npc.name + "「" + npc.after + "」");
+            sfx("ok");
+            return;
+          }
+          startTrainerBattle(npc);
+          return;
+        }
+        if(npc.kind === "gym"){
+          var g = GYMS[npc.gym];
+          /* ジムは じゅんばん制：まえの ジムの バッジが ないと リーダーは 戦ってくれない（レベル制限は なし） */
+          var missingBadge = null;
+          for(var k = 0; k < npc.gym; k++){ if(!S.badges[GYMS[k].id]){ missingBadge = GYMS[k]; break; } }
+          if(missingBadge){
+            toast("まだ " + g.name + " には ちょうせんできない！ さきに「" + missingBadge.badgeName + "」が ひつようだよ");
+            setFieldMsg(g.leader + "「ジムは じゅんばんに ちょうせんしよう！ この ジムに ちょうせんするには、まえの ジムの バッジ『" + missingBadge.badgeName + "』が ひつようだよ」（レベル制限は なし。おすすめは Lv." + g.need + " くらい）");
+            sfx("ng");
+            return;
+          }
+          startGymBattle(g);
+          return;
+        }
+        if(npc.kind === "champion"){
+          var gotB = Object.keys(S.badges).length;
+          if(gotB < GYMS.length){
+            toast("チャンピオンへの ちょうせんには バッジが 4つ ひつよう！（いま " + gotB + " こ）");
+            setFieldMsg("チャンピオン・ユウキ「4つの ジムバッジを あつめた者だけが わたしに ちょうせんできる」（いま " + gotB + " こ）まちの ジムで バッジを あつめてこよう！");
+            sfx("ng");
+            return;
+          }
+          startChampionBattle();
+          return;
+        }
+      }
+      /* ================= かいふくセンター＆パソコン =================
+         センターの 入口に 入ると センター画面が 開く。かいふく と パソコン（預け／引き出し）が できる。
+         てもちは 最大6たい。パソコン内の モンスターは 図鑑（種類単位）とは 別に 個体ごとに 管理する */
+      function openCenter(){
+        document.getElementById("center-msg").textContent = "";
+        syncCounts();
+        sfx("ok");
+        show("center");
+      }
+      function healParty(){
+        S.party.forEach(function(p){ p.hp = p.maxhp; });
+        sfx("level");
+        renderParty();
+        document.getElementById("center-msg").textContent = "「おまちどおさま！ てもちの モンスターは みんな 元気に なったよ！」";
+        toast("てもち 全員が 元気に なった！");
+        saveGame();
+      }
+      function syncCounts(){
+        var pairs = [["party-count", S.party.length], ["box-count", S.box.length],
+                     ["center-party-count", S.party.length], ["center-box-count", S.box.length],
+                     ["pc-party-count", S.party.length], ["pc-box-count", S.box.length],
+                     ["hud-box", S.box.length]];
+        pairs.forEach(function(pr){
+          var el = document.getElementById(pr[0]);
+          if(el) el.textContent = pr[1];
+        });
+      }
+      function pcCard(p, label, onClick, disabled){
+        var m = MONSTERS[p.mid];
+        var pct = Math.max(0, Math.round(p.hp / p.maxhp * 100));
+        var d = document.createElement("div");
+        d.className = "party-card";
+        d.style.cursor = "default";
+        d.innerHTML = '<div class="pm">' + m.svg + '</div>' +
+          '<div class="p-name">' + m.name + '</div>' +
+          '<div class="p-lv">Lv.' + p.lv + '（' + m.type + '）</div>' +
+          '<div class="mini-hp"><div style="width:' + pct + '%"></div></div>' +
+          '<div class="p-lv">HP ' + p.hp + ' / ' + p.maxhp + '</div>' + xpHtml(p);
+        var b = document.createElement("button");
+        b.className = "btn ghost";
+        b.type = "button";
+        b.style.marginTop = "6px";
+        b.style.padding = "6px 12px";
+        b.textContent = label;
+        b.disabled = !!disabled;
+        b.addEventListener("click", onClick);
+        d.appendChild(b);
+        return d;
+      }
+      function renderPc(msg){
+        syncCounts();
+        document.getElementById("pc-info").textContent =
+          "てもち " + S.party.length + " / 6 たい ・ パソコン " + S.box.length + " たい。" +
+          "「あずける」で パソコンへ、「ひきだす」で てもちへ うつせるよ。";
+        var pr = document.getElementById("pc-party");
+        pr.innerHTML = "";
+        S.party.forEach(function(p, i){
+          pr.appendChild(pcCard(p, "あずける", (function(idx){ return function(){ depositMon(idx); }; })(i), S.party.length <= 1));
+        });
+        var bx = document.getElementById("pc-box");
+        bx.innerHTML = "";
+        if(!S.box.length){
+          bx.innerHTML = '<p style="font-weight:800; opacity:.75; margin:4px 0;">パソコンは からっぽ。てもちが 6たい いっぱいの ときに つかまえると、ここへ 自動で 送られるよ。</p>';
+        }
+        S.box.forEach(function(p, i){
+          bx.appendChild(pcCard(p, "ひきだす", (function(idx){ return function(){ withdrawMon(idx); }; })(i), S.party.length >= 6));
+        });
+        document.getElementById("pc-msg").textContent = msg || "";
+      }
+      function depositMon(i){
+        if(S.party.length <= 1){ renderPc("てもちが 1たいだけの ときは あずけられないよ！"); sfx("ng"); return; }
+        var m = S.party.splice(i, 1)[0];
+        S.box.push(m);
+        if(i === S.active) S.active = 0;
+        else if(i < S.active) S.active--;
+        if(S.active >= S.party.length) S.active = 0;
+        sfx("ok");
+        renderPc(MONSTERS[m.mid].name + " を パソコンに あずけた！");
+        saveGame();
+        renderParty();
+      }
+      function withdrawMon(i){
+        if(S.party.length >= 6){ renderPc("てもちが いっぱい（6たい）で ひきだせない！ さきに あずけよう"); sfx("ng"); return; }
+        var m = S.box.splice(i, 1)[0];
+        S.party.push(m);
+        sfx("ok");
+        renderPc(MONSTERS[m.mid].name + " を てもちに ひきだした！");
+        saveGame();
+        renderParty();
+      }
+      function openPc(){
+        sfx("ok");
+        renderPc("");
+        show("pc");
+      }
+      function enterDoor(ch){
+        var def = curMapDef();
+        var d = def.doors[ch];
+        if(!d) return;
+        var f = def.doorFront[ch];
+        if(d.kind === "center"){
+          player.x = f[0]; player.y = f[1]; placePlayer(false);
+          openCenter();
+          return;
+        }
+        if(d.kind === "shop"){
+          player.x = f[0]; player.y = f[1]; placePlayer(false);
+          openShop();
+          return;
+        }
+        if(d.kind === "leavegym"){
+          goToMap(d.to, d.x, d.y);
+          sfx("ok");
+          setFieldMsg(curMapDef().name + " に もどった。");
+          return;
+        }
+        if(d.kind === "gym"){
+          /* ジムの 入口に 入ると ジムの 中へ。リーダーは 奥に いて、話しかけると バトル開始 */
+          var gg = GYMS[d.gym];
+          goToMap(GYM_MAP_START + d.gym, 6, 7);
+          player.dir = "up"; placePlayer(false);
+          sfx("ok");
+          setFieldMsg(gg.name + " の 中だ！ 奥に " + gg.leader + " が いる。近づいて 話しかけてみよう！");
+          return;
+        }
+      }
+      function tryMove(dir){
+        if(!S.started || S.battle) return;
+        if(document.getElementById("screen-map").classList.contains("hidden")) return;
+        if(player.moving) return;
+        player.dir = dir;
+        var dx = 0, dy = 0;
+        if(dir === "up") dy = -1;
+        if(dir === "down") dy = 1;
+        if(dir === "left") dx = -1;
+        if(dir === "right") dx = 1;
+        var nx = player.x + dx, ny = player.y + dy;
+        var ch = tileAt(nx, ny);
+        var npc = npcAt(nx, ny);
+        if(npc){ placePlayer(false); talkToNpc(npc); return; }
+        if(BLOCKED[ch]){ placePlayer(false); beep(140, .05, "square", .03); return; }
+        player.x = nx; player.y = ny;
+        player.moving = true;
+        var el = document.getElementById("player");
+        el.classList.add("walk");
+        placePlayer(false);
+        beep(520 + Math.random() * 60, .04, "sine", .015);
+        setTimeout(function(){
+          player.moving = false;
+          el.classList.remove("walk");
+          if(S.battle) return;
+          if(ch === ">" || ch === "<"){ changeMap(ch === ">" ? 1 : -1, ny); return; }
+          updateFieldBgm();
+          var def = curMapDef();
+          if(def.doors[ch]){ enterDoor(ch); return; }
+          if(def.wild && def.wild.tiles.indexOf(ch) >= 0){
+            setFieldMsg(def.name + "：" + def.wild.label + " を あるいている… モンスターの 気配が する！");
+            if(activeMon() && activeMon().hp > 0 && Math.random() < def.wild.rate){
+              startWildBattle(def.wild);
+              return;
+            }
+          } else if(def.wild){
+            setFieldMsg(def.name + " の どうろ。" + def.wild.label + " に 入ると モンスターが あらわれる！");
+          } else {
+            setFieldMsg(def.name + "。たてものの 入口まで あるいて 行ってみよう！");
+          }
+        }, 175);
+      }
+      function renderMap(){
+        renderHud(); renderParty();
+        if(!fieldBuilt || builtMap !== curMap) buildField();
+        else placePlayer(true);
+      }
+
+      /* ================= バトル ================= */
+      function setMsg(t){ document.getElementById("msg-box").textContent = t; }
+      function hpColor(pct){ return pct <= 25 ? "low" : (pct <= 55 ? "mid" : ""); }
+      /* タイプ相性表：こうげきする側のタイプ → つよい相手（ダメージ1.5倍）／にがてな相手（ダメージ半分）。
+         ただし 攻撃側と 受け側が 同じタイプの場合は、相性表より 優先して 等倍（1倍）にする */
+      var TYPE_CHART = {
+        "ほのお":   { s:["くさ","こおり","むし","はがね"], w:["みず","いわ","ドラゴン","ほのお"] },
+        "みず":     { s:["ほのお","いわ","じめん"],        w:["くさ","ドラゴン","みず"] },
+        "くさ":     { s:["みず","いわ","じめん"],          w:["ほのお","ひこう","ドラゴン","くさ","むし","どく"] },
+        "でんき":   { s:["みず","ひこう"],                 w:["くさ","ドラゴン","でんき","じめん"] },
+        "いわ":     { s:["ほのお","こおり","ひこう","むし"], w:["みず","くさ","いわ","じめん","はがね"] },
+        "こおり":   { s:["くさ","ひこう","ドラゴン","じめん"], w:["ほのお","いわ","こおり","はがね"] },
+        "エスパー": { s:["フェアリー","どく"],              w:["あく","エスパー","ゴースト"] },
+        "ひこう":   { s:["くさ","むし"],                    w:["でんき","いわ","こおり"] },
+        "あく":     { s:["エスパー","ゴースト"],            w:["フェアリー","あく"] },
+        "フェアリー": { s:["あく","ドラゴン"],               w:["ほのお","エスパー","どく","はがね"] },
+        "ドラゴン": { s:["ドラゴン"],                       w:["こおり","フェアリー","ドラゴン","はがね"] },
+        "むし":     { s:["くさ","エスパー","あく"],          w:["ほのお","ひこう","いわ","フェアリー","はがね"] },
+        "どく":     { s:["くさ","フェアリー"],               w:["じめん","エスパー","はがね","どく"] },
+        "じめん":   { s:["ほのお","でんき","いわ","どく","はがね"], w:["くさ","こおり","みず","ひこう"] },
+        "はがね":   { s:["いわ","こおり","フェアリー"],      w:["ほのお","じめん","はがね"] },
+        "ゴースト": { s:["エスパー","ゴースト"],             w:["あく","ゴースト"] }
+      };
+      function typeMult(atkType, defType){
+        if(atkType === defType) return 1; /* 同じタイプ同士は 必ず等倍 */
+        var c = TYPE_CHART[atkType];
+        if(!c) return 1;
+        if(c.s.indexOf(defType) >= 0) return 1.5;
+        if(c.w.indexOf(defType) >= 0) return 0.5;
+        return 1;
+      }
+      function effText(mult){
+        if(mult >= 1.5) return " こうかは ばつぐんだ！";
+        if(mult <= 0.5) return " こうかは いまひとつのようだ…";
+        return "";
+      }
+      function renderBattle(){
+        var B = S.battle, p = activeMon(), pm = MONSTERS[p.mid], em = MONSTERS[B.eMid];
+        document.getElementById("e-name").textContent = em.name;
+        document.getElementById("e-lv").textContent = B.eLv;
+        document.getElementById("e-type").textContent = em.type;
+        document.getElementById("e-type").style.background = em.color;
+        var eb = document.getElementById("e-hpbar");
+        var epct = Math.max(0, Math.round(B.eHp / B.eMaxhp * 100));
+        eb.style.width = epct + "%"; eb.className = hpColor(epct);
+        document.getElementById("p-name").textContent = pm.name;
+        document.getElementById("p-lv").textContent = p.lv;
+        document.getElementById("p-type").textContent = pm.type;
+        document.getElementById("p-type").style.background = pm.color;
+        var pb = document.getElementById("p-hpbar");
+        var ppct = Math.max(0, Math.round(p.hp / p.maxhp * 100));
+        pb.style.width = ppct + "%"; pb.className = hpColor(ppct);
+        document.getElementById("p-hpnum").textContent = Math.max(0, p.hp);
+        document.getElementById("p-hpmax").textContent = p.maxhp;
+        var xnext = xpNext(p.lv);
+        document.getElementById("p-xpbar").style.width = Math.max(0, Math.min(100, Math.round(p.xp / xnext * 100))) + "%";
+        document.getElementById("p-xpnow").textContent = p.xp;
+        document.getElementById("p-xpnext").textContent = xnext;
+        document.getElementById("p-xprest").textContent = xnext - p.xp;
+        document.getElementById("cmd-balls").textContent = S.balls;
+        /* 人とのバトル（トレーナー・ジム・チャンピオン）では 捕獲と 逃走は できない */
+        var noCatch = !!(B.trainer || B.gym || B.champion);
+        document.getElementById("cmd-catch").disabled = S.balls <= 0 || noCatch;
+        document.getElementById("cmd-run").disabled = noCatch;
+        var et = document.getElementById("e-team");
+        if(B.team && B.team.length > 1) et.textContent = "あいての モンスター あと " + (B.team.length - B.eIdx) + " たい";
+        else et.textContent = "";
+        document.getElementById("cmd-heal-item").textContent = "きずぐすり（×" + S.potions + "）";
+        document.getElementById("cmd-heal-item").disabled = S.potions <= 0;
+        document.getElementById("cmd-switch").disabled = S.party.length < 2;
+      }
+      function dmgPop(side, text, crit){
+        var stage = document.getElementById("battle-stage");
+        var d = document.createElement("div");
+        d.className = "dmg-pop" + (crit ? " crit" : "");
+        d.textContent = text;
+        if(side === "enemy"){ d.style.right = "14%"; d.style.top = "16%"; }
+        else { d.style.left = "14%"; d.style.bottom = "42%"; }
+        stage.appendChild(d);
+        setTimeout(function(){ d.remove(); }, 850);
+      }
+      function anim(id, cls){
+        var el = document.getElementById(id);
+        el.classList.remove("lunge-r","lunge-l","hurt","faint","enter-r","enter-l");
+        void el.offsetWidth;
+        el.classList.add(cls);
+      }
+      function showCmd(showIt){
+        document.getElementById("cmd-grid").classList.toggle("hidden", !showIt);
+        if(showIt){
+          document.getElementById("q-area").classList.add("hidden");
+          document.getElementById("switch-area").classList.add("hidden");
+        }
+      }
+      /* ===== バトル中の モンスターこうたい =====
+         交代したら そのターンは あいての こうげきを うける。
+         あいての ダメージ計算は enemyAttack() が 交代後の activeMon() で 行うので、
+         タイプ相性も 交代した モンスターの タイプで 計算される */
+      function openSwitch(){
+        var B = S.battle;
+        if(!B || B.busy || B.over) return;
+        var list = document.getElementById("switch-list");
+        list.innerHTML = "";
+        var canSwitch = false;
+        S.party.forEach(function(p, i){
+          var m = MONSTERS[p.mid];
+          var pct = Math.max(0, Math.round(p.hp / p.maxhp * 100));
+          var status;
+          if(i === S.active) status = "バトル中";
+          else if(p.hp <= 0) status = "たおれている";
+          else { status = "HP " + p.hp + " / " + p.maxhp; canSwitch = true; }
+          var b = document.createElement("button");
+          b.className = "party-card" + (i === S.active ? " sel" : "");
+          b.disabled = (i === S.active || p.hp <= 0);
+          b.innerHTML = '<div class="pm">' + m.svg + '</div>' +
+            '<div class="p-name">' + m.name + '</div>' +
+            '<div class="p-lv">Lv.' + p.lv + '（' + m.type + '）</div>' +
+            '<div class="mini-hp"><div style="width:' + pct + '%"></div></div>' +
+            '<div class="p-lv">' + status + '</div>' + xpHtml(p);
+          b.addEventListener("click", function(){ doSwitch(i); });
+          list.appendChild(b);
+        });
+        if(!canSwitch){ toast("こうたいできる なかまが いない！"); return; }
+        document.getElementById("cmd-grid").classList.add("hidden");
+        document.getElementById("q-area").classList.add("hidden");
+        document.getElementById("switch-area").classList.remove("hidden");
+        setMsg("どの モンスターと こうたいする？");
+      }
+      function closeSwitch(){
+        var B = S.battle;
+        if(B && (B.busy || B.over)) return;
+        document.getElementById("switch-area").classList.add("hidden");
+        document.getElementById("cmd-grid").classList.remove("hidden");
+      }
+      function doSwitch(i){
+        var B = S.battle;
+        if(!B || B.busy || B.over) return;
+        if(i === S.active || S.party[i].hp <= 0) return;
+        var oldName = MONSTERS[activeMon().mid].name;
+        S.active = i;
+        var p = activeMon(), pm = MONSTERS[p.mid];
+        document.getElementById("switch-area").classList.add("hidden");
+        var pf = document.getElementById("p-fighter");
+        pf.innerHTML = pm.svg;
+        anim("p-fighter","enter-l");
+        sfx("ok");
+        renderBattle();
+        renderParty();
+        setMsg("もどれ、" + oldName + "！ いけ、" + pm.name + "！（" + pm.type + "タイプ）…あいての こうげき！");
+        B.busy = true;
+        setTimeout(function(){ enemyAttack(); }, 1000);
+      }
+      function startBattleBase(eMid, eLv, opts){
+        /* opts.team が あるときは「相手が モンスターを 順番に 出してくる」チーム戦。
+           B.team に 全員分を持ち、B.eMid/eLv/eHp/eMaxhp は 現在の 相手を 指すよう 同期する */
+        var bonus = opts.champion ? 20 : (opts.gym ? 10 : 0);
+        var spec = opts.team || [{ mid:eMid, lv:eLv }];
+        var team = spec.map(function(t){
+          var tm = MONSTERS[t.mid];
+          var mx = Math.round((24 + t.lv * 7 + bonus) * (tm.hpf || 1));
+          return { mid:t.mid, lv:t.lv, hp:mx, maxhp:mx };
+        });
+        S.battle = {
+          eMid:team[0].mid, eLv:team[0].lv, eHp:team[0].hp, eMaxhp:team[0].maxhp,
+          team:team, eIdx:0, xpPool:0,
+          prize:(opts.prize != null ? opts.prize : null),
+          trainer: opts.trainer || null, trainerId: opts.trainerId || null,
+          oppName: opts.oppName || null,
+          lineWin: opts.lineWin || null, lineLose: opts.lineLose || null,
+          gym: opts.gym || null, area: opts.area || null,
+          champion: !!opts.champion,
+          tier: opts.tier || 1, gymPower: opts.gymPower || 0,
+          busy:false, over:false, catchMode:false
+        };
+        if(!S.seen[team[0].mid]) S.seen[team[0].mid] = 1;
+        var stage = document.getElementById("battle-stage");
+        stage.className = "battle-stage" + ((opts.gym || opts.champion) ? " gymbg" : ((opts.area && opts.area.bg === "night") || opts.night ? " night" : ""));
+        var ef = document.getElementById("e-fighter"), pf = document.getElementById("p-fighter");
+        ef.className = "fighter enemy"; pf.className = "fighter player";
+        ef.innerHTML = MONSTERS[team[0].mid].svg;
+        pf.innerHTML = MONSTERS[activeMon().mid].svg;
+        document.getElementById("throw-ball").className = "throw-ball";
+        show("battle");
+        playBgm(opts.champion ? "champion" : (opts.gym ? "gym" : "battle"));
+        renderBattle();
+        showCmd(true);
+        anim("e-fighter","enter-r"); anim("p-fighter","enter-l");
+      }
+      /* チーム戦で つぎの 相手モンスターを 場に 同期する */
+      function setEnemy(idx){
+        var B = S.battle;
+        if(!B || !B.team || !B.team[idx]) return;
+        var t = B.team[idx];
+        B.eIdx = idx; B.eMid = t.mid; B.eLv = t.lv; B.eHp = t.hp; B.eMaxhp = t.maxhp;
+        if(!S.seen[t.mid]) S.seen[t.mid] = 1;
+        var ef = document.getElementById("e-fighter");
+        ef.className = "fighter enemy";
+        ef.innerHTML = MONSTERS[t.mid].svg;
+      }
+      function startWildBattle(area){
+        if(activeMon().hp <= 0){ toast("パートナーが たおれている！ かいふくセンターへ 行こう"); return; }
+        var mid = pick(area.pool);
+        var lv = rnd(area.lv[0], area.lv[1]);
+        startBattleBase(mid, lv, { area: area, tier: curMapDef().tier });
+        setMsg("あっ！ やせいの " + MONSTERS[mid].name + "（Lv." + lv + "）が とびだしてきた！");
+        beep(392,.1,"square",.05); beep(523,.12,"square",.05,.1);
+      }
+      function startTrainerBattle(npc){
+        if(activeMon().hp <= 0){ toast("パートナーが たおれている！ かいふくセンターへ 行こう"); return; }
+        var def = curMapDef();
+        startBattleBase(npc.team[0].mid, npc.team[0].lv, {
+          team: npc.team, tier: def.tier,
+          trainer: npc, trainerId: npc.id, oppName: npc.name, prize: npc.prize,
+          lineWin: npc.lineWin, lineLose: npc.lineLose,
+          night: !!(def.wild && def.wild.bg === "night")
+        });
+        setMsg(npc.name + " が しょうぶを しかけてきた！「" + npc.lineBefore + "」 " + npc.name + " は " + MONSTERS[npc.team[0].mid].name + "（Lv." + npc.team[0].lv + "）を くりだした！");
+        beep(330,.1,"square",.05); beep(392,.12,"square",.05,.1);
+      }
+      function startGymBattle(g){
+        if(activeMon().hp <= 0){ toast("パートナーが たおれている！ かいふくセンターへ 行こう"); return; }
+        var gi = GYMS.indexOf(g);
+        // ジムの もんだいの むずかしさは 町の すすみ具合で 段階式に 上がる（1→2→3→3）
+        startBattleBase(g.team[0].mid, g.team[0].lv, {
+          gym: g, team: g.team, tier: curMapDef().tier, gymPower: [1,2,3,3][gi] || 2,
+          oppName: g.leader, prize: 500 + g.lv * 30,
+          lineWin: g.lineWin, lineLose: g.lineLose
+        });
+        setMsg(g.leader + " が しょうぶを しかけてきた！「" + g.lineBefore + "」 " + g.leader + " は " + MONSTERS[g.team[0].mid].name + "（Lv." + g.team[0].lv + "）を くりだした！");
+        beep(330,.1,"square",.05); beep(330,.1,"square",.05,.12); beep(440,.16,"square",.05,.24);
+      }
+      function startChampionBattle(){
+        if(activeMon().hp <= 0){ toast("パートナーが たおれている！ かいふくセンターへ 行こう"); return; }
+        startBattleBase(CHAMPION.team[0].mid, CHAMPION.team[0].lv, {
+          champion: true, team: CHAMPION.team, tier: 5,
+          oppName: CHAMPION.name, prize: 3000,
+          lineWin: CHAMPION.lineWin, lineLose: CHAMPION.lineLose
+        });
+        setMsg(CHAMPION.name + " が しょうぶを しかけてきた！「" + CHAMPION.lineBefore + "」 " + CHAMPION.name + " は " + MONSTERS[CHAMPION.team[0].mid].name + "（Lv." + CHAMPION.team[0].lv + "）を くりだした！");
+        beep(330,.1,"square",.05); beep(330,.1,"square",.05,.12); beep(440,.16,"square",.05,.24); beep(554,.2,"square",.05,.36);
+      }
+
+      function openQuestion(catchMode){
+        var B = S.battle;
+        if(!B || B.busy || B.over) return;
+        B.catchMode = !!catchMode;
+        // もんだいの むずかしさ：町の 段階（tier）と ジムの すすみ具合で 段階式に 上がる
+        var power;
+        if(B.champion) power = 3;
+        else if(B.gym) power = B.gymPower || 2;
+        else {
+          power = B.eLv >= 9 ? 3 : (B.eLv >= 5 ? 2 : 1);
+          var tfloor = [0,1,1,2,2,3][B.tier || 1] || 1;
+          if(tfloor > power) power = tfloor;
+        }
+        var q = makeQuestion(questionKind(), power);
+        B.q = q;
+        document.getElementById("q-kind").textContent = (catchMode ? "つかまえるチャンス！ " : "") + q.label + "もんだい";
+        document.getElementById("q-text").textContent = q.text;
+        var grid = document.getElementById("ans-grid");
+        grid.innerHTML = "";
+        q.opts.forEach(function(o){
+          var b = document.createElement("button");
+          b.className = "ans-btn"; b.textContent = o;
+          b.addEventListener("click", function(){ answer(b, o); });
+          grid.appendChild(b);
+        });
+        document.getElementById("cmd-grid").classList.add("hidden");
+        document.getElementById("q-area").classList.remove("hidden");
+        if(catchMode) setMsg("せいかいすると ボールを なげられる！ もんだいに こたえよう");
+        else setMsg("もんだいに せいかいすると こうげきできる！");
+      }
+      function closeQuestion(){
+        document.getElementById("q-area").classList.add("hidden");
+        document.getElementById("cmd-grid").classList.remove("hidden");
+      }
+      function answer(btn, val){
+        var B = S.battle, p = activeMon();
+        if(!B || B.busy || B.over) return;
+        B.busy = true;
+        var correct = (val === B.q.ans);
+        var allBtns = document.querySelectorAll(".ans-btn");
+        allBtns.forEach(function(x){ x.disabled = true; if(parseInt(x.textContent,10) === B.q.ans) x.classList.add("right"); });
+        if(!correct) btn.classList.add("wrong");
+        if(correct){
+          sfx("ok");
+          if(B.catchMode){
+            setTimeout(function(){ throwBall(); }, 500);
+          } else {
+            setTimeout(function(){ playerAttack(); }, 500);
+          }
+        } else {
+          sfx("ng");
+          setMsg("ざんねん… せいかいは " + B.q.ans + " だった！ まちがえたので あいては 2回 こうげきしてくる！");
+          setTimeout(function(){ enemyAttack(true); }, 900);
+        }
+      }
+      function playerAttack(){
+        var B = S.battle, p = activeMon();
+        var crit = Math.random() < 0.15;
+        var eff = typeMult(MONSTERS[p.mid].type, MONSTERS[B.eMid].type);
+        var dmg = Math.max(1, Math.round(atkFor(p.lv) * (MONSTERS[p.mid].pow || 1) * (0.85 + Math.random() * 0.4) * (crit ? 1.6 : 1) * eff));
+        B.eHp -= dmg;
+        anim("p-fighter","lunge-r");
+        setTimeout(function(){
+          anim("e-fighter","hurt");
+          dmgPop("enemy", crit ? "きゅうしょ！ " + dmg : "" + dmg, crit);
+          sfx(crit ? "crit" : "hit");
+          renderBattle();
+        }, 200);
+        setTimeout(function(){
+          document.getElementById("q-area").classList.add("hidden");
+          if(B.eHp <= 0){ handleEnemyDown(); return; }
+          /* ターン制：あいてが たおれていなければ、あいても こうげきしてくる（倒したターンだけ 反撃なし） */
+          setMsg(MONSTERS[B.eMid].name + " に " + dmg + " の ダメージ！" + (crit ? " きゅうしょに あたった！" : "") + effText(eff) + " あいての こうげき！");
+          setTimeout(function(){ enemyAttack(false); }, 900);
+        }, 750);
+      }
+      /* again=true のときは「まちがえた ターン」の 追加攻撃あり（通常攻撃のあと もう1回 こうげき）。
+         追加攻撃も typeMult で タイプ相性を 計算する（この関数の 通常計算を そのまま 使う） */
+      function enemyAttack(again){
+        var B = S.battle, p = activeMon();
+        var eff = typeMult(MONSTERS[B.eMid].type, MONSTERS[p.mid].type);
+        /* 敵の こうげきは 0.8倍に 弱めてある（プレイヤー側より 少し やさしい バランス） */
+        var dmg = Math.max(1, Math.round((5 + B.eLv * 1.5) * (MONSTERS[B.eMid].pow || 1) * (0.85 + Math.random() * 0.4) * (B.gym ? 1.15 : 1) * eff * 0.8));
+        p.hp -= dmg;
+        anim("e-fighter","lunge-l");
+        setTimeout(function(){
+          anim("p-fighter","hurt");
+          dmgPop("player", "" + dmg, false);
+          sfx("hurt");
+          renderBattle();
+        }, 200);
+        setTimeout(function(){
+          document.getElementById("q-area").classList.add("hidden");
+          if(p.hp <= 0){ p.hp = 0; loseBattle(); return; }
+          if(again){
+            setMsg(MONSTERS[p.mid].name + " は " + dmg + " の ダメージを うけた！" + effText(eff) + " まちがえたので あいてが もう1回 こうげきしてくる！");
+            renderBattle();
+            setTimeout(function(){ enemyAttack(false); }, 950);
+            return;
+          }
+          setMsg(MONSTERS[p.mid].name + " は " + dmg + " の ダメージを うけた！" + effText(eff));
+          B.busy = false;
+          showCmd(true);
+          renderBattle();
+        }, 750);
+      }
+      function throwBall(){
+        var B = S.battle;
+        document.getElementById("q-area").classList.add("hidden");
+        S.balls--;
+        var ball = document.getElementById("throw-ball");
+        ball.className = "throw-ball";
+        void ball.offsetWidth;
+        ball.classList.add("go");
+        sfx("throw");
+        /* ボールが ゆれる音（カタッ、カタッ…）を 結果が出る前に 入れる */
+        beep(240, .06, "square", .032, .38);
+        beep(240, .06, "square", .032, .66);
+        beep(240, .06, "square", .032, .9);
+        setMsg("いけっ！ モンスターボール！");
+        renderBattle();
+        setTimeout(function(){
+          ball.classList.remove("go");
+          var hpRatio = B.eHp / B.eMaxhp;
+          var chance = 0.85 - hpRatio * 0.6; // HPが低いほど捕まりやすい
+          if(Math.random() < chance){
+            anim("e-fighter","faint");
+            sfx("catchwin");
+            playBgm("victory");
+            setMsg("やったー！ " + MONSTERS[B.eMid].name + " を つかまえた！");
+            S.seen[B.eMid] = 2;
+            setTimeout(function(){
+              /* おなじ 種類でも 何体でも つかまえられる（別個体として 管理する）。
+                 てもちが 6たい いっぱいの ときは パソコンへ 自動で てんそうする */
+              var nm = newMember(B.eMid, B.eLv);
+              if(S.party.length < 6){
+                S.party.push(nm);
+                toast(MONSTERS[B.eMid].name + " が なかまに なった！（てもち " + S.party.length + " / 6）");
+              } else {
+                S.box.push(nm);
+                toast("てもちが いっぱい！ " + MONSTERS[B.eMid].name + " は パソコンに てんそうした");
+              }
+              endBattleToMap();
+            }, 1300);
+          } else {
+            sfx("break");
+            setMsg("おしい！ " + MONSTERS[B.eMid].name + " は ボールから とびだした！");
+            setTimeout(function(){ enemyAttack(false); }, 800);
+          }
+        }, 1000);
+      }
+      function gainXp(amount){
+        /* てもち 全員（ひんし＝HP0 の モンスターを のぞく）に、同じ量の けいけんちを
+           それぞれ 全額 あたえる。パソコンに あずけている モンスターには 入らない。 */
+        var msgs = [];
+        S.party.forEach(function(p){
+          if(p.hp <= 0) return;
+          p.xp += amount;
+          while(p.xp >= xpNext(p.lv)){
+            p.xp -= xpNext(p.lv);
+            p.lv++;
+            var oldMax = p.maxhp;
+            p.maxhp = maxHpFor(p.lv, p.mid);
+            p.hp += (p.maxhp - oldMax) + 6;
+            if(p.hp > p.maxhp) p.hp = p.maxhp;
+            msgs.push(MONSTERS[p.mid].name + "は レベルが " + p.lv + " に あがった！");
+            sfx("level");
+          }
+        });
+        return msgs;
+      }
+      /* 相手モンスターを 1たい たおしたとき：経験値を プールに ため、
+         チーム戦で まだ 残りがいれば 相手が つぎの モンスターを くりだしてくる */
+      function handleEnemyDown(){
+        var B = S.battle;
+        if(!B || B.over) return;
+        B.team[B.eIdx].hp = 0;
+        anim("e-fighter","faint");
+        beep(180, .22, "sine", .07);
+        var xpGain = (10 + B.eLv * 4 + (B.gym ? 22 : 0)) * 2;
+        B.xpPool += xpGain;
+        document.getElementById("q-area").classList.add("hidden");
+        if(B.eIdx < B.team.length - 1){
+          var downName = MONSTERS[B.eMid].name;
+          setMsg(downName + " を たおした！（けいけんち +" + xpGain + "）");
+          renderBattle();
+          setTimeout(function(){
+            if(!S.battle || S.battle !== B || B.over) return;
+            setEnemy(B.eIdx + 1);
+            anim("e-fighter","enter-r");
+            sfx("ok");
+            renderBattle();
+            setMsg((B.oppName || "あいて") + " は " + MONSTERS[B.eMid].name + "（Lv." + B.eLv + "）を くりだした！");
+            B.busy = false;
+            showCmd(true);
+          }, 1300);
+        } else {
+          winBattle();
+        }
+      }
+      function winBattle(){
+        var B = S.battle, p = activeMon();
+        B.over = true;
+        sfx(B.champion ? "champion" : "win");
+        playBgm("victory");
+        var xp = B.xpPool || ((10 + B.eLv * 4 + (B.gym ? 22 : 0)) * 2);
+        var lvMsgs = gainXp(xp);
+        var prize = (B.prize != null) ? B.prize : (30 + B.eLv * 15);
+        S.money += prize;
+        var msg = MONSTERS[B.eMid].name + " を たおした！ てもち みんなが けいけんち " + xp + " を 手にいれた。";
+        if(lvMsgs.length) msg += " " + lvMsgs.join(" ");
+        msg += " 💰 おかねを " + prize + "円 手にいれた！（てもち " + S.money + "円）";
+        if(B.oppName && B.lineWin) msg += " " + B.oppName + "「" + B.lineWin + "」";
+        if(B.champion){
+          msg += " 👑 チャンピオン・ユウキに しょうりした！！";
+        } else if(B.gym){
+          if(!S.badges[B.gym.id]){
+            S.badges[B.gym.id] = true;
+            msg += " 🏅 " + B.gym.leader + " から「" + B.gym.badgeName + "」を もらった！！";
+          } else {
+            msg += " ジムリーダーに また かてた！ すごい！";
+          }
+          S.balls += 2;
+        } else if(B.trainer){
+          if(B.trainerId) S.defeatedTrainers[B.trainerId] = true;
+          S.balls += 1;
+          msg += " ボールを 1つ 手にいれた。";
+        } else {
+          S.balls += 1;
+          msg += " ボールを 1つ 手にいれた。";
+          if(Math.random() < 0.3){ S.potions += 1; msg += " きずぐすりも 見つけた！"; }
+        }
+        setMsg(msg);
+        renderBattle();
+        var got = Object.keys(S.badges).length;
+        setTimeout(function(){
+          if(B.champion){ showEnding(); return; }
+          if(B.gym && got === GYMS.length){
+            toast("🎉 4つの バッジを ぜんぶ あつめた！ チャンピオンに ちょうせんできる！");
+          }
+          endBattleToMap();
+        }, 2200);
+      }
+      function loseBattle(){
+        var B = S.battle;
+        B.over = true;
+        anim("p-fighter","faint");
+        sfx("ng");
+        playBgm("defeat");
+        /* てもち 全員が HP0（全滅）なら ブラックアウト：最後に 訪れた 町の センター前に 運ばれ、
+           所持金が 半分になり、全員 全回復して 再開する */
+        var allDown = S.party.length > 0 && S.party.every(function(p){ return p.hp <= 0; });
+        if(allDown){
+          var lost = S.money - Math.floor(S.money / 2);
+          S.money = Math.floor(S.money / 2);
+          setMsg("てもちの モンスターが みんな たおれてしまった… あっ！ めのまえが まっくらに なった！");
+          setTimeout(function(){ blackoutToCenter(lost); }, 2400);
+          return;
+        }
+        setMsg((B.oppName && B.lineLose ? B.oppName + "「" + B.lineLose + "」 " : "") + MONSTERS[activeMon().mid].name + " は たおれてしまった… かいふくセンターへ もどろう。");
+        setTimeout(function(){ endBattleToMap(); }, 1800);
+      }
+      function blackoutToCenter(lost){
+        S.battle = null;
+        pendingReturn = null;
+        curMap = lastTown;
+        var f = MAPS[curMap].doorFront.p || [5, 3];
+        player.x = f[0]; player.y = f[1]; player.dir = "down";
+        S.party.forEach(function(p){ p.hp = p.maxhp; });
+        renderMap();
+        show("map");
+        updateFieldBgm();
+        setFieldMsg("気がつくと、" + MAPS[curMap].name + " の かいふくセンターの 前に いた！ たおれた モンスターを 運んで もらった みたい。お礼に おかねを 半分 おいてきた…（" + lost + "円 へって、てもち " + S.money + "円）。てもちは みんな 元気に なったよ！");
+        saveGame();
+        toast("かいふくセンターの 前で 目が さめた！");
+      }
+      function endBattleToMap(){
+        S.battle = null;
+        if(pendingReturn){
+          player.x = pendingReturn[0]; player.y = pendingReturn[1];
+          pendingReturn = null;
+        }
+        renderMap();
+        show("map");
+        if(activeMon() && activeMon().hp <= 0){
+          setFieldMsg("パートナーが たおれている… かいふくセンター（赤い屋根の たてもの）まで あるいて 行こう！");
+        }
+        saveGame();
+      }
+
+      /* ================= ショップ ================= */
+      var SHOP_ITEMS = [
+        { key:"ball",   name:"ホカクボール", price:100, desc:"モンスターを つかまえるための ボール" },
+        { key:"potion", name:"きずぐすり",   price:200, desc:"バトル中に つかうと HPが 25 かいふくする" }
+      ];
+      function shopCount(key){ return key === "ball" ? S.balls : S.potions; }
+      function renderShop(msg){
+        document.getElementById("shop-money").textContent = S.money;
+        var wrap = document.getElementById("shop-items");
+        wrap.innerHTML = "";
+        SHOP_ITEMS.forEach(function(it){
+          var row = document.createElement("div");
+          row.className = "shop-row";
+          row.innerHTML = '<div><div class="shop-name">' +
+            (it.key === "ball" ? '<span class="ball-ico" style="width:18px;height:18px;"></span>' : '<span aria-hidden="true">🧴</span>') +
+            it.name + ' <span class="shop-price">' + it.price + '円</span></div>' +
+            '<div class="shop-desc">' + it.desc + '（てもち ×' + shopCount(it.key) + '）</div></div>';
+          var b = document.createElement("button");
+          b.className = "btn primary";
+          b.textContent = "かう";
+          b.disabled = S.money < it.price;
+          b.addEventListener("click", function(){ buyItem(it); });
+          row.appendChild(b);
+          wrap.appendChild(row);
+        });
+        document.getElementById("shop-msg").textContent = msg || "";
+      }
+      function buyItem(it){
+        if(S.money < it.price){
+          sfx("ng");
+          renderShop("おかねが たりない！ モンスターを たおして おかねを 貯めよう");
+          return;
+        }
+        S.money -= it.price;
+        if(it.key === "ball") S.balls++; else S.potions++;
+        sfx("ok");
+        renderShop(it.name + " を 買った！（てもち ×" + shopCount(it.key) + "）");
+        saveGame();
+        renderHud();
+      }
+      function openShop(){
+        sfx("ok");
+        renderShop("どの アイテムを 買う？");
+        show("shop");
+      }
+
+      /* ================= エンディング ================= */
+      function showEnding(){
+        S.battle = null;
+        if(pendingReturn){
+          player.x = pendingReturn[0]; player.y = pendingReturn[1];
+          pendingReturn = null;
+        }
+        renderEnding();
+        show("ending");
+      }
+      function renderEnding(){
+        var caught = Object.keys(S.seen).filter(function(k){ return S.seen[k] === 2; }).length;
+        document.getElementById("ending-badges").innerHTML = GYMS.map(function(g){
+          return '<span class="badge-ico got" style="background:#ffe9a8;" title="' + g.badgeName + '">' + g.badge + '</span> ' + g.badgeName;
+        }).join("<br />");
+        document.getElementById("ending-caught").textContent = caught;
+        document.getElementById("ending-box").textContent = S.box.length;
+        document.getElementById("ending-party").innerHTML = S.party.map(function(p){
+          var m = MONSTERS[p.mid];
+          return '<div class="party-card" style="cursor:default;"><div class="pm">' + m.svg + '</div>' +
+            '<div class="p-name">' + m.name + '</div><div class="p-lv">Lv.' + p.lv + '（' + m.type + '）</div>' + xpHtml(p) + '</div>';
+        }).join("");
+      }
+
+      /* ================= 図鑑 ================= */
+      function renderZukan(){
+        var grid = document.getElementById("zukan-grid");
+        grid.innerHTML = "";
+        MONSTERS.forEach(function(m, i){
+          var st = S.seen[m.id] || 0;
+          var d = document.createElement("div");
+          d.className = "zukan-card" + (st === 0 ? " unknown" : "");
+          d.innerHTML = '<div class="z-no">No.' + (i + 1) + '</div>' +
+            '<div class="zm">' + m.svg + '</div>' +
+            '<div class="z-name">' + (st === 0 ? "？？？？？" : m.name) + '</div>' +
+            '<div style="font-size:.75rem;font-weight:800;opacity:.75;">' +
+            (st === 2 ? m.type + "タイプ ・ つかまえた！" : (st === 1 ? "みつけた！（まだ つかまえていない）" : "まだ みつけていない")) + '</div>' +
+            (st === 2 ? '<div style="font-size:.75rem;font-weight:700;opacity:.8;margin-top:3px;">' + m.desc + '</div>' : '');
+          grid.appendChild(d);
+        });
+      }
+
+      /* ================= セーブ（localStorage に 自動保存） =================
+         保存するもの：てもち／パソコンの モンスター（レベル・経験値・HP）、おかね、ボール、きずぐすり、
+         バッジ、図鑑の記録、倒したトレーナー、今いるマップと位置、もんだいの しゅるい。
+         自動セーブの タイミング：マップ移動・ジム出入り・バトル終了・買い物・かいふく・預け／引き出し・冒険開始 */
+      var SAVE_KEY = "keimon-save-v1";
+      function saveGame(){
+        if(!S.started) return;
+        try{
+          var data = {
+            v:1, party:S.party, box:S.box, active:S.active,
+            balls:S.balls, potions:S.potions, money:S.money,
+            badges:S.badges, seen:S.seen, qmode:S.qmode,
+            defeated:S.defeatedTrainers,
+            curMap:curMap, lastTown:lastTown,
+            px:player.x, py:player.y, pdir:player.dir
+          };
+          localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+        }catch(e){}
+      }
+      function loadSaveData(){
+        try{
+          var raw = localStorage.getItem(SAVE_KEY);
+          if(!raw) return null;
+          var d = JSON.parse(raw);
+          if(!d || !d.party || !d.party.length) return null;
+          return d;
+        }catch(e){ return null; }
+      }
+      function refreshTitleSaveBtns(){
+        var has = !!loadSaveData();
+        document.getElementById("btn-continue").classList.toggle("hidden", !has);
+        document.getElementById("btn-erase").classList.toggle("hidden", !has);
+        document.getElementById("btn-start").classList.toggle("hidden", has);
+      }
+      function continueGame(){
+        var d = loadSaveData();
+        if(!d){ toast("セーブデータが ないよ"); refreshTitleSaveBtns(); return; }
+        S.party = d.party; S.box = d.box || [];
+        S.active = d.active || 0;
+        if(S.active < 0 || S.active >= S.party.length) S.active = 0;
+        S.balls = (typeof d.balls === "number") ? d.balls : 5;
+        S.potions = (typeof d.potions === "number") ? d.potions : 2;
+        S.money = (typeof d.money === "number") ? d.money : 200;
+        S.badges = d.badges || {};
+        S.seen = d.seen || {};
+        S.qmode = d.qmode || "mix";
+        S.defeatedTrainers = d.defeated || {};
+        S.battle = null;
+        S.started = true;
+        curMap = (typeof d.curMap === "number" && d.curMap >= 0 && d.curMap < MAPS.length) ? d.curMap : 0;
+        lastTown = (typeof d.lastTown === "number" && MAPS[d.lastTown]) ? d.lastTown : 0;
+        player.x = (typeof d.px === "number") ? d.px : 5;
+        player.y = (typeof d.py === "number") ? d.py : 3;
+        player.dir = d.pdir || "down";
+        player.moving = false;
+        /* 保存位置が 通れない場所や 人の場所に なっていたら 安全な場所へ 補正する */
+        if(BLOCKED[tileAt(player.x, player.y)] || npcAt(player.x, player.y)){
+          player.x = 5; player.y = 3;
+          if(BLOCKED[tileAt(player.x, player.y)] || npcAt(player.x, player.y)){ player.x = 2; player.y = 3; }
+        }
+        pendingReturn = null;
+        fieldBuilt = false;
+        document.querySelectorAll('input[name="qmode"]').forEach(function(r){ r.checked = (r.value === S.qmode); });
+        sfx("catch");
+        renderMap();
+        show("map");
+        setFieldMsg("おかえり！ セーブデータから つづきを はじめるよ。いまは " + curMapDef().name + " に いるよ。");
+        toast("つづきから スタート！");
+      }
+      function eraseSave(){
+        try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+        refreshTitleSaveBtns();
+        toast("セーブデータを けしたよ");
+      }
+
+      /* ================= イベント ================= */
+      document.getElementById("title-monsters").innerHTML =
+        [11, 6, 10].map(function(i){ return '<div class="tm">' + MONSTERS[i].svg + '</div>'; }).join("");
+      document.getElementById("btn-start").addEventListener("click", function(){
+        var row = document.getElementById("starter-row");
+        row.innerHTML = "";
+        [0, 1, 2].forEach(function(mid){
+          var m = MONSTERS[mid];
+          var b = document.createElement("button");
+          b.className = "starter-card";
+          b.innerHTML = '<div class="sm">' + m.svg + '</div><div class="s-name2">' + m.name + '</div>' +
+            '<div style="font-weight:800;font-size:.85rem;">' + m.type + 'タイプ</div>' +
+            '<div class="s-desc">' + m.desc + '</div>';
+          b.addEventListener("click", function(){
+            S.party = [newMember(mid, 5)];
+            S.active = 0;
+            S.seen[mid] = 2;
+            S.started = true;
+            curMap = 0;
+            player.x = 5; player.y = 3; player.dir = "down";
+            pendingReturn = null;
+            sfx("catch");
+            renderMap();
+            show("map");
+            setFieldMsg(m.name + " と ぼうけん スタート！ まずは くさむらを あるいてみよう。かいふくセンターは 赤い屋根の たてものだよ。");
+            toast(m.name + " と ぼうけん スタート！");
+            saveGame();
+          });
+          row.appendChild(b);
+        });
+        show("starter");
+      });
+      document.querySelectorAll('input[name="qmode"]').forEach(function(r){
+        r.addEventListener("change", function(){ S.qmode = r.value; });
+      });
+      /* 十字ボタン（押しっぱなしでも すすめる） */
+      document.querySelectorAll(".dpad button[data-dir]").forEach(function(btn){
+        var dir = btn.getAttribute("data-dir");
+        var timer = null;
+        function startMove(e){
+          e.preventDefault();
+          tryMove(dir);
+          clearInterval(timer);
+          timer = setInterval(function(){ tryMove(dir); }, 230);
+        }
+        function stopMove(){ clearInterval(timer); timer = null; }
+        btn.addEventListener("pointerdown", startMove);
+        btn.addEventListener("pointerup", stopMove);
+        btn.addEventListener("pointerleave", stopMove);
+        btn.addEventListener("pointercancel", stopMove);
+        btn.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+      });
+      /* キーボード（矢印キー / WASD） */
+      document.addEventListener("keydown", function(e){
+        if(document.getElementById("screen-map").classList.contains("hidden")) return;
+        var dir = null;
+        if(e.key === "ArrowUp" || e.key === "w" || e.key === "W") dir = "up";
+        else if(e.key === "ArrowDown" || e.key === "s" || e.key === "S") dir = "down";
+        else if(e.key === "ArrowLeft" || e.key === "a" || e.key === "A") dir = "left";
+        else if(e.key === "ArrowRight" || e.key === "d" || e.key === "D") dir = "right";
+        if(dir){ e.preventDefault(); tryMove(dir); }
+      });
+      document.getElementById("btn-continue").addEventListener("click", function(){ continueGame(); });
+      /* セーブ消去は 2回押しで 確定（まちがえて けさないように） */
+      var eraseArm = false, eraseArmTimer = null;
+      document.getElementById("btn-erase").addEventListener("click", function(){
+        var b = document.getElementById("btn-erase");
+        if(!eraseArm){
+          eraseArm = true;
+          b.textContent = "ほんとうに けす？ もう一度 おすと けえるよ";
+          sfx("ng");
+          clearTimeout(eraseArmTimer);
+          eraseArmTimer = setTimeout(function(){ eraseArm = false; b.textContent = "セーブデータを けす"; }, 4000);
+          return;
+        }
+        clearTimeout(eraseArmTimer);
+        eraseArm = false;
+        b.textContent = "セーブデータを けす";
+        eraseSave();
+        sfx("ok");
+      });
+      document.getElementById("btn-zukan").addEventListener("click", function(){
+        renderZukan(); show("zukan");
+      });
+      document.getElementById("btn-center-heal").addEventListener("click", function(){ healParty(); });
+      document.getElementById("btn-center-pc").addEventListener("click", function(){ openPc(); });
+      document.getElementById("btn-center-back").addEventListener("click", function(){
+        renderMap();
+        show("map");
+        setFieldMsg("かいふくセンター「ありがとうございました！ また きてね」");
+      });
+      document.getElementById("btn-pc-back").addEventListener("click", function(){
+        syncCounts();
+        show("center");
+      });
+      document.getElementById("btn-zukan-back").addEventListener("click", function(){ show("map"); });
+      document.getElementById("btn-shop-back").addEventListener("click", function(){
+        renderMap();
+        show("map");
+        setFieldMsg("ショップ「ありがとう！ また きてね」");
+      });
+      document.getElementById("btn-ending-back").addEventListener("click", function(){
+        renderMap();
+        show("map");
+        setFieldMsg("チャンピオンを たおした ぼうけんしゃ！ ずかん コンプリートを めざして あそびつづけよう！");
+      });
+      document.getElementById("btn-fullscreen").addEventListener("click", function(){
+        try{
+          if(document.fullscreenElement) document.exitFullscreen();
+          else document.documentElement.requestFullscreen();
+        }catch(e){}
+      });
+      /* おとボタン：効果音とBGMを まとめて ON/OFF（全画面のボタンが連動） */
+      document.querySelectorAll(".sound-btn").forEach(function(b){
+        b.addEventListener("click", function(){ toggleSound(); });
+      });
+      syncSoundBtns();
+      /* 最初のタップ／クリックで AudioContext を 起動する（ブラウザの自動再生制限対策） */
+      document.addEventListener("pointerdown", function(){ ensureAudio(); });
+      document.addEventListener("keydown", function(){ ensureAudio(); });
+      document.getElementById("cmd-fight").addEventListener("click", function(){ openQuestion(false); });
+      document.getElementById("cmd-catch").addEventListener("click", function(){
+        var B = S.battle;
+        if(!B || B.busy || B.over) return;
+        if(B.trainer || B.gym || B.champion){ toast(B.trainer ? "トレーナーの モンスターは つかまえられない！" : "この バトルでは つかまえられない！"); return; }
+        if(S.balls <= 0){ toast("ボールが ない！ やせいに かって 手にいれよう"); return; }
+        openQuestion(true);
+      });
+      document.getElementById("cmd-heal-item").addEventListener("click", function(){
+        var B = S.battle, p = activeMon();
+        if(!B || B.busy || B.over) return;
+        if(S.potions <= 0) return;
+        if(p.hp >= p.maxhp){ toast("HPは まんたんだよ"); return; }
+        S.potions--;
+        p.hp = Math.min(p.maxhp, p.hp + 25);
+        sfx("ok");
+        setMsg("きずぐすりを つかった！ " + MONSTERS[p.mid].name + " の HPが かいふくした。");
+        renderBattle();
+        B.busy = true;
+        setTimeout(function(){ enemyAttack(); }, 900);
+      });
+      document.getElementById("cmd-switch").addEventListener("click", function(){ openSwitch(); });
+      document.getElementById("btn-switch-back").addEventListener("click", function(){ closeSwitch(); });
+      document.getElementById("cmd-run").addEventListener("click", function(){
+        var B = S.battle;
+        if(!B || B.busy || B.over) return;
+        if(B.trainer || B.gym || B.champion){ toast(B.trainer ? "トレーナーとの バトルからは にげられない！" : "この バトルからは にげられない！"); return; }
+        closeQuestion();
+        setMsg("うまく にげきった！");
+        beep(500,.08,"square",.04); beep(380,.1,"square",.04,.08);
+        setTimeout(endBattleToMap, 600);
+      });
+      document.getElementById("btn-q-back").addEventListener("click", function(){
+        var B = S.battle;
+        if(B && !B.busy) closeQuestion();
+      });
+      refreshTitleSaveBtns();
+      show("title");
+    </script>
+  </body>
+</html>
