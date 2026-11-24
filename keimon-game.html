@@ -375,6 +375,27 @@
         opacity:0; pointer-events:none; transition:all .3s ease; z-index:50; max-width:92vw; text-align:center;
       }
       .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+      /* ===== しんか演出オーバーレイ ===== */
+      .evo-overlay{
+        position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center;
+        background:rgba(24,14,2,.74); padding:16px;
+      }
+      .evo-card{ width:100%; max-width:430px; text-align:center; }
+      .evo-stage{ position:relative; width:min(230px,62vw); aspect-ratio:1/1; margin:6px auto 2px; }
+      .evo-mon{ width:100%; height:100%; }
+      .evo-mon svg{ width:100%; height:100%; display:block; filter:drop-shadow(0 8px 8px rgba(0,0,0,.3)); }
+      .evo-mon.glow{ animation:evoGlow .45s ease-in-out infinite alternate; }
+      .evo-mon.pop{ animation:evoPop .7s ease; }
+      @keyframes evoGlow{ from{ transform:scale(1); filter:brightness(1) } to{ transform:scale(1.06); filter:brightness(2.1) } }
+      @keyframes evoPop{ 0%{ transform:scale(.6); filter:brightness(2.6) } 55%{ transform:scale(1.14); filter:brightness(1.7) } 100%{ transform:scale(1); filter:brightness(1) } }
+      .evo-sparkles{
+        position:absolute; inset:-8px; display:flex; align-items:flex-start; justify-content:space-between;
+        font-size:1.7rem; pointer-events:none; animation:evoSpark 0.9s ease infinite alternate;
+      }
+      @keyframes evoSpark{ from{ transform:translateY(0) } to{ transform:translateY(-8px) } }
+      @media (prefers-reduced-motion: reduce){
+        .evo-mon.glow,.evo-mon.pop,.evo-sparkles{ animation:none; }
+      }
       /* ホカクカプセル：水色〜緑色の タマゴ型カプセルに 星マーク（オリジナルデザイン） */
       .capsule-css{
         border-radius:50% 50% 50% 50% / 62% 62% 38% 38%; border:3px solid #14532d; position:relative; overflow:hidden;
@@ -421,13 +442,15 @@
             <li>かいふくセンターや ジムの たてものまで あるいて 行くと、かいふくや しょうぶが できる。</li>
             <li>バトルでは けいさんもんだいに こたえると こうげきできる。あいても まいターン こうげきしてくる（たおした ターンだけ 反撃なし）。まちがえると あいての こうげきが 2回に なるから 気をつけよう！</li>
             <li>てもちの モンスターには けいけんちバーが ついているよ。「つぎの レベルまで あと いくつか」が ひとめで 分かる！</li>
-            <li>てもちが ぜんいん たおれると、さいごに 訪れた まちの かいふくセンターに 運ばれる。おかねは 半分に なっちゃうけど、みんな 元気に なって 再開できるよ。</li>
+            <li>てもちが ぜんいん たおれると、さいごに 訪れた まちの かいふくセンターに 運ばれる。おかねは へらないよ。みんな 元気に なって 再開できるよ。</li>
+            <li>バトル中に モンスターが たおれたら、ひかえの モンスターに 交代できるよ。交代する モンスターは じぶんで えらべるよ（この 交代では あいては こうげきしてこないよ）。</li>
             <li>あいてが よわったときに ホカクカプセルを なげると つかまえられる。</li>
             <li>モンスターを たおすと おかねが もらえる。まちの ショップで ホカクカプセルや きずぐすりが 買えるよ。</li>
             <li>タイプの あいしょうで ダメージが 変わる！「こうかは ばつぐん」を ねらおう（あいてからの こうげきも 同じだよ）。</li>
             <li>バトル中は「こうたい」で てもちの モンスターと 交代できる。交代した ターンは あいての こうげきを うけるから、あいしょうの いい モンスターに 代えよう！</li>
             <li>4つの まちを めぐり、ジムで リーダーに かって バッジを あつめよう。ジムは じゅんばんに ちょうせんする 決まり（つぎの ジムには まえの バッジが ひつよう）だけど、レベル制限は ないよ。まちが すすむほど モンスターも もんだいも つよくなる！</li>
-            <li>モンスターは ぜんぶで 40しゅるい！ おなじ モンスターも なんども つかまえられるよ。いろんな ばしょを たんけんして ずかんを うめよう！</li>
+            <li>モンスターは ぜんぶで 80しゅるい（しんか形も ふくむ）！ おなじ モンスターも なんども つかまえられるよ。いろんな ばしょを たんけんして ずかんを うめよう！</li>
+            <li>モンスターは レベルが あがると「しんか」する ことがあるよ！ しんかすると 見た目と 名前が 変わって、さいだいHPと こうげきが 大きく あがる。しんか形は ずかんにも とうろくされるよ。しんかに ひつような レベルは モンスターごとに ちがう（レベル10・14・18の どれか）よ。</li>
             <li>てもちは 6たいまで。いっぱいの ときに つかまえると、パソコンに 自動で 送られるよ。かいふくセンターの パソコンで、てもちと パソコンの モンスターを あずけたり ひきだしたり できる。</li>
             <li>バッジを 4つ あつめたら、さいごの マップで チャンピオンに ちょうせんできる！</li>
             <li>どうろや ジムの 中には トレーナーが いるよ。近づいて 話しかけると バトル！ トレーナーは モンスターを 数たい 持っていて、ぜんぶ たおすと おかねが もらえる。トレーナーの モンスターは つかまえられないし、バトルからは にげられないよ。</li>
@@ -449,7 +472,7 @@
           <div class="chips">
             <span class="chip"><span class="capsule-ico" style="width:16px;height:16px;"></span>カプセル × <span id="hud-balls">5</span></span>
             <span class="chip">💰 おかね <span id="hud-money">200</span>円</span>
-            <span class="chip">つかまえた数 <span id="hud-caught">1</span> / 40</span>
+            <span class="chip">つかまえた数 <span id="hud-caught">1</span> / 80</span>
             <span class="chip">💻 パソコン <span id="hud-box">0</span> たい</span>
           </div>
           <div class="badges-row" id="hud-badges" aria-label="ジムバッジ"></div>
@@ -538,9 +561,9 @@
         </div>
 
         <div class="q-area hidden" id="switch-area">
-          <div class="q-kind">こうたいする モンスターを えらぼう（こうたいした ターンは あいての こうげきを うけるよ）</div>
+          <div class="q-kind" id="switch-desc">こうたいする モンスターを えらぼう（こうたいした ターンは あいての こうげきを うけるよ）</div>
           <div class="party-row" id="switch-list" style="justify-content:center; margin-top:8px;"></div>
-          <div class="center" style="margin-top:10px;">
+          <div class="center" id="switch-back-wrap" style="margin-top:10px;">
             <button class="btn ghost" id="btn-switch-back">もどる</button>
           </div>
         </div>
@@ -566,7 +589,7 @@
           <div class="dotfont" style="font-size:1.2rem; margin-bottom:8px;">ぼうけんの せいか</div>
           <p style="font-weight:800; margin:6px 0;">🏅 あつめた バッジ（4つ）</p>
           <div id="ending-badges" style="font-weight:800; line-height:2.1;"></div>
-          <p style="font-weight:800; margin:10px 0 4px;">📖 ずかん：つかまえた モンスター <span id="ending-caught">0</span> / 40 しゅるい</p>
+          <p style="font-weight:800; margin:10px 0 4px;">📖 ずかん：つかまえた モンスター <span id="ending-caught">0</span> / 80 しゅるい</p>
           <p style="font-weight:800; margin:4px 0;">💻 パソコンに いる モンスター：<span id="ending-box">0</span> たい</p>
           <p style="font-weight:800; margin:10px 0 6px;">🤝 てもちの モンスターと レベル</p>
           <div class="party-row" id="ending-party"></div>
@@ -636,6 +659,20 @@
 
     </div>
     <div class="toast" id="toast"></div>
+
+    <!-- ===== しんか演出オーバーレイ ===== -->
+    <div class="evo-overlay hidden" id="evo-overlay" role="dialog" aria-label="しんかの えんしゅつ">
+      <div class="panel evo-card">
+        <div class="dotfont" style="font-size:1.5rem;">✨ しんか ✨</div>
+        <div class="evo-stage">
+          <div class="evo-mon" id="evo-mon"></div>
+          <div class="evo-sparkles hidden" id="evo-sparkles" aria-hidden="true"><span>✨</span><span>⭐</span><span>✨</span></div>
+        </div>
+        <p id="evo-text" style="font-weight:800; font-size:1.1rem; margin:8px 0 4px;">おや…？</p>
+        <p id="evo-stats" style="font-weight:800; margin:4px 0 10px; color:var(--gold-d);"></p>
+        <button class="btn primary big-cta hidden" id="btn-evo-ok" type="button">やったー！</button>
+      </div>
+    </div>
 
     <script>
       "use strict";
@@ -738,6 +775,68 @@
           svg: svgWrap('<path d="M32 34 Q20 22 24 8 Q34 16 36 28Z M68 34 Q80 22 76 8 Q66 16 64 28Z" fill="#64ffda"/><path d="M36 30 Q30 14 40 8 Q42 20 40 30Z M64 30 Q70 14 60 8 Q58 20 60 30Z" fill="#ea80fc"/><ellipse cx="50" cy="60" rx="25" ry="24" fill="#4db6ac"/><ellipse cx="50" cy="68" rx="13" ry="11" fill="#e0f2f1"/>' + eyes(41,59,56) + '<ellipse cx="50" cy="66" rx="3.6" ry="2.6" fill="#2b2118"/><path d="M45 73 Q50 75.4 55 73" stroke="#2b2118" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M28 48 L29.4 51.6 L33 51.8 L30.2 54 L31.2 57.4 L28 55.4 L24.8 57.4 L25.8 54 L23 51.8 L26.6 51.6Z" fill="#ffd35c"/>', "#e2f5f1") }
       ];
 
+      /* ================= しんか（進化）データ =================
+         もとの 40しゅるい（id 0〜39）すべてに しんか先（id 40〜79）を 1つずつ 用意する。
+         しんか形は やせいでは 出てこず、レベルアップで しんかしたときだけ 手に入る。
+         しんかすると 名前と 見た目が 変わり、pow（こうげき倍率）と hpf（HP倍率）が 大きく 上がる。
+         見た目は もとの 絵に「金の リング＋かざり（かんむり／つばさ／わっか／オーラ）」と
+         キラキラを 足して、しんか形らしく 大きく 立派に 見えるようにした オリジナル加工。
+         しんかに ひつような レベル：id 0〜11 は Lv.10、12〜25 は Lv.14、26〜39 は Lv.18 */
+      var EVO_NAMES = [
+        "ヒノオウ","ミズリュウ","モリッパ","ピカリオン","イワオウ","ユキオウ","ギンガホシ","ハヤテット",
+        "ヨルパンサー","ゲッコウサ","ドラゴンオウ","ホウオウマル","オオハネコロ","オオコロリス","プニョキング","ドクオウキノ",
+        "オオラッコロ","オオシェルガ","オオスイスイ","サボテンオウ","デンオウガエル","オオモグドン","ヨルコウモリ","ユーレイオウ",
+        "ダイヤホウセキ","オオドクガス","ライジンバード","フブキオオカミ","ヨウガンオウ","キングゴーレム","リュウセイオウ","ゲッコウヨミ",
+        "アンコクウマ","シラトリオウ","オオカゼノコ","オオヒダネ","オオユキンコ","オオミズクラゲ","ツチノコオウ","オーロラオウ"
+      ];
+      function evoSparkles(){
+        return '<path d="M14 20 L15.6 24.4 L20 26 L15.6 27.6 L14 32 L12.4 27.6 L8 26 L12.4 24.4Z" fill="#ffd35c"/>' +
+               '<path d="M86 14 L87.2 17.6 L91 18.8 L87.2 20 L86 23.6 L84.8 20 L81 18.8 L84.8 17.6Z" fill="#ffd35c"/>' +
+               '<path d="M84 74 L85.2 77.6 L89 78.8 L85.2 80 L84 83.6 L82.8 80 L79 78.8 L82.8 77.6Z" fill="#fff3a3"/>';
+      }
+      function evolvedSvg(base, idx){
+        var deco = "";
+        var v = idx % 4;
+        if(v === 0){
+          deco = '<path d="M35 11 L39 2 L45.5 8 L50 0.5 L54.5 8 L61 2 L65 11 L62.5 15 L37.5 15Z" fill="#ffd35c" stroke="#b97e0a" stroke-width="1.3"/>';
+        } else if(v === 1){
+          deco = '<path d="M16 48 Q0 40 3 24 Q15 28 21 40Z" fill="#fff8e1" stroke="#b97e0a" stroke-width="1.2"/>' +
+                 '<path d="M84 48 Q100 40 97 24 Q85 28 79 40Z" fill="#fff8e1" stroke="#b97e0a" stroke-width="1.2"/>' +
+                 '<path d="M33 14 L28 4 L40 10Z M67 14 L72 4 L60 10Z" fill="#ffd35c" stroke="#b97e0a" stroke-width="1.2"/>';
+        } else if(v === 2){
+          deco = '<ellipse cx="50" cy="5.5" rx="13" ry="3.6" fill="none" stroke="#ffd35c" stroke-width="2.6"/>';
+        } else {
+          deco = '<path d="M10 66 L17 56 L15 68 L21 60 L18 74 Q11 74 10 66Z" fill="#ff8c42"/>' +
+                 '<path d="M90 66 L83 56 L85 68 L79 60 L82 74 Q89 74 90 66Z" fill="#ff8c42"/>' +
+                 '<path d="M44 8 L50 1 L56 8 L52 8 L52 13 L48 13 L48 8Z" fill="#ffd35c"/>';
+        }
+        deco += evoSparkles();
+        var ring = '<circle cx="50" cy="52" r="46.5" fill="none" stroke="#e8a91c" stroke-width="2.6" stroke-dasharray="5 3"/>';
+        var svg = base.svg;
+        var bgMatch = svg.match(/<circle cx="50" cy="52" r="44"[^>]*\/>/);
+        if(bgMatch) svg = svg.replace(bgMatch[0], bgMatch[0] + ring);
+        else svg = svg.replace(/<svg[^>]*>/, function(s){ return s + ring; });
+        return svg.replace("</svg>", deco + "</svg>");
+      }
+      (function setupEvolutions(){
+        var baseCount = MONSTERS.length; // 40
+        for(var i = 0; i < baseCount; i++){
+          var base = MONSTERS[i];
+          var evoLv = i < 12 ? 10 : (i < 26 ? 14 : 18);
+          var evoId = baseCount + i;
+          base.evoTo = evoId;
+          base.evoLv = evoLv;
+          MONSTERS.push({
+            id:evoId, name:EVO_NAMES[i], type:base.type, color:base.color,
+            pow:Math.round((base.pow || 1) * 1.35 * 100) / 100,
+            hpf:Math.round((base.hpf || 1) * 1.25 * 100) / 100,
+            evoFrom:i,
+            desc:base.name + "が しんかした すがた。" + base.desc + " さいだいHPと こうげきが 大きく あがった！",
+            svg:evolvedSvg(base, i)
+          });
+        }
+      })();
+
       var AREAS = [
         { id:"kusa", name:"わかばの くさむら", desc:"はじまりの 草原。やさしい モンスターが すむ。", lv:[2,4], pool:[0,1,2,3], bg:"" },
         { id:"mizu", name:"キラキラ みずべ", desc:"川と 池の エリア。みずタイプが 多い。", lv:[4,7], pool:[1,2,5,7], bg:"" },
@@ -834,9 +933,16 @@
       function xpHtml(p){
         var next = xpNext(p.lv), rest = next - p.xp;
         var pct = Math.max(0, Math.min(100, Math.round(p.xp / next * 100)));
-        return '<div class="mini-xp"><div style="width:' + pct + '%"></div></div>' +
+        var html = '<div class="mini-xp"><div style="width:' + pct + '%"></div></div>' +
           '<div class="p-xp">けいけんち ' + p.xp + ' / ' + next + '</div>' +
           '<div class="p-xp">つぎの レベルまで あと ' + rest + '</div>';
+        var m = MONSTERS[p.mid];
+        if(m && m.evoTo && MONSTERS[m.evoTo]){
+          html += '<div class="p-xp">✨ Lv.' + m.evoLv + 'で ' + MONSTERS[m.evoTo].name + 'に しんか</div>';
+        } else if(m && m.evoFrom != null){
+          html += '<div class="p-xp">✨ しんか形</div>';
+        }
+        return html;
       }
       function newMember(mid, lv){
         return { mid:mid, lv:lv, xp:0, hp:maxHpFor(lv, mid), maxhp:maxHpFor(lv, mid) };
@@ -925,6 +1031,21 @@
           });
           beep(1318, .6, "sine", .015, .36);
           beep(1568, .55, "sine", .011, .45);
+        }
+        /* しんか：レベルアップより さらに 豪華な 専用ファンファーレ。
+           キラキラした 上昇アルペジオを 2回 繰り返してから、明るい 和音で 大きく 締める */
+        if(kind === "evolve"){
+          [659,784,988,1318].forEach(function(f,i){
+            beep(f, .14, "sine", .026, i * .07);
+            beep(f * 2, .18, "sine", .010, i * .07);
+          });
+          [784,988,1175,1568].forEach(function(f,i){
+            beep(f, .14, "square", .020, .32 + i * .07);
+            beep(f * 2, .18, "sine", .010, .32 + i * .07);
+          });
+          [523,659,784,1046,1318].forEach(function(f){ beep(f, 1.1, "triangle", .022, .66); });
+          [1046,1318,1568,2093].forEach(function(f,i){ beep(f, .95, "sine", .010, .66 + i * .05); });
+          beep(262, 1.1, "sine", .026, .66);
         }
         /* 敵を たおした：低い 一撃で スカッと 決めてから、短い 勝利ジングル */
         if(kind === "win"){
@@ -1859,12 +1980,17 @@
         }
       }
       /* ===== バトル中の モンスターこうたい =====
-         交代したら そのターンは あいての こうげきを うける。
+         自分から 交代したら そのターンは あいての こうげきを うける。
          あいての ダメージ計算は enemyAttack() が 交代後の activeMon() で 行うので、
-         タイプ相性も 交代した モンスターの タイプで 計算される */
-      function openSwitch(){
-        var B = S.battle;
-        if(!B || B.busy || B.over) return;
+         タイプ相性も 交代した モンスターの タイプで 計算される。
+         バトル中の モンスターが たおれた（ひんし）ときは promptForcedSwitch() が
+         ひかえの 一覧を 出し、プレイヤーが えらんだ モンスターに 交代する。
+         この ひんし交代では あいては こうげきしてこない（交代したら そのまま 自分の ターン）。
+         ひかえが いなければ loseBattle() → 全滅として かいふくセンターへ 運ばれる */
+      function hasAliveReserve(){
+        return S.party.some(function(p, i){ return i !== S.active && p.hp > 0; });
+      }
+      function buildSwitchList(){
         var list = document.getElementById("switch-list");
         list.innerHTML = "";
         var canSwitch = false;
@@ -1872,7 +1998,7 @@
           var m = MONSTERS[p.mid];
           var pct = Math.max(0, Math.round(p.hp / p.maxhp * 100));
           var status;
-          if(i === S.active) status = "バトル中";
+          if(i === S.active) status = (p.hp <= 0 ? "たおれている" : "バトル中");
           else if(p.hp <= 0) status = "たおれている";
           else { status = "HP " + p.hp + " / " + p.maxhp; canSwitch = true; }
           var b = document.createElement("button");
@@ -1886,32 +2012,72 @@
           b.addEventListener("click", function(){ doSwitch(i); });
           list.appendChild(b);
         });
+        return canSwitch;
+      }
+      function openSwitch(){
+        var B = S.battle;
+        if(!B || B.busy || B.over || B.forcedSwitch) return;
+        var canSwitch = buildSwitchList();
         if(!canSwitch){ toast("こうたいできる なかまが いない！"); return; }
+        document.getElementById("switch-desc").textContent = "こうたいする モンスターを えらぼう（こうたいした ターンは あいての こうげきを うけるよ）";
+        document.getElementById("switch-back-wrap").classList.remove("hidden");
         document.getElementById("cmd-grid").classList.add("hidden");
         document.getElementById("q-area").classList.add("hidden");
         document.getElementById("switch-area").classList.remove("hidden");
         setMsg("どの モンスターと こうたいする？");
       }
+      /* ひんし時の 強制こうたい：もどるボタンは 出さず、プレイヤーが ひかえを えらぶまで バトルを すすませない */
+      function promptForcedSwitch(){
+        var B = S.battle;
+        if(!B || B.over) return;
+        if(!hasAliveReserve()){ loseBattle(); return; }
+        var faintedName = MONSTERS[activeMon().mid].name;
+        B.forcedSwitch = true;
+        B.busy = true;
+        anim("p-fighter","faint");
+        buildSwitchList();
+        document.getElementById("switch-desc").textContent = faintedName + " が たおれた！ つぎに たたかう モンスターを えらぼう（この こうたいでは あいては こうげきしてこないよ）";
+        document.getElementById("switch-back-wrap").classList.add("hidden");
+        document.getElementById("cmd-grid").classList.add("hidden");
+        document.getElementById("q-area").classList.add("hidden");
+        document.getElementById("switch-area").classList.remove("hidden");
+        setMsg(faintedName + " は たおれてしまった！ つぎの モンスターを えらんでね。");
+        renderBattle();
+        renderParty();
+      }
       function closeSwitch(){
         var B = S.battle;
-        if(B && (B.busy || B.over)) return;
+        if(B && (B.busy || B.over || B.forcedSwitch)) return;
         document.getElementById("switch-area").classList.add("hidden");
         document.getElementById("cmd-grid").classList.remove("hidden");
       }
       function doSwitch(i){
         var B = S.battle;
-        if(!B || B.busy || B.over) return;
+        if(!B || B.over) return;
+        if(B.busy && !B.forcedSwitch) return;
         if(i === S.active || S.party[i].hp <= 0) return;
+        var wasForced = !!B.forcedSwitch;
         var oldName = MONSTERS[activeMon().mid].name;
+        var oldFainted = activeMon().hp <= 0;
         S.active = i;
         var p = activeMon(), pm = MONSTERS[p.mid];
+        B.forcedSwitch = false;
         document.getElementById("switch-area").classList.add("hidden");
+        document.getElementById("switch-back-wrap").classList.remove("hidden");
         var pf = document.getElementById("p-fighter");
+        pf.className = "fighter player";
         pf.innerHTML = pm.svg;
         anim("p-fighter","enter-l");
         sfx("ok");
         renderBattle();
         renderParty();
+        if(wasForced){
+          setMsg("いけ、" + pm.name + "！（" + pm.type + "タイプ） " + pm.name + " で たたかおう！");
+          B.busy = false;
+          showCmd(true);
+          renderBattle();
+          return;
+        }
         setMsg("もどれ、" + oldName + "！ いけ、" + pm.name + "！（" + pm.type + "タイプ）…あいての こうげき！");
         B.busy = true;
         setTimeout(function(){ enemyAttack(); }, 1000);
@@ -1936,7 +2102,7 @@
           gym: opts.gym || null, area: opts.area || null,
           champion: !!opts.champion,
           tier: opts.tier || 1, gymPower: opts.gymPower || 0,
-          busy:false, over:false, catchMode:false
+          busy:false, over:false, catchMode:false, forcedSwitch:false
         };
         if(!S.seen[team[0].mid]) S.seen[team[0].mid] = 1;
         var stage = document.getElementById("battle-stage");
@@ -2099,7 +2265,15 @@
         }, 200);
         setTimeout(function(){
           document.getElementById("q-area").classList.add("hidden");
-          if(p.hp <= 0){ p.hp = 0; loseBattle(); return; }
+          if(p.hp <= 0){
+            p.hp = 0;
+            renderBattle();
+            /* ひかえに 元気な モンスターが いれば、プレイヤーが えらんで 交代（バトル続行）。
+               いなければ 全滅として かいふくセンターへ */
+            if(hasAliveReserve()){ promptForcedSwitch(); }
+            else { loseBattle(); }
+            return;
+          }
           if(again){
             setMsg(MONSTERS[p.mid].name + " は " + dmg + " の ダメージを うけた！" + effText(eff) + " まちがえたので あいてが もう1回 こうげきしてくる！");
             renderBattle();
@@ -2157,10 +2331,34 @@
           }
         }, 1000);
       }
+      /* しんか判定：レベルアップ後に、しんか先があり 必要レベルに 届いていれば しんかさせる。
+         mid を しんか形に 変えることで 名前・見た目・pow（こうげき）・hpf（HP）が 切り替わる。
+         さいだいHPは しんか形の 倍率で 計算し直し、増えた分は 今のHPにも 足す（ダメージ状態は 保つ）。
+         しんか形は ずかんに「つかまえた（＝手に入れた）」として 登録する。
+         旧セーブ（keimon-save-v1）の モンスターも、つぎの レベルアップで 同じ判定を 受ける */
+      var pendingEvos = [];
+      function tryEvolve(p){
+        var m = MONSTERS[p.mid];
+        if(!m || !m.evoTo || p.lv < m.evoLv) return null;
+        var to = MONSTERS[m.evoTo];
+        if(!to) return null;
+        var ev = { member:p, fromId:p.mid, fromName:m.name, toId:to.id, toName:to.name };
+        var oldMax = p.maxhp;
+        p.mid = to.id;
+        p.maxhp = maxHpFor(p.lv, p.mid);
+        p.hp += (p.maxhp - oldMax);
+        if(p.hp > p.maxhp) p.hp = p.maxhp;
+        if(p.hp < 1) p.hp = 1;
+        S.seen[to.id] = 2;
+        return ev;
+      }
       function gainXp(amount){
         /* てもち 全員（ひんし＝HP0 の モンスターを のぞく）に、同じ量の けいけんちを
-           それぞれ 全額 あたえる。パソコンに あずけている モンスターには 入らない。 */
+           それぞれ 全額 あたえる。パソコンに あずけている モンスターには 入らない。
+           レベルアップの あと、条件を 満たした モンスターは しんかする（pendingEvos に ためて
+           winBattle が 演出オーバーレイで 順番に 見せる） */
         var msgs = [];
+        pendingEvos = [];
         S.party.forEach(function(p){
           if(p.hp <= 0) return;
           p.xp += amount;
@@ -2174,8 +2372,62 @@
             msgs.push(MONSTERS[p.mid].name + "は レベルが " + p.lv + " に あがった！");
             sfx("level");
           }
+          var ev = tryEvolve(p);
+          if(ev){
+            pendingEvos.push(ev);
+            msgs.push(ev.fromName + "は " + ev.toName + "に しんかした！");
+          }
         });
         return msgs;
+      }
+      /* しんか演出：オーバーレイで もとの すがたが 光って ゆれ、ファンファーレとともに
+         しんか形に 変わる。何体も しんかした ときは 1体ずつ 順番に 見せる。
+         ボタンを 押すまで バトルの 終了処理（マップへ戻る等）は 進まない */
+      function showEvolution(evos, done){
+        var ov = document.getElementById("evo-overlay");
+        var monEl = document.getElementById("evo-mon");
+        var textEl = document.getElementById("evo-text");
+        var statsEl = document.getElementById("evo-stats");
+        var sparkEl = document.getElementById("evo-sparkles");
+        var okBtn = document.getElementById("btn-evo-ok");
+        var idx = 0;
+        function showOne(){
+          var ev = evos[idx];
+          var from = MONSTERS[ev.fromId], to = MONSTERS[ev.toId];
+          ov.classList.remove("hidden");
+          okBtn.classList.add("hidden");
+          sparkEl.classList.add("hidden");
+          statsEl.textContent = "";
+          monEl.className = "evo-mon glow";
+          monEl.innerHTML = from.svg;
+          textEl.textContent = "おや…？ " + ev.fromName + " の ようすが…！";
+          beep(520, .12, "sine", .03, .15);
+          beep(660, .12, "sine", .03, .45);
+          beep(880, .14, "sine", .03, .75);
+          setTimeout(function(){
+            monEl.innerHTML = to.svg;
+            monEl.className = "evo-mon pop";
+            sparkEl.classList.remove("hidden");
+            sfx("evolve");
+            textEl.textContent = "✨ " + ev.fromName + " は " + ev.toName + " に しんかした！ ✨";
+            statsEl.textContent = "さいだいHP " + ev.member.maxhp + " に アップ！ こうげきも 大きく あがった！ ずかんに とうろくしたよ！";
+            if(S.battle && activeMon() === ev.member){
+              var pf = document.getElementById("p-fighter");
+              pf.innerHTML = to.svg;
+              renderBattle();
+            }
+            renderParty();
+            okBtn.textContent = (idx < evos.length - 1) ? "つぎの しんかを みる" : "やったー！";
+            okBtn.classList.remove("hidden");
+          }, 1150);
+        }
+        okBtn.onclick = function(){
+          idx++;
+          if(idx < evos.length){ showOne(); return; }
+          ov.classList.add("hidden");
+          if(done) done();
+        };
+        showOne();
       }
       /* 相手モンスターを 1たい たおしたとき：経験値を プールに ため、
          チーム戦で まだ 残りがいれば 相手が つぎの モンスターを くりだしてくる */
@@ -2241,13 +2493,21 @@
         setMsg(msg);
         renderBattle();
         var got = Object.keys(S.badges).length;
-        setTimeout(function(){
+        var finishBattle = function(){
           if(B.champion){ showEnding(); return; }
           if(B.gym && got === GYMS.length){
             toast("🎉 4つの バッジを ぜんぶ あつめた！ チャンピオンに ちょうせんできる！");
           }
           endBattleToMap();
-        }, 2200);
+        };
+        /* しんかした モンスターが いれば、まず しんか演出を 見せてから 終了する */
+        if(pendingEvos.length){
+          var evos = pendingEvos.slice();
+          pendingEvos = [];
+          setTimeout(function(){ showEvolution(evos, finishBattle); }, 1500);
+        } else {
+          setTimeout(finishBattle, 2200);
+        }
       }
       function loseBattle(){
         var B = S.battle;
@@ -2256,19 +2516,19 @@
         sfx("ng");
         playBgm("defeat");
         /* てもち 全員が HP0（全滅）なら ブラックアウト：最後に 訪れた 町の センター前に 運ばれ、
-           所持金が 半分になり、全員 全回復して 再開する */
+           おかねは へらずに、全員 全回復して 再開する（ひかえが 残っている場合は
+           enemyAttack 側で promptForcedSwitch() が 交代させるので、ここには 来ない） */
         var allDown = S.party.length > 0 && S.party.every(function(p){ return p.hp <= 0; });
         if(allDown){
-          var lost = S.money - Math.floor(S.money / 2);
-          S.money = Math.floor(S.money / 2);
-          setMsg("てもちの モンスターが みんな たおれてしまった… あっ！ めのまえが まっくらに なった！");
-          setTimeout(function(){ blackoutToCenter(lost); }, 2400);
+          setMsg("てもちの モンスターが みんな たおれてしまった… あっ！ めのまえが まっくらに なった！ かいふくセンターへ 運ばれる…");
+          setTimeout(function(){ blackoutToCenter(); }, 2400);
           return;
         }
+        if(hasAliveReserve()){ B.over = false; B.busy = true; promptForcedSwitch(); return; }
         setMsg((B.oppName && B.lineLose ? B.oppName + "「" + B.lineLose + "」 " : "") + MONSTERS[activeMon().mid].name + " は たおれてしまった… かいふくセンターへ もどろう。");
         setTimeout(function(){ endBattleToMap(); }, 1800);
       }
-      function blackoutToCenter(lost){
+      function blackoutToCenter(){
         S.battle = null;
         pendingReturn = null;
         curMap = lastTown;
@@ -2278,7 +2538,7 @@
         renderMap();
         show("map");
         updateFieldBgm();
-        setFieldMsg("気がつくと、" + MAPS[curMap].name + " の かいふくセンターの 前に いた！ たおれた モンスターを 運んで もらった みたい。お礼に おかねを 半分 おいてきた…（" + lost + "円 へって、てもち " + S.money + "円）。てもちは みんな 元気に なったよ！");
+        setFieldMsg("気がつくと、" + MAPS[curMap].name + " の かいふくセンターの 前に いた！ たおれた モンスターを 運んで もらった みたい。おかねは へっていないよ（てもち " + S.money + "円）。てもちは みんな 元気に なったよ！");
         saveGame();
         toast("かいふくセンターの 前で 目が さめた！");
       }
@@ -2378,7 +2638,9 @@
             '<div class="zm">' + m.svg + '</div>' +
             '<div class="z-name">' + (st === 0 ? "？？？？？" : m.name) + '</div>' +
             '<div style="font-size:.75rem;font-weight:800;opacity:.75;">' +
-            (st === 2 ? m.type + "タイプ ・ つかまえた！" : (st === 1 ? "みつけた！（まだ つかまえていない）" : "まだ みつけていない")) + '</div>' +
+            (st === 2 ? m.type + "タイプ ・ つかまえた！" + (m.evoFrom != null ? "（✨しんか形）" : "") : (st === 1 ? "みつけた！（まだ つかまえていない）" : "まだ みつけていない")) + '</div>' +
+            (st === 2 && m.evoTo && MONSTERS[m.evoTo] ? '<div style="font-size:.75rem;font-weight:800;opacity:.8;margin-top:2px;">✨ Lv.' + m.evoLv + 'で ' + MONSTERS[m.evoTo].name + 'に しんかする</div>' : '') +
+            (st === 0 && m.evoFrom != null ? '<div style="font-size:.75rem;font-weight:800;opacity:.8;margin-top:2px;">✨ しんかで 手に はいる形</div>' : '') +
             (st === 2 ? '<div style="font-size:.75rem;font-weight:700;opacity:.8;margin-top:3px;">' + m.desc + '</div>' : '');
           grid.appendChild(d);
         });
@@ -2618,8 +2880,7 @@
       refreshTitleSaveBtns();
       show("title");
     </script>
-  
-<script>
+  <script>
 (function(){try{
 var K='keimon';
 try{if(new URLSearchParams(location.search).get('owner')==='1'){localStorage.setItem('gc-owner','1');}}catch(e){}
