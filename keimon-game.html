@@ -1338,12 +1338,34 @@
          おとボタン（.sound-btn）1つで 効果音と BGMを まとめて ON/OFF する */
       var AC = null;
       var soundOn = true;
+      /* 出力マスター：すべての音は ここを 通る。コンプレッサーで 音の 頭打ち（割れ）を 防ぎ、
+         BGMは 専用バスの ローパスフィルターで 耳に 痛い 高音を 抑えてから 合流させる */
+      var masterIn = null, bgmIn = null;
+      function buildAudioGraph(){
+        if(!AC || masterIn) return;
+        try{
+          var comp = AC.createDynamicsCompressor();
+          comp.threshold.value = -20; comp.knee.value = 18; comp.ratio.value = 5;
+          comp.attack.value = 0.004; comp.release.value = 0.18;
+          var mg = AC.createGain(); mg.gain.value = 0.92;
+          mg.connect(comp); comp.connect(AC.destination);
+          masterIn = mg;
+          var blp = AC.createBiquadFilter();
+          blp.type = "lowpass"; blp.frequency.value = 7200; blp.Q.value = 0.3;
+          var bg = AC.createGain(); bg.gain.value = 1;
+          bg.connect(blp); blp.connect(mg);
+          bgmIn = bg;
+        }catch(e){ masterIn = null; bgmIn = null; }
+      }
       function ensureAudio(){
         try{
           if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+          buildAudioGraph();
           if(AC.state === "suspended") AC.resume();
         }catch(e){}
       }
+      function sfxDest(){ return masterIn || (AC ? AC.destination : null); }
+      function bgmDest(){ return bgmIn || sfxDest(); }
       function syncSoundBtns(){
         document.querySelectorAll(".sound-btn").forEach(function(b){
           b.textContent = soundOn ? "🔊 おと：ON" : "🔇 おと：OFF";
@@ -1354,25 +1376,45 @@
         soundOn = !soundOn;
         syncSoundBtns();
         if(!soundOn){
-          if(bgmState.timer){ clearTimeout(bgmState.timer); bgmState.timer = null; }
+          stopBgmNow();
         } else {
           ensureAudio();
           restartBgm();
           sfx("ok");
         }
       }
+      /* 効果音の 1音：矩形波の 単音ではなく、三角波を 主体に サイン波の 胴と
+         薄い 倍音を 重ねた 柔らかい 音色で 鳴らす。立ち上がりを 少しだけ 緩やかにして
+         プチッという ノイズを 消し、ローパスで 高音の 刺さりを 抑える。
+         type が square／sawtooth の 音は、その 波形を 薄く（約1割）混ぜて 輪郭だけ 残す */
       function beep(freq, dur, type, vol, when){
         if(!soundOn) return;
         try{
-          if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+          ensureAudio();
+          if(!AC) return;
           if(AC.state === "suspended") AC.resume();
-          var o = AC.createOscillator(), g = AC.createGain();
-          o.type = type || "square"; o.frequency.value = freq;
-          g.gain.value = vol || 0.05;
+          var dest = sfxDest(); if(!dest) return;
           var t = AC.currentTime + (when || 0);
-          o.connect(g); g.connect(AC.destination);
-          o.start(t); g.gain.exponentialRampToValueAtTime(0.0001, t + (dur || 0.12));
-          o.stop(t + (dur || 0.12) + 0.02);
+          var d = dur || 0.12, v = vol || 0.05;
+          var out = AC.createGain();
+          out.gain.setValueAtTime(0.0001, t);
+          out.gain.exponentialRampToValueAtTime(v, t + 0.012);
+          out.gain.exponentialRampToValueAtTime(0.0001, t + d);
+          var lp = AC.createBiquadFilter();
+          lp.type = "lowpass"; lp.Q.value = 0.3;
+          lp.frequency.value = (type === "sawtooth") ? 5600 : 4600;
+          lp.connect(out); out.connect(dest);
+          var oscs = [];
+          function layer(wave, f, gv){
+            var o = AC.createOscillator(), g = AC.createGain();
+            o.type = wave; o.frequency.value = f; g.gain.value = gv;
+            o.connect(g); g.connect(lp); oscs.push(o);
+          }
+          layer((type === "sine" || type === "triangle") ? type : "triangle", freq, 0.85);
+          layer("sine", freq, 0.4);
+          layer("sine", freq * 2, 0.12);
+          if(type === "square" || type === "sawtooth") layer(type, freq, 0.10);
+          oscs.forEach(function(o){ o.start(t); o.stop(t + d + 0.03); });
         }catch(e){}
       }
       function sfx(kind){
@@ -1481,36 +1523,78 @@
         "victory": { stepMs:175, type:"square",   vol:.037, mel:[72,76,79,84,0,84,79,84,86,84,79,76,79,0,72,0],   bas:[48,0,55,0,53,0,55,0,50,0,55,0,48,0,55,0] },
         "defeat":  { stepMs:320, type:"triangle", vol:.040, mel:[69,67,64,62,60,0,62,0,64,0,0,0,0,0,0,0],         bas:[45,0,0,0,41,0,0,0,43,0,0,0,45,0,0,0] }
       };
-      var bgmState = { want:null, timer:null, step:0 };
+      /* BGMは 常に 1曲だけ：世代番号（gen）で 古い 再生チェーンを 無効化し、
+         鳴っている オシレーターも 全部 記録して、曲を 切り替えるときは
+         タイマーを 止めるだけでなく 発音中の 音そのものも 完全に 止める。
+         これで エンカウント曲→バトル曲の 切り替えで 前の曲が 残らない */
+      var bgmState = { want:null, timer:null, step:0, gen:0, nodes:[] };
       var centerHoldUntil = 0;
+      function stopBgmNow(){
+        bgmState.gen++;
+        if(bgmState.timer){ clearTimeout(bgmState.timer); bgmState.timer = null; }
+        if(AC && bgmState.nodes.length){
+          var t = AC.currentTime;
+          bgmState.nodes.slice().forEach(function(n){
+            try{
+              n.g.gain.cancelScheduledValues(t);
+              n.g.gain.setTargetAtTime(0.0001, t, 0.012);
+              n.oscs.forEach(function(o){ try{ o.stop(t + 0.08); }catch(e){} });
+            }catch(e){}
+          });
+        }
+        bgmState.nodes = [];
+      }
+      /* BGMの 1音：三角波（または サイン波）を 主体に、サイン波の オクターブ倍音を
+         薄く 重ねて 輝きを 足す。もとの 波形が square／sawtooth の 曲は、その 波形を
+         薄く（約1割）混ぜて 曲の キャラだけ 残す。音の 出だしは 緩やかに 立ち上げ、
+         余韻は 指数カーブで 滑らかに 消す。出力は BGM専用バス（ローパス付き）へ */
       function bgmNote(midi, dur, type, vol){
         if(!soundOn) return;
         try{
           ensureAudio();
           if(!AC || AC.state !== "running") return;
-          var o = AC.createOscillator(), g = AC.createGain();
-          o.type = type || "triangle"; o.frequency.value = midiHz(midi);
+          var dest = bgmDest(); if(!dest) return;
+          var f = midiHz(midi);
           var t = AC.currentTime;
-          g.gain.setValueAtTime(vol, t);
+          var atk = Math.min(0.02, dur * 0.3);
+          var g = AC.createGain();
+          g.gain.setValueAtTime(0.0001, t);
+          g.gain.exponentialRampToValueAtTime(vol, t + atk);
           g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-          o.connect(g); g.connect(AC.destination);
-          o.start(t); o.stop(t + dur + 0.02);
+          g.connect(dest);
+          var oscs = [];
+          function layer(wave, fr, gv){
+            var o = AC.createOscillator(), og = AC.createGain();
+            o.type = wave; o.frequency.value = fr; og.gain.value = gv;
+            o.connect(og); og.connect(g); oscs.push(o);
+          }
+          layer(type === "sine" ? "sine" : "triangle", f, 0.9);
+          layer("sine", f * 2, 0.15);
+          if(type === "square" || type === "sawtooth") layer(type, f, 0.10);
+          var node = { g: g, oscs: oscs };
+          bgmState.nodes.push(node);
+          oscs[0].onended = function(){
+            var ix = bgmState.nodes.indexOf(node);
+            if(ix >= 0) bgmState.nodes.splice(ix, 1);
+          };
+          oscs.forEach(function(o){ o.start(t); o.stop(t + dur + 0.02); });
         }catch(e){}
       }
-      function bgmTick(){
+      function bgmTick(gen){
+        if(gen !== bgmState.gen) return; /* 古い チェーンは ここで 終わる */
         var tr = BGM_TRACKS[bgmState.want];
         if(!tr || !soundOn){ bgmState.timer = null; return; }
         var i = bgmState.step % tr.mel.length;
         var m = tr.mel[i];
         var b = tr.bas ? tr.bas[i % tr.bas.length] : 0;
         if(m) bgmNote(m, tr.stepMs / 1000 * 0.92, tr.type, tr.vol);
-        if(b) bgmNote(b, tr.stepMs / 1000 * 0.95, "triangle", tr.vol * 0.8);
+        if(b) bgmNote(b, tr.stepMs / 1000 * 0.95, "sine", tr.vol * 0.85);
         bgmState.step++;
-        bgmState.timer = setTimeout(bgmTick, tr.stepMs);
+        bgmState.timer = setTimeout(function(){ bgmTick(gen); }, tr.stepMs);
       }
       function restartBgm(){
-        if(bgmState.timer){ clearTimeout(bgmState.timer); bgmState.timer = null; }
-        if(soundOn && bgmState.want) bgmTick();
+        stopBgmNow();
+        if(soundOn && bgmState.want) bgmTick(bgmState.gen);
       }
       function playBgm(name){
         if(!name || !BGM_TRACKS[name]) return;
@@ -2333,11 +2417,6 @@
           else if(npc.kind === "gym") items.push("🏆 " + npc.name + "（話しかけると バトル）");
           else if(npc.kind === "champion") items.push("👑 " + npc.name + "（バッジ4つで ちょうせんできる）");
         });
-        if((def.npcs || []).some(function(n){ return n.kind === "villager"; }))
-          items.push("💬 町の人（歩き回っている人に 近づいて 話しかけてみよう）");
-        var joined = def.rows.join("");
-        if(joined.indexOf(">") >= 0) items.push("▶ マップの はしまで あるくと つぎの マップへ");
-        if(joined.indexOf("<") >= 0) items.push("◀ もどる ことも できる");
         if(def.interior) items.push("▼ したの マットに のると ジムを 出られる");
         document.getElementById("field-legend").innerHTML =
           items.map(function(t){ return "<span>" + t + "</span>"; }).join("");
