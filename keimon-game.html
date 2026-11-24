@@ -287,67 +287,62 @@
         #eyecatch.champ::before{ animation:none; }
         #eyecatch.play.champ #ec-title{ animation:none; }
       }
-      /* ===== 野生エンカウント演出（伝説の登場シーン風） ===== */
-      #encounter{
-        position:fixed; inset:0; z-index:90; overflow:hidden;
-        display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+      /* ===== 野生エンカウント演出（ソウルシルバー風） =====
+         縦じまブラインドの ワイプで 画面が 切り替わり、バトル画面が 横スライド＋
+         スピード線で 入ってくる → 敵が 台の上に ポンッと 飛び出す →
+         「ゆけっ！」で 自分の モンスターが 光とともに 登場し、情報ボックスが
+         左右から スライドインする。全体 約2秒 */
+      #wipe{ position:fixed; inset:0; z-index:95; display:flex; pointer-events:none; }
+      #wipe.hidden{ display:none; }
+      #wipe .strip{ flex:1 1 0; background:#0a0705; transform:scaleX(0); }
+      #wipe.close .strip{ transform-origin:left center; animation:stripClose .16s ease-in forwards; }
+      #wipe.open .strip{ transform-origin:right center; animation:stripOpen .16s ease-out forwards; }
+      @keyframes stripClose{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+      @keyframes stripOpen{ from{ transform:scaleX(1); } to{ transform:scaleX(0); } }
+      /* バトル画面の 入場：横スライド＋モーションブラー */
+      .battle-stage.intro-in{ animation:stageIn .5s cubic-bezier(.2,.8,.3,1) both; }
+      @keyframes stageIn{
+        0%{ transform:translateX(110px); filter:blur(4px) brightness(1.25); }
+        60%{ filter:blur(1.5px) brightness(1.1); }
+        100%{ transform:translateX(0); filter:none; }
       }
-      #encounter.hidden{ display:none; }
-      #encounter .enc-dim{
-        position:absolute; inset:0; opacity:0;
-        background:radial-gradient(ellipse at center, rgba(26,16,4,.88) 0%, rgba(6,3,1,.97) 80%);
+      /* スピード線（横に 流れる 白い線） */
+      .speed-lines{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:4; opacity:0; }
+      .speed-lines.go{ opacity:1; }
+      .speed-lines .sl{
+        position:absolute; height:3px; border-radius:99px;
+        background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.85), rgba(255,255,255,0));
+        animation:slMove .38s linear infinite;
       }
-      #encounter.play .enc-dim{ animation:encDim .38s ease-out forwards; }
-      @keyframes encDim{ from{ opacity:0; } to{ opacity:1; } }
-      #encounter .enc-vortex{
-        position:absolute; left:50%; top:44%; width:min(86vw,430px); aspect-ratio:1/1;
-        transform:translate(-50%,-50%); border-radius:50%; opacity:0; pointer-events:none;
-        background:repeating-conic-gradient(from 0deg, rgba(255,211,92,.22) 0deg 10deg, rgba(255,211,92,0) 10deg 22deg);
-        -webkit-mask-image:radial-gradient(circle, transparent 0 16%, #000 30%, transparent 66%);
-        mask-image:radial-gradient(circle, transparent 0 16%, #000 30%, transparent 66%);
+      @keyframes slMove{ from{ transform:translateX(45%); } to{ transform:translateX(-135%); } }
+      /* 登場待ち（ポップインするまで 隠しておく） */
+      .fighter.waiting{ opacity:0; }
+      .fighter.pop-in{ animation:popIn .5s cubic-bezier(.25,1.5,.4,1) both; }
+      @keyframes popIn{
+        0%{ transform:scale(.15) translateY(16px); opacity:0; }
+        55%{ transform:scale(1.14) translateY(-4px); opacity:1; }
+        78%{ transform:scale(.96) translateY(1px); }
+        100%{ transform:scale(1) translateY(0); opacity:1; }
       }
-      #encounter.play .enc-vortex{ animation:encVortexFade .5s ease-out forwards, encSpin 2.6s linear infinite; }
-      @keyframes encVortexFade{ from{ opacity:0; } to{ opacity:1; } }
-      @keyframes encSpin{ from{ transform:translate(-50%,-50%) rotate(0deg); } to{ transform:translate(-50%,-50%) rotate(360deg); } }
-      .enc-sparkles{ position:absolute; inset:0; pointer-events:none; z-index:3; }
-      .enc-spark{
-        position:absolute; color:#ffd35c; line-height:1; pointer-events:none;
-        text-shadow:0 0 8px rgba(255,211,92,.95), 0 0 18px rgba(255,170,40,.6);
-        animation:encTwinkle .8s ease-in-out infinite alternate;
+      /* 自分を くり出すときの 光の エフェクト */
+      .send-flash{
+        position:absolute; left:2%; bottom:12%; width:clamp(170px,44vw,250px); aspect-ratio:1/1;
+        border-radius:50%; pointer-events:none; opacity:0;
+        background:radial-gradient(circle, rgba(255,255,240,.95) 0%, rgba(255,220,120,.55) 38%, rgba(255,220,120,0) 70%);
       }
-      @keyframes encTwinkle{ from{ transform:scale(.45) rotate(0deg); opacity:.25; } to{ transform:scale(1.15) rotate(35deg); opacity:1; } }
-      .enc-spark.burst{ animation:encBurst .75s ease-out forwards; }
-      @keyframes encBurst{ 0%{ transform:scale(.3); opacity:0; } 35%{ opacity:1; } 100%{ transform:scale(1.7) rotate(60deg); opacity:0; } }
-      #enc-art{ width:clamp(180px,52vw,270px); height:clamp(180px,52vw,270px); z-index:2; opacity:0; }
-      #enc-art svg, #enc-art img{ width:100%; height:100%; display:block; object-fit:contain; transition:filter .25s ease; }
-      #enc-art.silhouette svg, #enc-art.silhouette img{ filter:brightness(0) drop-shadow(0 0 22px rgba(255,211,92,.35)); }
-      #encounter.play #enc-art{ animation:encSilIn .45s cubic-bezier(.2,1.4,.4,1) both .3s; }
-      @keyframes encSilIn{ from{ transform:scale(.4); opacity:0; } to{ transform:scale(1); opacity:1; } }
-      #encounter.play #enc-art.revealed{ animation:encReveal .5s cubic-bezier(.2,1.6,.4,1) both; }
-      @keyframes encReveal{ 0%{ transform:scale(1); opacity:1; } 40%{ transform:scale(1.15); opacity:1; } 100%{ transform:scale(1); opacity:1; } }
-      #enc-art.revealed svg, #enc-art.revealed img{ filter:drop-shadow(0 10px 12px rgba(0,0,0,.55)) drop-shadow(0 0 26px rgba(255,211,92,.55)); }
-      #encounter .enc-flash{ position:absolute; inset:0; background:#fffbe8; opacity:0; pointer-events:none; z-index:4; }
-      #encounter.reveal .enc-flash{ animation:ecFlash .5s ease-out; }
-      #enc-name{
-        z-index:2; font-family:"DotGothic16",sans-serif; color:#e8e2d2; min-height:1.3em;
-        letter-spacing:.35em; text-indent:.35em; font-size:clamp(1.4rem,6vw,2.1rem);
-        text-shadow:2px 2px 0 rgba(0,0,0,.7);
-      }
-      #enc-title{
-        z-index:2; text-align:center; padding:0 14px; font-family:"DotGothic16",sans-serif;
-        color:#ffd35c; font-size:clamp(1.55rem,7vw,2.7rem); line-height:1.35; min-height:1.35em;
-        text-shadow:3px 3px 0 #b3271e, -1px -1px 0 #b3271e, 0 0 22px rgba(255,190,60,.85);
-      }
-      #encounter.reveal #enc-title{ animation:encTitlePop .45s cubic-bezier(.2,1.6,.4,1) both; }
-      @keyframes encTitlePop{ from{ transform:scale(.5); opacity:0; } to{ transform:scale(1); opacity:1; } }
-      #enc-sub{ z-index:2; color:#fff8e1; font-weight:800; font-size:clamp(.9rem,3.6vw,1.1rem); min-height:1.4em; text-shadow:1px 1px 0 rgba(0,0,0,.7); }
+      .send-flash.go{ animation:sendFlash .55s ease-out both; }
+      @keyframes sendFlash{ 0%{ opacity:0; transform:scale(.3); } 30%{ opacity:1; } 100%{ opacity:0; transform:scale(1.25); } }
+      /* 情報ボックスの スライドイン */
+      .stat-box.waiting{ opacity:0; }
+      .stat-box.box-in-l{ animation:boxInL .42s cubic-bezier(.2,1.15,.4,1) both; }
+      .stat-box.box-in-r{ animation:boxInR .42s cubic-bezier(.2,1.15,.4,1) both; }
+      @keyframes boxInL{ from{ transform:translateX(-115%); opacity:0; } to{ transform:translateX(0); opacity:1; } }
+      @keyframes boxInR{ from{ transform:translateX(115%); opacity:0; } to{ transform:translateX(0); opacity:1; } }
       @media (prefers-reduced-motion: reduce){
-        #encounter.play .enc-dim{ animation:none; opacity:1; }
-        #encounter .enc-vortex{ display:none; }
-        #encounter.play #enc-art, #encounter.play #enc-art.revealed,
-        #encounter.reveal #enc-title, #encounter.reveal .enc-flash, .enc-spark{ animation:none; }
-        #enc-art{ opacity:1; }
-        #enc-art.silhouette svg, #enc-art.silhouette img{ filter:none; }
+        #wipe.close .strip, #wipe.open .strip{ animation-duration:.01s; }
+        .battle-stage.intro-in, .fighter.pop-in, .send-flash.go,
+        .stat-box.box-in-l, .stat-box.box-in-r, .speed-lines .sl{ animation:none; }
+        .speed-lines{ display:none; }
       }
       .npc-name{
         position:absolute; left:50%; top:-46%; transform:translateX(-50%);
@@ -658,6 +653,7 @@
         <div class="battle-stage" id="battle-stage">
           <div class="plat enemy"></div>
           <div class="plat player"></div>
+          <div class="send-flash" id="send-flash"></div>
           <div class="stat-box enemy">
             <div class="s-name"><span id="e-name">？？？</span><span>Lv.<span id="e-lv">3</span></span></div>
             <div><span class="s-type" id="e-type">ノーマル</span></div>
@@ -675,6 +671,7 @@
             <div class="xp-num">けいけんち <span id="p-xpnow">0</span> / <span id="p-xpnext">0</span> ・ つぎのレベルまで あと <span id="p-xprest">0</span></div>
           </div>
           <div class="throw-capsule" id="throw-capsule"><div class="capsule-css"></div></div>
+          <div class="speed-lines" id="speed-lines"></div>
         </div>
 
         <div class="msg-box" id="msg-box">やせいの モンスターが あらわれた！</div>
@@ -715,17 +712,8 @@
         <div id="ec-sub"></div>
       </div>
 
-      <!-- ===== 野生エンカウント演出（暗転→シルエット→フラッシュで出現） ===== -->
-      <div id="encounter" class="hidden" aria-hidden="true">
-        <div class="enc-dim"></div>
-        <div class="enc-vortex"></div>
-        <div class="enc-sparkles" id="enc-sparkles"></div>
-        <div class="enc-flash"></div>
-        <div id="enc-art"></div>
-        <div id="enc-name">？？？</div>
-        <div id="enc-title"></div>
-        <div id="enc-sub"></div>
-      </div>
+      <!-- ===== 野生エンカウント演出：縦じまブラインドの ワイプ（帯は JSで 生成） ===== -->
+      <div id="wipe" class="hidden" aria-hidden="true"></div>
 
       <!-- ===== エンディング画面 ===== -->
       <section id="screen-ending" class="hidden">
@@ -2934,74 +2922,123 @@
           done();
         }, reduced ? 400 : (variant ? 1400 : 1150));
       }
-      /* ================= 野生エンカウント演出（伝説の登場シーン風） =================
-         流れ：画面が 暗転し 金の渦と キラキラが 舞う → モンスターが 黒いシルエットで
-         大きく 現れる（名前は「？？？」）→ フラッシュとともに 色づいて 姿が あらわに
-         なり「やせいの ○○ が あらわれた！」が 大きく 出る。全体 約2.1秒。
-         演出中は ecActive で 移動・入力を 受け付けない（アイキャッチと 同じ仕組み） */
-      var encTimers = [];
-      function encLater(fn, ms){ encTimers.push(setTimeout(fn, ms)); }
-      function encBuildSparkles(burst){
-        var box = document.getElementById("enc-sparkles");
-        if(!box) return;
-        box.innerHTML = "";
-        var n = burst ? 16 : 12;
-        for(var i = 0; i < n; i++){
-          var s = document.createElement("span");
-          s.className = "enc-spark" + (burst ? " burst" : "");
-          s.textContent = "✦";
-          s.style.left = (4 + Math.random() * 92) + "%";
-          s.style.top = (6 + Math.random() * 82) + "%";
-          s.style.fontSize = (burst ? (16 + Math.random() * 22) : (10 + Math.random() * 16)) + "px";
-          s.style.animationDelay = (Math.random() * .7) + "s";
-          box.appendChild(s);
+      /* ================= 野生エンカウント演出（ソウルシルバー風） =================
+         流れ：エンカウントした瞬間、縦じま（ブラインド状）の ワイプが 画面全体に かかって
+         サッと 切り替わる → ワイプの 裏で バトル画面を 用意し、ワイプが 開くと バトル画面が
+         横スライド＋スピード線で 入ってくる → 敵が 台の上に ポンッと 飛び出して
+         「あ！ やせいの ○○が とびだしてきた！」→ つづけて「ゆけっ！ ○○！」で 自分の
+         モンスターが 光とともに 登場し、情報ボックスが 左右から スライドインする。
+         全体 約2.1秒。演出中は ecActive と B.busy で 移動・入力を 受け付けない */
+      var wildTimers = [];
+      function wildLater(fn, ms){ wildTimers.push(setTimeout(fn, ms)); }
+      function buildWipeStrips(wipe, count){
+        wipe.innerHTML = "";
+        for(var i = 0; i < count; i++){
+          var st = document.createElement("div");
+          st.className = "strip";
+          st.style.animationDelay = (i * 20) + "ms";
+          wipe.appendChild(st);
         }
       }
-      function showEncounter(mid, lv, done){
-        var mon = MONSTERS[mid];
-        var enc = document.getElementById("encounter");
-        var art = document.getElementById("enc-art");
-        var titleEl = document.getElementById("enc-title");
-        var subEl = document.getElementById("enc-sub");
-        encTimers.forEach(clearTimeout); encTimers = [];
-        art.innerHTML = monArt(mon);
-        art.className = "silhouette";
-        document.getElementById("enc-name").textContent = "？？？";
-        titleEl.textContent = "";
-        subEl.textContent = "";
-        encBuildSparkles(false);
-        enc.classList.remove("hidden", "reveal");
-        void enc.offsetWidth;
-        enc.classList.add("play");
-        ecActive = true;
-        var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        beep(82, .5, "triangle", .06); beep(123, .5, "triangle", .05, .12); beep(196, .4, "sine", .05, .3);
-        encLater(function(){
-          art.classList.remove("silhouette");
-          art.classList.add("revealed");
-          enc.classList.add("reveal");
-          document.getElementById("enc-name").textContent = "";
-          titleEl.textContent = "やせいの " + mon.name + " が あらわれた！";
-          subEl.textContent = "Lv." + lv + " ・ " + mon.type + "タイプ";
-          encBuildSparkles(true);
-          beep(392, .1, "square", .05); beep(523, .1, "square", .05, .08); beep(659, .1, "square", .05, .16); beep(784, .16, "square", .06, .24); beep(1318, .22, "sine", .04, .3);
-        }, reduced ? 200 : 1150);
-        encLater(function(){
-          enc.classList.add("hidden");
-          enc.classList.remove("play", "reveal");
-          ecActive = false;
-          done();
-        }, reduced ? 650 : 2150);
+      function buildSpeedLines(){
+        var box = document.getElementById("speed-lines");
+        if(!box) return;
+        box.innerHTML = "";
+        for(var i = 0; i < 12; i++){
+          var s = document.createElement("span");
+          s.className = "sl";
+          s.style.top = (4 + Math.random() * 90) + "%";
+          s.style.left = (Math.random() * 55) + "%";
+          s.style.width = (90 + Math.random() * 190) + "px";
+          s.style.animationDelay = (Math.random() * .3) + "s";
+          s.style.animationDuration = (.3 + Math.random() * .22) + "s";
+          box.appendChild(s);
+        }
       }
       function startWildBattle(area){
         if(activeMon().hp <= 0){ toast("パートナーが たおれている！ かいふくセンターへ 行こう"); return; }
         var mid = pick(area.pool);
         var lv = rnd(area.lv[0], area.lv[1]);
-        showEncounter(mid, lv, function(){
+        var mon = MONSTERS[mid];
+        var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var T = reduced ? { setup:90, open:130, enemy:220, send:430, finish:640 }
+                        : { setup:440, open:490, enemy:900, send:1500, finish:2120 };
+        wildTimers.forEach(clearTimeout); wildTimers = [];
+        ecActive = true;
+        /* 1. ブラインドワイプが 閉じる（短い 効果音つき） */
+        var wipe = document.getElementById("wipe");
+        buildWipeStrips(wipe, 14);
+        wipe.classList.remove("hidden", "open");
+        void wipe.offsetWidth;
+        wipe.classList.add("close");
+        beep(1400, .07, "sawtooth", .04); beep(1050, .07, "sawtooth", .04, .05); beep(760, .07, "sawtooth", .04, .1); beep(520, .09, "sawtooth", .05, .15);
+        /* 2. ワイプの 裏で バトル画面を 用意する（敵・自分とも 登場待ちで 隠しておく） */
+        wildLater(function(){
           startBattleBase(mid, lv, { area: area, tier: curMapDef().tier });
-          setMsg("あっ！ やせいの " + MONSTERS[mid].name + "（Lv." + lv + "）が とびだしてきた！");
-          beep(392,.1,"square",.05); beep(523,.12,"square",.05,.1);
-        });
+          var B = S.battle;
+          if(B) B.busy = true;
+          showCmd(false);
+          var stage = document.getElementById("battle-stage");
+          document.getElementById("e-fighter").className = "fighter enemy waiting";
+          document.getElementById("p-fighter").className = "fighter player waiting";
+          var eBox = stage.querySelector(".stat-box.enemy"), pBox = stage.querySelector(".stat-box.player");
+          if(eBox) eBox.classList.add("waiting");
+          if(pBox) pBox.classList.add("waiting");
+          setMsg("");
+          buildSpeedLines();
+          stage.classList.remove("intro-in"); void stage.offsetWidth; stage.classList.add("intro-in");
+          var sl = document.getElementById("speed-lines");
+          if(sl) sl.classList.add("go");
+        }, T.setup);
+        /* ワイプが 開く（バトル画面が 横スライドで 入ってくる） */
+        wildLater(function(){
+          wipe.classList.remove("close");
+          void wipe.offsetWidth;
+          wipe.classList.add("open");
+          beep(500, .06, "sawtooth", .035); beep(760, .06, "sawtooth", .035, .05); beep(1080, .08, "sawtooth", .04, .1);
+        }, T.open);
+        /* 3. 敵が 台の上に ポンッと 飛び出す */
+        wildLater(function(){
+          wipe.classList.add("hidden"); wipe.classList.remove("open");
+          var sl = document.getElementById("speed-lines");
+          if(sl) sl.classList.remove("go");
+          var stage = document.getElementById("battle-stage");
+          stage.classList.remove("intro-in");
+          var ef = document.getElementById("e-fighter");
+          ef.classList.remove("waiting"); ef.classList.add("pop-in");
+          var eBox = stage.querySelector(".stat-box.enemy");
+          if(eBox){ eBox.classList.remove("waiting"); eBox.classList.add("box-in-l"); }
+          setMsg("あ！ やせいの " + mon.name + "が とびだしてきた！");
+          beep(392, .1, "square", .05); beep(523, .12, "square", .05, .09);
+        }, T.enemy);
+        /* 4. 「ゆけっ！」で 自分が 光の エフェクトとともに 登場 */
+        wildLater(function(){
+          var pm = MONSTERS[activeMon().mid];
+          setMsg("ゆけっ！ " + pm.name + "！");
+          var fl = document.getElementById("send-flash");
+          if(fl){ fl.classList.remove("go"); void fl.offsetWidth; fl.classList.add("go"); }
+          var pf = document.getElementById("p-fighter");
+          pf.classList.remove("waiting"); pf.classList.add("pop-in");
+          var pBox = document.querySelector("#battle-stage .stat-box.player");
+          if(pBox){ pBox.classList.remove("waiting"); pBox.classList.add("box-in-r"); }
+          beep(659, .09, "square", .05); beep(784, .09, "square", .05, .07); beep(1046, .14, "square", .05, .14);
+        }, T.send);
+        /* 5. 演出おわり：後片づけして コマンドを 出し、操作できるようにする */
+        wildLater(function(){
+          var B = S.battle;
+          var ef = document.getElementById("e-fighter"), pf = document.getElementById("p-fighter");
+          ef.classList.remove("pop-in"); pf.classList.remove("pop-in");
+          var stage = document.getElementById("battle-stage");
+          var eBox = stage.querySelector(".stat-box.enemy"), pBox = stage.querySelector(".stat-box.player");
+          if(eBox) eBox.classList.remove("box-in-l");
+          if(pBox) pBox.classList.remove("box-in-r");
+          var fl = document.getElementById("send-flash");
+          if(fl) fl.classList.remove("go");
+          if(B) B.busy = false;
+          ecActive = false;
+          showCmd(true);
+          setMsg("あ！ やせいの " + mon.name + "（Lv." + lv + "）が とびだしてきた！");
+        }, T.finish);
       }
       function startTrainerBattle(npc){
         if(activeMon().hp <= 0){ toast("パートナーが たおれている！ かいふくセンターへ 行こう"); return; }
