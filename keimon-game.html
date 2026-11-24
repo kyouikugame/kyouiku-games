@@ -256,6 +256,99 @@
         #eyecatch.play #ec-art, #eyecatch.play #ec-title{ animation:none; }
         #eyecatch .ec-band.top, #eyecatch .ec-band.bottom{ transform:none; }
       }
+      /* ===== アイキャッチ豪華版：ジムリーダー ===== */
+      #eyecatch.gym{ background:radial-gradient(ellipse at center, #31435f 0%, #0b1424 78%); }
+      #eyecatch.gym .ec-band{ background:linear-gradient(180deg, #ffe9a3, #e8a91c); }
+      #eyecatch.gym #ec-art{ filter:drop-shadow(0 8px 10px rgba(0,0,0,.5)) drop-shadow(0 0 18px rgba(255,205,80,.45)); }
+      #eyecatch.gym #ec-title{
+        color:#ffe9a3;
+        text-shadow:3px 3px 0 #7a4d00, -1px -1px 0 #7a4d00, 0 0 20px rgba(255,205,80,.85);
+      }
+      /* ===== アイキャッチ豪華版：チャンピオン ===== */
+      #eyecatch.champ{ background:radial-gradient(ellipse at center, #6e1420 0%, #1c0508 80%); }
+      #eyecatch.champ::before{
+        content:""; position:absolute; inset:-45%; z-index:0; pointer-events:none; opacity:.55;
+        background:repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,211,92,.13) 0deg 8deg, rgba(255,211,92,0) 8deg 18deg);
+        animation:ecRays 16s linear infinite;
+      }
+      @keyframes ecRays{ to{ transform:rotate(360deg); } }
+      #eyecatch.champ .ec-band{ height:15%; background:linear-gradient(180deg, #fff3b0, #e8a91c); }
+      #eyecatch.champ #ec-art{ filter:drop-shadow(0 8px 10px rgba(0,0,0,.55)) drop-shadow(0 0 24px rgba(255,200,60,.65)); }
+      #eyecatch.champ #ec-title{
+        color:#ffe9a3; font-size:clamp(1.6rem, 7vw, 2.7rem);
+        text-shadow:3px 3px 0 #7c0d16, -1px -1px 0 #7c0d16, 0 0 26px rgba(255,200,60,.95);
+      }
+      #eyecatch.play.champ #ec-title{ animation:ecSlide .45s ease both .16s, ecGlow .9s ease-in-out infinite alternate .65s; }
+      @keyframes ecGlow{
+        from{ text-shadow:3px 3px 0 #7c0d16, -1px -1px 0 #7c0d16, 0 0 13px rgba(255,200,60,.55); }
+        to{ text-shadow:3px 3px 0 #7c0d16, -1px -1px 0 #7c0d16, 0 0 32px rgba(255,214,90,1); }
+      }
+      @media (prefers-reduced-motion: reduce){
+        #eyecatch.champ::before{ animation:none; }
+        #eyecatch.play.champ #ec-title{ animation:none; }
+      }
+      /* ===== 野生エンカウント演出（伝説の登場シーン風） ===== */
+      #encounter{
+        position:fixed; inset:0; z-index:90; overflow:hidden;
+        display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+      }
+      #encounter.hidden{ display:none; }
+      #encounter .enc-dim{
+        position:absolute; inset:0; opacity:0;
+        background:radial-gradient(ellipse at center, rgba(26,16,4,.88) 0%, rgba(6,3,1,.97) 80%);
+      }
+      #encounter.play .enc-dim{ animation:encDim .38s ease-out forwards; }
+      @keyframes encDim{ from{ opacity:0; } to{ opacity:1; } }
+      #encounter .enc-vortex{
+        position:absolute; left:50%; top:44%; width:min(86vw,430px); aspect-ratio:1/1;
+        transform:translate(-50%,-50%); border-radius:50%; opacity:0; pointer-events:none;
+        background:repeating-conic-gradient(from 0deg, rgba(255,211,92,.22) 0deg 10deg, rgba(255,211,92,0) 10deg 22deg);
+        -webkit-mask-image:radial-gradient(circle, transparent 0 16%, #000 30%, transparent 66%);
+        mask-image:radial-gradient(circle, transparent 0 16%, #000 30%, transparent 66%);
+      }
+      #encounter.play .enc-vortex{ animation:encVortexFade .5s ease-out forwards, encSpin 2.6s linear infinite; }
+      @keyframes encVortexFade{ from{ opacity:0; } to{ opacity:1; } }
+      @keyframes encSpin{ from{ transform:translate(-50%,-50%) rotate(0deg); } to{ transform:translate(-50%,-50%) rotate(360deg); } }
+      .enc-sparkles{ position:absolute; inset:0; pointer-events:none; z-index:3; }
+      .enc-spark{
+        position:absolute; color:#ffd35c; line-height:1; pointer-events:none;
+        text-shadow:0 0 8px rgba(255,211,92,.95), 0 0 18px rgba(255,170,40,.6);
+        animation:encTwinkle .8s ease-in-out infinite alternate;
+      }
+      @keyframes encTwinkle{ from{ transform:scale(.45) rotate(0deg); opacity:.25; } to{ transform:scale(1.15) rotate(35deg); opacity:1; } }
+      .enc-spark.burst{ animation:encBurst .75s ease-out forwards; }
+      @keyframes encBurst{ 0%{ transform:scale(.3); opacity:0; } 35%{ opacity:1; } 100%{ transform:scale(1.7) rotate(60deg); opacity:0; } }
+      #enc-art{ width:clamp(180px,52vw,270px); height:clamp(180px,52vw,270px); z-index:2; opacity:0; }
+      #enc-art svg, #enc-art img{ width:100%; height:100%; display:block; object-fit:contain; transition:filter .25s ease; }
+      #enc-art.silhouette svg, #enc-art.silhouette img{ filter:brightness(0) drop-shadow(0 0 22px rgba(255,211,92,.35)); }
+      #encounter.play #enc-art{ animation:encSilIn .45s cubic-bezier(.2,1.4,.4,1) both .3s; }
+      @keyframes encSilIn{ from{ transform:scale(.4); opacity:0; } to{ transform:scale(1); opacity:1; } }
+      #encounter.play #enc-art.revealed{ animation:encReveal .5s cubic-bezier(.2,1.6,.4,1) both; }
+      @keyframes encReveal{ 0%{ transform:scale(1); opacity:1; } 40%{ transform:scale(1.15); opacity:1; } 100%{ transform:scale(1); opacity:1; } }
+      #enc-art.revealed svg, #enc-art.revealed img{ filter:drop-shadow(0 10px 12px rgba(0,0,0,.55)) drop-shadow(0 0 26px rgba(255,211,92,.55)); }
+      #encounter .enc-flash{ position:absolute; inset:0; background:#fffbe8; opacity:0; pointer-events:none; z-index:4; }
+      #encounter.reveal .enc-flash{ animation:ecFlash .5s ease-out; }
+      #enc-name{
+        z-index:2; font-family:"DotGothic16",sans-serif; color:#e8e2d2; min-height:1.3em;
+        letter-spacing:.35em; text-indent:.35em; font-size:clamp(1.4rem,6vw,2.1rem);
+        text-shadow:2px 2px 0 rgba(0,0,0,.7);
+      }
+      #enc-title{
+        z-index:2; text-align:center; padding:0 14px; font-family:"DotGothic16",sans-serif;
+        color:#ffd35c; font-size:clamp(1.55rem,7vw,2.7rem); line-height:1.35; min-height:1.35em;
+        text-shadow:3px 3px 0 #b3271e, -1px -1px 0 #b3271e, 0 0 22px rgba(255,190,60,.85);
+      }
+      #encounter.reveal #enc-title{ animation:encTitlePop .45s cubic-bezier(.2,1.6,.4,1) both; }
+      @keyframes encTitlePop{ from{ transform:scale(.5); opacity:0; } to{ transform:scale(1); opacity:1; } }
+      #enc-sub{ z-index:2; color:#fff8e1; font-weight:800; font-size:clamp(.9rem,3.6vw,1.1rem); min-height:1.4em; text-shadow:1px 1px 0 rgba(0,0,0,.7); }
+      @media (prefers-reduced-motion: reduce){
+        #encounter.play .enc-dim{ animation:none; opacity:1; }
+        #encounter .enc-vortex{ display:none; }
+        #encounter.play #enc-art, #encounter.play #enc-art.revealed,
+        #encounter.reveal #enc-title, #encounter.reveal .enc-flash, .enc-spark{ animation:none; }
+        #enc-art{ opacity:1; }
+        #enc-art.silhouette svg, #enc-art.silhouette img{ filter:none; }
+      }
       .npc-name{
         position:absolute; left:50%; top:-46%; transform:translateX(-50%);
         background:var(--frame); color:#ffd35c; border-radius:4px; padding:0 4px;
@@ -620,6 +713,18 @@
         <div id="ec-art"></div>
         <div id="ec-title"></div>
         <div id="ec-sub"></div>
+      </div>
+
+      <!-- ===== 野生エンカウント演出（暗転→シルエット→フラッシュで出現） ===== -->
+      <div id="encounter" class="hidden" aria-hidden="true">
+        <div class="enc-dim"></div>
+        <div class="enc-vortex"></div>
+        <div class="enc-sparkles" id="enc-sparkles"></div>
+        <div class="enc-flash"></div>
+        <div id="enc-art"></div>
+        <div id="enc-name">？？？</div>
+        <div id="enc-title"></div>
+        <div id="enc-sub"></div>
       </div>
 
       <!-- ===== エンディング画面 ===== -->
@@ -2807,11 +2912,13 @@
          バトルの 直前に 約1.1秒の 演出を はさむ：フラッシュ＋帯の スライドとともに
          相手の 姿と タイトルを 大きく 出してから バトル画面へ 移る */
       var ecActive = false, ecTimer = null;
-      function showEyecatch(artHtml, title, sub, done){
+      function showEyecatch(artHtml, title, sub, done, variant){
         var ec = document.getElementById("eyecatch");
         document.getElementById("ec-art").innerHTML = artHtml;
         document.getElementById("ec-title").textContent = title;
         document.getElementById("ec-sub").textContent = sub || "";
+        ec.classList.remove("gym", "champ");
+        if(variant) ec.classList.add(variant);
         ec.classList.remove("hidden");
         ec.classList.remove("play");
         void ec.offsetWidth;
@@ -2822,15 +2929,75 @@
         clearTimeout(ecTimer);
         ecTimer = setTimeout(function(){
           ec.classList.add("hidden");
+          ec.classList.remove("gym", "champ");
           ecActive = false;
           done();
-        }, reduced ? 400 : 1150);
+        }, reduced ? 400 : (variant ? 1400 : 1150));
+      }
+      /* ================= 野生エンカウント演出（伝説の登場シーン風） =================
+         流れ：画面が 暗転し 金の渦と キラキラが 舞う → モンスターが 黒いシルエットで
+         大きく 現れる（名前は「？？？」）→ フラッシュとともに 色づいて 姿が あらわに
+         なり「やせいの ○○ が あらわれた！」が 大きく 出る。全体 約2.1秒。
+         演出中は ecActive で 移動・入力を 受け付けない（アイキャッチと 同じ仕組み） */
+      var encTimers = [];
+      function encLater(fn, ms){ encTimers.push(setTimeout(fn, ms)); }
+      function encBuildSparkles(burst){
+        var box = document.getElementById("enc-sparkles");
+        if(!box) return;
+        box.innerHTML = "";
+        var n = burst ? 16 : 12;
+        for(var i = 0; i < n; i++){
+          var s = document.createElement("span");
+          s.className = "enc-spark" + (burst ? " burst" : "");
+          s.textContent = "✦";
+          s.style.left = (4 + Math.random() * 92) + "%";
+          s.style.top = (6 + Math.random() * 82) + "%";
+          s.style.fontSize = (burst ? (16 + Math.random() * 22) : (10 + Math.random() * 16)) + "px";
+          s.style.animationDelay = (Math.random() * .7) + "s";
+          box.appendChild(s);
+        }
+      }
+      function showEncounter(mid, lv, done){
+        var mon = MONSTERS[mid];
+        var enc = document.getElementById("encounter");
+        var art = document.getElementById("enc-art");
+        var titleEl = document.getElementById("enc-title");
+        var subEl = document.getElementById("enc-sub");
+        encTimers.forEach(clearTimeout); encTimers = [];
+        art.innerHTML = monArt(mon);
+        art.className = "silhouette";
+        document.getElementById("enc-name").textContent = "？？？";
+        titleEl.textContent = "";
+        subEl.textContent = "";
+        encBuildSparkles(false);
+        enc.classList.remove("hidden", "reveal");
+        void enc.offsetWidth;
+        enc.classList.add("play");
+        ecActive = true;
+        var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        beep(82, .5, "triangle", .06); beep(123, .5, "triangle", .05, .12); beep(196, .4, "sine", .05, .3);
+        encLater(function(){
+          art.classList.remove("silhouette");
+          art.classList.add("revealed");
+          enc.classList.add("reveal");
+          document.getElementById("enc-name").textContent = "";
+          titleEl.textContent = "やせいの " + mon.name + " が あらわれた！";
+          subEl.textContent = "Lv." + lv + " ・ " + mon.type + "タイプ";
+          encBuildSparkles(true);
+          beep(392, .1, "square", .05); beep(523, .1, "square", .05, .08); beep(659, .1, "square", .05, .16); beep(784, .16, "square", .06, .24); beep(1318, .22, "sine", .04, .3);
+        }, reduced ? 200 : 1150);
+        encLater(function(){
+          enc.classList.add("hidden");
+          enc.classList.remove("play", "reveal");
+          ecActive = false;
+          done();
+        }, reduced ? 650 : 2150);
       }
       function startWildBattle(area){
         if(activeMon().hp <= 0){ toast("パートナーが たおれている！ かいふくセンターへ 行こう"); return; }
         var mid = pick(area.pool);
         var lv = rnd(area.lv[0], area.lv[1]);
-        showEyecatch(monArt(MONSTERS[mid]), "やせいの " + MONSTERS[mid].name + " が あらわれた！", "Lv." + lv + " ・ " + MONSTERS[mid].type + "タイプ", function(){
+        showEncounter(mid, lv, function(){
           startBattleBase(mid, lv, { area: area, tier: curMapDef().tier });
           setMsg("あっ！ やせいの " + MONSTERS[mid].name + "（Lv." + lv + "）が とびだしてきた！");
           beep(392,.1,"square",.05); beep(523,.12,"square",.05,.1);
@@ -2856,6 +3023,10 @@
         var gNpcList = (MAPS[GYM_MAP_START + gi0] || {}).npcs || [];
         var gLook = (gNpcList[0] && gNpcList[0].look) || { style:"bob", c1:"#e8a91c", shirt:"#ffd35c", stripe:"#e0574f", pants:"#8d6e63" };
         showEyecatch(npcSvg(gLook), g.leader + " の しょうぶ！", g.name, function(){
+          startGymBattleAfterEyecatch(g);
+        }, "gym");
+      }
+      function startGymBattleAfterEyecatch(g){
           var gi = GYMS.indexOf(g);
           // ジムの もんだいの むずかしさは 町の すすみ具合で 段階式に 上がる（1→2→3→3）
           startBattleBase(g.team[0].mid, g.team[0].lv, {
@@ -2865,7 +3036,6 @@
           });
           setMsg(g.leader + " が しょうぶを しかけてきた！「" + g.lineBefore + "」 " + g.leader + " は " + MONSTERS[g.team[0].mid].name + "（Lv." + g.team[0].lv + "）を くりだした！");
           beep(330,.1,"square",.05); beep(330,.1,"square",.05,.12); beep(440,.16,"square",.05,.24);
-        });
       }
       function startChampionBattle(){
         if(activeMon().hp <= 0){ toast("パートナーが たおれている！ かいふくセンターへ 行こう"); return; }
@@ -2879,7 +3049,7 @@
           });
           setMsg(CHAMPION.name + " が しょうぶを しかけてきた！「" + CHAMPION.lineBefore + "」 " + CHAMPION.name + " は " + MONSTERS[CHAMPION.team[0].mid].name + "（Lv." + CHAMPION.team[0].lv + "）を くりだした！");
           beep(330,.1,"square",.05); beep(330,.1,"square",.05,.12); beep(440,.16,"square",.05,.24); beep(554,.2,"square",.05,.36);
-        });
+        }, "champ");
       }
 
       function openQuestion(catchMode){
