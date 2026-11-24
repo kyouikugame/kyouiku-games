@@ -217,6 +217,45 @@
         filter:drop-shadow(0 3px 2px rgba(0,0,0,.35));
       }
       .npc svg{ width:100%; height:100%; display:block; }
+      .npc-sprite{ display:block; width:100%; height:100%; }
+      .npc.wander{ transition:left .6s linear, top .6s linear; }
+      .npc.walking svg{ animation:bob .28s ease infinite alternate; }
+      .npc.kid{ transform:translateY(10%) scale(.86); transform-origin:bottom center; }
+      @media (prefers-reduced-motion: reduce){ .npc.wander{ transition:none; } .npc.walking svg{ animation:none; } }
+      /* ===== バトル開始 アイキャッチ ===== */
+      #eyecatch{
+        position:fixed; inset:0; z-index:80; overflow:hidden;
+        display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+        background:radial-gradient(ellipse at center, #4a3418 0%, #171008 78%);
+      }
+      #eyecatch.hidden{ display:none; }
+      #eyecatch .ec-flash{ position:absolute; inset:0; background:#ffffff; opacity:0; pointer-events:none; }
+      #eyecatch.play .ec-flash{ animation:ecFlash .45s ease-out; }
+      @keyframes ecFlash{ 0%{ opacity:.95; } 100%{ opacity:0; } }
+      #eyecatch .ec-band{ position:absolute; left:0; right:0; height:13%; background:#b3271e; z-index:1; }
+      #eyecatch .ec-band.top{ top:0; transform:translateY(-102%); }
+      #eyecatch .ec-band.bottom{ bottom:0; transform:translateY(102%); }
+      #eyecatch.play .ec-band.top{ animation:ecBandIn .4s ease forwards; }
+      #eyecatch.play .ec-band.bottom{ animation:ecBandInB .4s ease forwards; }
+      @keyframes ecBandIn{ to{ transform:translateY(0); } }
+      @keyframes ecBandInB{ to{ transform:translateY(0); } }
+      #ec-art{ width:clamp(140px,40vw,210px); height:clamp(140px,40vw,210px); z-index:2; filter:drop-shadow(0 8px 10px rgba(0,0,0,.5)); }
+      #ec-art svg, #ec-art img{ width:100%; height:100%; display:block; object-fit:contain; }
+      #eyecatch.play #ec-art{ animation:ecPop .5s cubic-bezier(.2,1.5,.4,1) both .08s; }
+      @keyframes ecPop{ from{ transform:scale(.35); opacity:0; } to{ transform:scale(1); opacity:1; } }
+      #ec-title{
+        font-family:"DotGothic16",sans-serif; z-index:2; text-align:center; padding:0 14px;
+        color:#ffd35c; font-size:clamp(1.35rem,6vw,2.3rem); line-height:1.35;
+        text-shadow:3px 3px 0 #b3271e, -1px -1px 0 #b3271e;
+      }
+      #eyecatch.play #ec-title{ animation:ecSlide .45s ease both .16s; }
+      @keyframes ecSlide{ from{ transform:translateX(56px); opacity:0; } to{ transform:translateX(0); opacity:1; } }
+      #ec-sub{ z-index:2; color:#fff8e1; font-weight:800; font-size:clamp(.85rem,3.4vw,1.05rem); }
+      @media (prefers-reduced-motion: reduce){
+        #eyecatch.play .ec-flash, #eyecatch.play .ec-band.top, #eyecatch.play .ec-band.bottom,
+        #eyecatch.play #ec-art, #eyecatch.play #ec-title{ animation:none; }
+        #eyecatch .ec-band.top, #eyecatch .ec-band.bottom{ transform:none; }
+      }
       .npc-name{
         position:absolute; left:50%; top:-46%; transform:translateX(-50%);
         background:var(--frame); color:#ffd35c; border-radius:4px; padding:0 4px;
@@ -572,6 +611,16 @@
           </div>
         </div>
       </section>
+
+      <!-- ===== バトル開始 アイキャッチ（バトル直前に はさむ 短い演出） ===== -->
+      <div id="eyecatch" class="hidden" aria-hidden="true">
+        <div class="ec-flash"></div>
+        <div class="ec-band top"></div>
+        <div class="ec-band bottom"></div>
+        <div id="ec-art"></div>
+        <div id="ec-title"></div>
+        <div id="ec-sub"></div>
+      </div>
 
       <!-- ===== エンディング画面 ===== -->
       <section id="screen-ending" class="hidden">
@@ -1014,14 +1063,86 @@
 
       /* ================= 人の ドット絵風キャラクター（全オリジナル） =================
          look: { style:"cap"|"spiky"|"bob"|"band"|"crown", c1:髪/帽子の色, c2:帽子のつば, shirt, stripe, pants } */
-      function npcSvg(o){
+      function npcSvg(o, dir){
         var skin = o.skin || "#ffcf9e";
+        /* ===== 横向き（左・右）の 横顔 =====
+           右向きの 横顔として 描き、左向きは 表示側（.npc-sprite／プレイヤー）の
+           scaleX(-1) 反転で 左を 向かせる。目・鼻・口は 顔の 前側（右）に 寄せ、
+           髪・ポニーテール・ツインテール・おだんごは 後ろ側（左）に、
+           帽子の つば・リボン・ハチマキ・王冠は 向きに 合わせて 配置する。 */
+        if(dir === "left" || dir === "right"){
+          var pantsS = o.pants || "#37474f";
+          var sBack = "", sTop = "";
+          if(o.style === "bob"){
+            sBack = '<rect x="14.8" y="13" width="5.6" height="15" rx="2.6" fill="' + o.c1 + '"/>';
+            sTop = '<path d="M16.2 14.8 a7.8 7.8 0 0 1 15.6 0 Z" fill="' + o.c1 + '"/>';
+          } else if(o.style === "pony"){
+            sBack = '<path d="M17.5 9.5 q-7.5 2.5 -6.2 13 l4.4 .8 q-.9 -7.8 1.4 -11.2 Z" fill="' + o.c1 + '"/>';
+            sTop = '<path d="M16.2 14.8 a7.8 7.8 0 0 1 15.6 0 Z" fill="' + o.c1 + '"/>' +
+              '<circle cx="17.6" cy="10" r="2.2" fill="' + (o.c2 || "#e0574f") + '"/>';
+          } else if(o.style === "twin"){
+            sBack = '<circle cx="15.6" cy="21" r="4.4" fill="' + o.c1 + '"/>';
+            sTop = '<path d="M16.2 14.8 a7.8 7.8 0 0 1 15.6 0 Z" fill="' + o.c1 + '"/>' +
+              '<circle cx="17.2" cy="13.6" r="2" fill="' + (o.c2 || "#ffd35c") + '"/>';
+          } else if(o.style === "bun"){
+            sBack = '<circle cx="20.3" cy="6.2" r="4.2" fill="' + o.c1 + '"/>';
+            sTop = '<path d="M16.2 14.8 a7.8 7.8 0 0 1 15.6 0 Z" fill="' + o.c1 + '"/>';
+          } else if(o.style === "flat"){
+            sTop = '<path d="M16.2 15.2 a7.8 7.8 0 0 1 15.6 0 Z" fill="' + o.c1 + '"/>' +
+              '<rect x="16.8" y="8.3" width="13.5" height="3.4" rx="1.7" fill="' + o.c1 + '"/>';
+          } else if(o.style === "cap"){
+            sTop = '<path d="M15.8 16 a8.2 8.2 0 0 1 16.4 0 Z" fill="' + o.c1 + '"/>' +
+              '<rect x="23" y="15.4" width="12.5" height="3.1" rx="1.55" fill="' + (o.c2 || o.c1) + '"/>';
+          } else if(o.style === "spiky"){
+            sTop = '<path d="M16 16 L14.2 8.6 L18.8 11 L20 4.8 L23.4 10.4 L26.8 5.4 L28.6 11 L32 8.2 L32 16 a8 8 0 0 0 -16 0Z" fill="' + o.c1 + '"/>';
+          } else if(o.style === "band"){
+            sTop = '<path d="M16 13.6 a8 8 0 0 1 16 0 Z" fill="#3a2c14"/>' +
+              '<rect x="15.6" y="11.7" width="16.8" height="3.6" rx="1.6" fill="' + o.c1 + '" transform="rotate(-7 24 13.5)"/>';
+          } else if(o.style === "crown"){
+            sBack = '<rect x="15.4" y="11.5" width="4.6" height="9.5" rx="2.1" fill="#6d4c41"/>';
+            sTop = '<path d="M18 10.5 L19.5 4.8 L22.5 8.6 L25 3.8 L27.5 8.6 L30.5 4.8 L32 10.5Z" fill="#ffd35c" stroke="#b97e0a" stroke-width="1"/>';
+          } else {
+            sTop = '<path d="M16.2 14.8 a7.8 7.8 0 0 1 15.6 0 Z" fill="' + o.c1 + '"/>';
+          }
+          var sFace =
+            '<path d="M31 18.6 L33.4 20.1 L31 21.4 Z" fill="' + skin + '"/>' +
+            '<circle cx="22.4" cy="19.2" r="1.8" fill="' + skin + '" stroke="rgba(43,33,24,.22)" stroke-width=".7"/>' +
+            '<ellipse cx="29.3" cy="20.7" rx="1.7" ry="1.1" fill="#e5739a" opacity=".38"/>' +
+            '<circle cx="28.6" cy="17.8" r="1.35" fill="#2b2118"/>' +
+            '<circle cx="29.1" cy="17.3" r=".55" fill="#fff"/>' +
+            '<path d="M28.9 21.9 Q30.2 22.7 31.4 22" stroke="#2b2118" stroke-width="1.3" fill="none" stroke-linecap="round"/>';
+          return '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" role="img">' +
+            '<path d="M19.5 44 L21.2 34 L25 34 L24.4 44Z" fill="' + pantsS + '" opacity=".68"/>' +
+            '<path d="M24.5 44 L25.8 34 L29.8 34 L31.2 44Z" fill="' + pantsS + '"/>' +
+            '<rect x="18" y="24" width="13" height="12" rx="3" fill="' + o.shirt + '"/>' +
+            '<rect x="28.2" y="24" width="2.8" height="12" fill="' + (o.stripe || "#ffffff") + '" opacity=".85"/>' +
+            '<rect x="21" y="25.6" width="4.6" height="7.6" rx="2.3" fill="' + o.shirt + '" stroke="rgba(43,33,24,.30)" stroke-width=".8"/>' +
+            '<circle cx="23.3" cy="34.2" r="1.9" fill="' + skin + '"/>' +
+            sBack +
+            '<circle cx="24" cy="17" r="8" fill="' + skin + '"/>' +
+            sTop +
+            sFace + '</svg>';
+        }
         var hairBack = "", hairFront = "";
         if(o.style === "bob"){
           hairBack = '<circle cx="24" cy="15" r="9.6" fill="' + o.c1 + '"/>' +
             '<rect x="14.2" y="14" width="4.6" height="14" rx="2" fill="' + o.c1 + '"/>' +
             '<rect x="29.2" y="14" width="4.6" height="14" rx="2" fill="' + o.c1 + '"/>';
           hairFront = '<path d="M16.4 14.6 a7.6 7.6 0 0 1 15.2 0 Z" fill="' + o.c1 + '"/>';
+        } else if(o.style === "pony"){
+          hairBack = '<path d="M31 9 q8 3 6.5 13 l-4.5 -1 q1 -7 -3.5 -9.5 Z" fill="' + o.c1 + '"/>';
+          hairFront = '<path d="M16.2 14.8 a7.8 7.8 0 0 1 15.6 0 Z" fill="' + o.c1 + '"/>' +
+            '<circle cx="31.5" cy="9.5" r="2.2" fill="' + (o.c2 || "#e0574f") + '"/>';
+        } else if(o.style === "twin"){
+          hairBack = '<circle cx="13.5" cy="21" r="4.4" fill="' + o.c1 + '"/><circle cx="34.5" cy="21" r="4.4" fill="' + o.c1 + '"/>';
+          hairFront = '<path d="M16.2 14.8 a7.8 7.8 0 0 1 15.6 0 Z" fill="' + o.c1 + '"/>' +
+            '<circle cx="15" cy="14.5" r="2" fill="' + (o.c2 || "#ffd35c") + '"/><circle cx="33" cy="14.5" r="2" fill="' + (o.c2 || "#ffd35c") + '"/>';
+        } else if(o.style === "bun"){
+          hairBack = '<circle cx="24" cy="6.5" r="4.2" fill="' + o.c1 + '"/>';
+          hairFront = '<path d="M16.2 14.8 a7.8 7.8 0 0 1 15.6 0 Z" fill="' + o.c1 + '"/>';
+        } else if(o.style === "flat"){
+          hairFront = '<path d="M16 15.5 a8 8 0 0 1 16 0 Z" fill="' + o.c1 + '"/>' +
+            '<rect x="16.5" y="8.5" width="15" height="3.4" rx="1.7" fill="' + o.c1 + '"/>';
         } else if(o.style === "cap"){
           hairFront = '<path d="M15.5 16 a8.5 8.5 0 0 1 17 0 Z" fill="' + o.c1 + '"/>' +
             '<rect x="14" y="15.5" width="20" height="3" rx="1.5" fill="' + (o.c2 || o.c1) + '"/>';
@@ -1033,6 +1154,11 @@
         } else if(o.style === "crown"){
           hairFront = '<path d="M17 10.5 L19 4.5 L22 8.5 L24 3.5 L26 8.5 L29 4.5 L31 10.5Z" fill="#ffd35c" stroke="#b97e0a" stroke-width="1"/>';
         }
+        var backCol = (o.style === "crown") ? "#6d4c41" : o.c1;
+        var face = (dir === "up")
+          ? '<circle cx="24" cy="17" r="7.7" fill="' + backCol + '"/>'
+          : '<circle cx="21" cy="18" r="1.3" fill="#2b2118"/><circle cx="27" cy="18" r="1.3" fill="#2b2118"/>' +
+            '<path d="M21.5 21.5 Q24 23 26.5 21.5" stroke="#2b2118" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
         return '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" role="img">' +
           '<path d="M14 44 L18 34 L22 34 L21 44Z M26 34 L30 34 L34 44Z" fill="' + (o.pants || "#37474f") + '"/>' +
           '<rect x="15" y="24" width="18" height="12" rx="3" fill="' + o.shirt + '"/>' +
@@ -1040,8 +1166,7 @@
           hairBack +
           '<circle cx="24" cy="17" r="8" fill="' + skin + '"/>' +
           hairFront +
-          '<circle cx="21" cy="18" r="1.3" fill="#2b2118"/><circle cx="27" cy="18" r="1.3" fill="#2b2118"/>' +
-          '<path d="M21.5 21.5 Q24 23 26.5 21.5" stroke="#2b2118" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>';
+          face + '</svg>';
       }
 
       /* ================= 状態 ================= */
@@ -1416,6 +1541,28 @@
           ],
           doors:{ p:{ kind:"center" }, q:{ kind:"gym", gym:0 }, u:{ kind:"shop" } },
           doorFront:{ p:[5,3], q:[1,3], u:[10,3] },
+          npcs:[
+            { kind:"villager", x:3, y:3, name:"ハナおばあさん", short:"ハナ",
+              look:{ style:"bun", c1:"#b8ab9c", shirt:"#8e6ba8", stripe:"#ffffff", pants:"#5d4037" },
+              area:[2,3,6,3],
+              lines:["わかばタウンへ ようこそ。かいふくセンターは まちの まんなか、十字の かんばんが 目印だよ。",
+                     "たしざんの コツ！ 大きい数に 小さい数を たすと 早いよ。7＋5 なら 7に 3を たして 10、のこり 2で 12！"] },
+            { kind:"villager", x:9, y:3, name:"タロウおじさん", short:"タロウ",
+              look:{ style:"band", c1:"#3fa34d", shirt:"#69b44c", stripe:"#ffffff", pants:"#37474f" },
+              area:[7,3,12,3],
+              lines:["ショップでは ホカクカプセルと きずぐすりが 買えるよ。ぼうけんの 前に よって いきな。",
+                     "おかねは バトルに かてば もらえる。まけても へらないから、思いきって ちょうせんしよう！"] },
+            { kind:"villager", x:4, y:8, name:"ソウタ", short:"ソウタ", kid:true,
+              look:{ style:"cap", c1:"#2f7fc4", c2:"#1c5a94", shirt:"#ffd35c", stripe:"#e0574f", pants:"#37474f" },
+              area:[2,6,6,8],
+              lines:["1ばんどうろの くさむらでは、まるい モンスターが よく 出るよ。カプセルを わすれずに！",
+                     "かけっこなら まけないんだけどなあ。バトルも つよくなりたい！"] },
+            { kind:"villager", x:10, y:7, name:"ミライ", short:"ミライ", kid:true,
+              look:{ style:"pony", c1:"#8a5a33", c2:"#e0574f", shirt:"#ff8fb3", stripe:"#ffffff", pants:"#7e57c2" },
+              area:[8,6,12,8],
+              lines:["キラリ ジムの ヒカリさんは でんきタイプが とくい。みずタイプは でんきに よわいから 気をつけて！",
+                     "わたし、まいにち お花に 水を あげてるの。この まちの お花畑、きれいでしょ？"] }
+          ],
           wild:null },
         { name:"1ばんどうろ", tag:"ルート", tier:1, bgm:"field-a",
           arrive:"1ばんどうろに ついた！ くさむらを あるくと やせいモンスターが あらわれるよ。",
@@ -1440,7 +1587,16 @@
               lineBefore:"ぼくと しょうぶだ！ かけっこも バトルも まけないぞ！",
               lineWin:"まけた〜！ きみ、はやくて つよいね！",
               lineLose:"やったあ、ぼくの かちだ！ もっと れんしゅうしてきてね！",
-              after:"きみとの バトル、たのしかった！ また たたかいたいな！" }
+              after:"きみとの バトル、たのしかった！ また たたかいたいな！" },
+            { id:"tr4", kind:"trainer", x:3, y:5, name:"むしとり少年 コウタ", short:"コウタ",
+              look:{ style:"cap", c1:"#69b44c", c2:"#3e7d2c", shirt:"#a5d6a7", stripe:"#3fa34d", pants:"#5d4037" },
+              team:[{mid:34,lv:4},{mid:35,lv:5}], prize:350,
+              talkFirst:true, area:[1,5,5,5],
+              talk:"あっ、トレーナーだ！ ぼくの むしモンスター、見てくれる？",
+              lineBefore:"いくよ！ ぼくの むしチームの すごさ、見せてあげる！",
+              lineWin:"すごいや… ぼくの むしたち、まだまだ れんしゅうが たりないや。",
+              lineLose:"やったあ！ むしの ちから、なめたら ダメだよ！",
+              after:"むしモンスターは 早く しんかするのが 多いんだ。育ててみてね！" }
           ] },
         { name:"みずべタウン", tag:"まち 2 / 4", tier:2, bgm:"town",
           arrive:"みずべタウンに ついた！ シズク ジムと かいふくセンターが あるよ。",
@@ -1463,6 +1619,28 @@
           ],
           doors:{ p:{ kind:"center" }, r:{ kind:"gym", gym:1 }, u:{ kind:"shop" } },
           doorFront:{ p:[5,3], r:[1,3], u:[10,3] },
+          npcs:[
+            { kind:"villager", x:4, y:3, name:"ウミおじさん", short:"ウミ",
+              look:{ style:"flat", c1:"#4a3a28", shirt:"#57b6e8", stripe:"#ffffff", pants:"#5d4037" },
+              area:[2,3,8,3],
+              lines:["みずべタウンは 水の まち。池の そばを あるくのが 気持ちいいんだ。",
+                     "シズク ジムは みずタイプの ジム。くさタイプの わざが よく きくよ！"] },
+            { kind:"villager", x:3, y:7, name:"ジロウおじいさん", short:"ジロウ",
+              look:{ style:"flat", c1:"#cfc8bc", shirt:"#7a9e4f", stripe:"#ffffff", pants:"#5d4037" },
+              area:[2,6,4,8],
+              lines:["わしは 毎朝 池の まわりを さんぽしとる。モンスターたちも 元気そうじゃ。",
+                     "つかれたら かいふくセンターで 休むんじゃよ。無理は 禁物じゃ。"] },
+            { kind:"villager", x:7, y:7, name:"アオイ", short:"アオイ", kid:true,
+              look:{ style:"bob", c1:"#3a2c14", shirt:"#7db6e8", stripe:"#ffffff", pants:"#2f7fc4" },
+              area:[5,6,9,8],
+              lines:["2ばんどうろの みずべの くさむらには、みずタイプの モンスターが たくさん いるの。",
+                     "ひきざんの コツ！ 『あといくつで うまるか』を かんがえると 早いよ。13－5 なら 5から 13まで あと 8！"] },
+            { kind:"villager", x:11, y:7, name:"カイ", short:"カイ", kid:true,
+              look:{ style:"spiky", c1:"#2f7fc4", shirt:"#ff8c42", stripe:"#ffffff", pants:"#37474f" },
+              area:[10,6,12,8],
+              lines:["ぼく、つりが 大好き！ でも モンスターは つれないんだよね。",
+                     "やまのタウンへは 2ばんどうろを すすむんだ。とちゅうの トレーナーに 気をつけて！"] }
+          ],
           wild:null },
         { name:"2ばんどうろ", tag:"ルート", tier:2, bgm:"field-b",
           arrive:"2ばんどうろ。みずべの くさむらは 少し つよい モンスターが いる！",
@@ -1487,7 +1665,16 @@
               lineBefore:"おっ、いい モンスターを つれてるな！ おじさんと しょうぶだ！",
               lineWin:"まいった！ 大物が かかった 気分だ…！",
               lineLose:"ほらな、おじさんの かちだ！ つりも バトルも なかなかだろ？",
-              after:"いい バトルだった！ たまには つりも して いきな。" }
+              after:"いい バトルだった！ たまには つりも して いきな。" },
+            { id:"tr5", kind:"trainer", x:11, y:5, name:"およぎ名人 ミサキ", short:"ミサキ",
+              look:{ style:"pony", c1:"#2f7fc4", c2:"#ffd35c", shirt:"#57b6e8", stripe:"#ffffff", pants:"#1c5a94" },
+              team:[{mid:19,lv:6},{mid:20,lv:7}], prize:520,
+              talkFirst:true, area:[8,5,12,5],
+              talk:"あら、いいところに 来たわね。みずモンスターと バトルして いかない？",
+              lineBefore:"いくわよ！ みずの パワーで 押し流しちゃう！",
+              lineWin:"まいったわ… きみの 計算、波みたいに すいすい 進んでた！",
+              lineLose:"ふふ、私の かち。みずも 計算も、流れに のるのが 大事よ。",
+              after:"みずタイプは ほのおに つよいわ。ジム戦の 参考にしてね。" }
           ] },
         { name:"やまのタウン", tag:"まち 3 / 4", tier:3, bgm:"town",
           arrive:"やまのタウンに ついた！ ホノオ ジムは ここだ。だいぶ つよい あいてが ふえてきた！",
@@ -1510,6 +1697,28 @@
           ],
           doors:{ p:{ kind:"center" }, s:{ kind:"gym", gym:2 }, u:{ kind:"shop" } },
           doorFront:{ p:[5,3], s:[1,3], u:[10,3] },
+          npcs:[
+            { kind:"villager", x:3, y:3, name:"ゴンおじさん", short:"ゴン",
+              look:{ style:"band", c1:"#d64541", shirt:"#c65b39", stripe:"#ffffff", pants:"#5d4037" },
+              area:[2,3,9,3],
+              lines:["やまのタウンは 山の ふもとの まち。空気が おいしいだろう。",
+                     "ホノオ ジムは ほのおタイプ。みずタイプや いわタイプで せめるのが おすすめだ！"] },
+            { kind:"villager", x:4, y:7, name:"ヘイジおじいさん", short:"ヘイジ",
+              look:{ style:"flat", c1:"#cfc8bc", shirt:"#8d6e63", stripe:"#ffffff", pants:"#37474f" },
+              area:[2,6,5,7],
+              lines:["どうくつを ぬけると ほしぞらタウンじゃ。長く 暗いから、モンスターを 回復してから 入るんじゃよ。",
+                     "岩が ゴロゴロ ある 山道じゃ。足元に 気をつけて 行きなされ。"] },
+            { kind:"villager", x:8, y:7, name:"ユキ", short:"ユキ", kid:true,
+              look:{ style:"pony", c1:"#5b7fa6", c2:"#ffd35c", shirt:"#b39ddb", stripe:"#ffffff", pants:"#37474f" },
+              area:[6,6,9,8],
+              lines:["どうくつは 暗くて ちょっと こわいけど、めずらしい モンスターが いるんだって。",
+                     "くくの コツ！ 九九は 声に 出して おぼえるのが 一番！ わたしは おふろで れんしゅうしてるよ。"] },
+            { kind:"villager", x:11, y:3, name:"リク", short:"リク", kid:true,
+              look:{ style:"cap", c1:"#d64541", c2:"#b3271e", shirt:"#69b44c", stripe:"#ffffff", pants:"#37474f" },
+              area:[10,3,12,5],
+              lines:["ぼくの お気に入りは 岩タイプの モンスター！ かたくて かっこいいんだ。",
+                     "やまのタウンの ショップは 品ぞろえが いいんだ。カプセル 多めに 買っておこう！"] }
+          ],
           wild:null },
         { name:"どうくつ", tag:"ルート", tier:3, bgm:"field-d", cave:true,
           arrive:"どうくつに 入った！ 暗い ゆかを あるくと モンスターが あらわれる… 気をつけて！",
@@ -1526,7 +1735,27 @@
             "KKKKKKKKKKKKKK"
           ],
           buildings:[], doors:{}, doorFront:{},
-          wild:{ tiles:"C", icon:"🕳️", pool:[4,3,8,10,21,22,23,24,25,38], lv:[7,10], rate:0.32, bg:"night", label:"どうくつの ゆか Lv.7〜10" } },
+          wild:{ tiles:"C", icon:"🕳️", pool:[4,3,8,10,21,22,23,24,25,38], lv:[7,10], rate:0.32, bg:"night", label:"どうくつの ゆか Lv.7〜10" },
+          npcs:[
+            { id:"tr6", kind:"trainer", x:3, y:5, name:"たんけん家 ダイチ", short:"ダイチ",
+              look:{ style:"cap", c1:"#c65b39", c2:"#9c4527", shirt:"#d9a066", stripe:"#ffffff", pants:"#5d4037" },
+              team:[{mid:21,lv:8},{mid:22,lv:9}], prize:650,
+              talkFirst:true, area:[1,5,6,5],
+              talk:"おっ、こんな 暗い所まで 来るとは 勇気が あるな！ 探検家同士、力だめしだ！",
+              lineBefore:"どうくつの 奥で きたえた 力、見せてやる！",
+              lineWin:"やるな…！ きみも 立派な 探検家だ！",
+              lineLose:"はは、探検は 経験が ものを 言うのさ。",
+              after:"どうくつの 茶色い ゆかを あるくと モンスターが 出る。明るい 通路は 安全だよ。" },
+            { id:"tr7", kind:"trainer", x:7, y:1, name:"たんけん家 アカリ", short:"アカリ",
+              look:{ style:"pony", c1:"#e0574f", c2:"#ffd35c", shirt:"#ffd35c", stripe:"#e0574f", pants:"#37474f" },
+              team:[{mid:23,lv:9},{mid:38,lv:10}], prize:700,
+              talkFirst:true, area:[6,1,10,3],
+              talk:"まって！ わたしの 見つけた お宝…じゃなくて、わたしの モンスターと 勝負して！",
+              lineBefore:"キラキラ光る ものが 大好き！ 勝負も キラキラ いくよ！",
+              lineWin:"すごーい！ きみの 力、ダイヤモンドみたいに かたいね！",
+              lineLose:"えへへ、私の かち！ 探検の つづき、がんばってね。",
+              after:"どうくつの モンスターには、こおりタイプが いたら 心強いよ。" }
+          ] },
         { name:"ほしぞらタウン", tag:"まち 4 / 4", tier:4, bgm:"town",
           arrive:"ほしぞらタウンに ついた！ さいごの リュウセイ ジムが ある。もんだいも いちばん むずかしい！",
           rows:[
@@ -1548,6 +1777,28 @@
           ],
           doors:{ p:{ kind:"center" }, t:{ kind:"gym", gym:3 }, u:{ kind:"shop" } },
           doorFront:{ p:[5,3], t:[1,3], u:[10,3] },
+          npcs:[
+            { kind:"villager", x:4, y:3, name:"テツおじさん", short:"テツ",
+              look:{ style:"flat", c1:"#37474f", shirt:"#5e35b1", stripe:"#ffd35c", pants:"#263238" },
+              area:[2,3,8,3],
+              lines:["チャンピオンロードは つよい モンスターばかり。レベルを 上げてから すすむと 安心だ。",
+                     "バッジを 4つ あつめたら、チャンピオンの間へ 行ける。きみなら できる！"] },
+            { kind:"villager", x:2, y:7, name:"セイおばあさん", short:"セイ",
+              look:{ style:"bun", c1:"#cfc8bc", shirt:"#7e57c2", stripe:"#ffffff", pants:"#5d4037" },
+              area:[2,7,5,8],
+              lines:["ここまで よく 来たねえ。あと 少しで チャンピオンロードだよ。",
+                     "むずかしい 計算は、紙に 書く つもりで ゆっくり。あわてると まちがえやすいからね。"] },
+            { kind:"villager", x:7, y:7, name:"ホシコ", short:"ホシコ", kid:true,
+              look:{ style:"twin", c1:"#7e57c2", c2:"#ffd35c", shirt:"#ffd35c", stripe:"#e0574f", pants:"#5e35b1" },
+              area:[6,6,9,8],
+              lines:["ほしぞらタウンは 星が きれいな まち。夜空を 見上げると 元気が 出るよ！",
+                     "リュウセイ ジムの セイラさんは ドラゴンタイプの 使い手。こおりタイプや フェアリータイプが とくいだよ！"] },
+            { kind:"villager", x:10, y:5, name:"ユウ", short:"ユウ", kid:true,
+              look:{ style:"spiky", c1:"#e8a91c", shirt:"#2f7fc4", stripe:"#ffffff", pants:"#37474f" },
+              area:[9,5,12,7],
+              lines:["ぼくも チャンピオンを めざしてるんだ！ ライバルとして がんばろう！",
+                     "ドラゴンの モンスター、つかまえた？ チャンピオンロードで 会えるかも しれないよ。"] }
+          ],
           wild:null },
         { name:"チャンピオンロード", tag:"ルート", tier:4, bgm:"field-c",
           arrive:"チャンピオンロード！ つよい モンスターが たくさん いる きけんな どうろだ。",
@@ -1572,7 +1823,16 @@
               lineBefore:"チャンピオンを めざす者同士、力だめしと いこう！",
               lineWin:"すごい…！ きみなら チャンピオンにも かてるかも しれない！",
               lineLose:"ふふ、私の かち。チャンピオンへの 道は まだ 遠いわよ。",
-              after:"チャンピオンの間は すぐ そこよ。がんばって！" }
+              after:"チャンピオンの間は すぐ そこよ。がんばって！" },
+            { id:"tr8", kind:"trainer", x:4, y:5, name:"たびびと ケンジ", short:"ケンジ",
+              look:{ style:"band", c1:"#37474f", shirt:"#8d6e63", stripe:"#ffd35c", pants:"#263238" },
+              team:[{mid:28,lv:13},{mid:29,lv:14}], prize:1000,
+              talkFirst:true, area:[2,5,6,5],
+              talk:"チャンピオンを めざす者か。…いい 目を しているな。わたしと 一戦 交えよう。",
+              lineBefore:"旅で きたえた 実力、とくと 味わえ！",
+              lineWin:"見事だ…！ きみなら チャンピオンの 座も 夢じゃない。",
+              lineLose:"まだまだ 旅は 続く。あきらめずに 進みなさい。",
+              after:"チャンピオンの間は 目と鼻の先だ。最後まで 気を ぬくなよ。" }
           ] },
         { name:"チャンピオンの間", tag:"さいごの マップ", tier:5, bgm:"champion",
           arrive:"チャンピオンの間に ついた！ バッジを 4つ あつめた者だけが チャンピオンに ちょうせんできる。",
@@ -1679,16 +1939,11 @@
       function curMapDef(){ return MAPS[curMap]; }
       var BLOCKED = { "#":1, "P":1, "Q":1, "R":1, "S":1, "T":1, "Y":1, "Z":1, "U":1, "K":1, "h":1, "w":1, "x":1 };
       /* 建物は マップごとに MAPS[].buildings で 定義する */
-      var PLAYER_SVG =
-        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="しゅじんこう">' +
-        '<path d="M14 44 L18 34 L22 34 L21 44Z M26 34 L30 34 L34 44Z" fill="#37474f"/>' +
-        '<rect x="15" y="24" width="18" height="12" rx="3" fill="#2f7fc4"/>' +
-        '<rect x="21" y="24" width="6" height="12" fill="#ffd35c"/>' +
-        '<circle cx="24" cy="17" r="8" fill="#ffcf9e"/>' +
-        '<path d="M15.5 16 a8.5 8.5 0 0 1 17 0 Z" fill="#d64541"/>' +
-        '<rect x="14" y="15.5" width="20" height="3" rx="1.5" fill="#b3271e"/>' +
-        '<circle cx="21" cy="18" r="1.3" fill="#2b2118"/><circle cx="27" cy="18" r="1.3" fill="#2b2118"/>' +
-        '<path d="M21.5 21.5 Q24 23 26.5 21.5" stroke="#2b2118" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>';
+      /* 主人公も 住人と 同じ 描き方（npcSvg）で 4方向ぶんの 絵を 持つ：
+         下＝正面／上＝後ろ姿／右＝右向き横顔／左＝横顔を 反転して 左向き */
+      var PLAYER_LOOK = { style:"cap", c1:"#d64541", c2:"#b3271e", shirt:"#2f7fc4", stripe:"#ffd35c", pants:"#37474f" };
+      function playerSvg(dir){ return npcSvg(PLAYER_LOOK, dir); }
+      var PLAYER_SVG = playerSvg("down");
       var player = { x:5, y:2, dir:"down", moving:false };
       var fieldBuilt = false;
       var pendingReturn = null; // バトル後、建物の正面に戻す位置
@@ -1924,15 +2179,26 @@
         });
         var nw = document.getElementById("field-npcs");
         nw.innerHTML = "";
-        (def.npcs || []).forEach(function(npc){
+        (def.npcs || []).forEach(function(npc, nidx){
+          /* 歩き回る人の 実行時位置（セーブには 含めない）。マップを 作るたびに 初期位置へ もどす */
+          npc._x = npc.x; npc._y = npc.y;
+          if(!npc._dir) npc._dir = "down";
+          npc._freezeUntil = 0;
+          if(npc._lineIdx == null) npc._lineIdx = 0;
+          npc._idx = nidx;
           var el = document.createElement("div");
-          el.className = "npc";
-          el.style.left = (npc.x * 100 / FIELD_COLS) + "%";
-          el.style.top = (npc.y * 100 / FIELD_ROWS) + "%";
-          el.innerHTML = '<span class="npc-name">' + npc.short + '</span>' + npcSvg(npc.look);
+          el.className = "npc" + (npc.area ? " wander" : "") + (npc.kid ? " kid" : "");
+          el.setAttribute("data-nidx", nidx);
+          el.style.left = (npc._x * 100 / FIELD_COLS) + "%";
+          el.style.top = (npc._y * 100 / FIELD_ROWS) + "%";
+          el.innerHTML = '<span class="npc-name">' + npc.short + '</span><span class="npc-sprite">' + npcSvg(npc.look, npc._dir) + '</span>';
+          var spr = el.querySelector(".npc-sprite");
+          if(spr) spr.style.transform = (npc._dir === "left") ? "scaleX(-1)" : "";
           nw.appendChild(el);
         });
-        document.getElementById("player").innerHTML = PLAYER_SVG;
+        var pEl0 = document.getElementById("player");
+        pEl0.innerHTML = playerSvg(player.dir);
+        pEl0.setAttribute("data-dir", player.dir);
         fieldBuilt = true;
         builtMap = curMap;
         renderLegend();
@@ -1940,6 +2206,11 @@
       }
       function placePlayer(instant){
         var el = document.getElementById("player");
+        /* 向きが 変わったら 絵も その方向の ものに 差し替える（下・上・左・右） */
+        if(el.getAttribute("data-dir") !== player.dir){
+          el.innerHTML = playerSvg(player.dir);
+          el.setAttribute("data-dir", player.dir);
+        }
         if(instant) el.style.transition = "none";
         el.style.left = (player.x * 100 / FIELD_COLS) + "%";
         el.style.top = (player.y * 100 / FIELD_ROWS) + "%";
@@ -1957,6 +2228,8 @@
           else if(npc.kind === "gym") items.push("🏆 " + npc.name + "（話しかけると バトル）");
           else if(npc.kind === "champion") items.push("👑 " + npc.name + "（バッジ4つで ちょうせんできる）");
         });
+        if((def.npcs || []).some(function(n){ return n.kind === "villager"; }))
+          items.push("💬 町の人（歩き回っている人に 近づいて 話しかけてみよう）");
         var joined = def.rows.join("");
         if(joined.indexOf(">") >= 0) items.push("▶ マップの はしまで あるくと つぎの マップへ");
         if(joined.indexOf("<") >= 0) items.push("◀ もどる ことも できる");
@@ -1987,17 +2260,99 @@
         saveGame();
       }
       /* ================= NPC（人）に 話しかける ================= */
+      function npcPos(npc){ return [ (npc._x != null ? npc._x : npc.x), (npc._y != null ? npc._y : npc.y) ]; }
       function npcAt(x, y){
         var list = curMapDef().npcs || [];
-        for(var i = 0; i < list.length; i++){ if(list[i].x === x && list[i].y === y) return list[i]; }
+        for(var i = 0; i < list.length; i++){ var p = npcPos(list[i]); if(p[0] === x && p[1] === y) return list[i]; }
         return null;
+      }
+      /* 歩き回る人の 表示を 現在の 位置・向きに 同期する */
+      function updateNpcEl(npc){
+        var nw = document.getElementById("field-npcs");
+        if(!nw || npc._idx == null) return;
+        var el = nw.querySelector('[data-nidx="' + npc._idx + '"]');
+        if(!el) return;
+        var p = npcPos(npc);
+        el.style.left = (p[0] * 100 / FIELD_COLS) + "%";
+        el.style.top = (p[1] * 100 / FIELD_ROWS) + "%";
+        var spr = el.querySelector(".npc-sprite");
+        if(spr){
+          spr.innerHTML = npcSvg(npc.look, npc._dir);
+          spr.style.transform = (npc._dir === "left") ? "scaleX(-1)" : "";
+        }
+      }
+      /* 人が 歩ける タイル（道・広場・花畑・どうくつの通路だけ。建物・水場・くさむら・入口には 入らない） */
+      function npcWalkable(ch){ return ch === "." || ch === "f" || ch === "o"; }
+      var talkPending = false; // 会話のあと バトルへ 移るまでの 待ち状態
+      /* 住人・旅人の ゆっくりした 歩き回り：範囲（area）の中を ランダムに 1マスずつ。
+         話しかけられている間・バトル中・アイキャッチ中は 止まる */
+      function npcWanderTick(){
+        if(!S.started || S.battle || ecActive || talkPending) return;
+        if(document.getElementById("screen-map").classList.contains("hidden")) return;
+        var def = curMapDef();
+        (def.npcs || []).forEach(function(npc){
+          if(!npc.area) return;
+          if(Date.now() < (npc._freezeUntil || 0)) return;
+          if(Math.random() < 0.45) return; // ゆっくり：半分以上の 回は 立ち止まる
+          var p = npcPos(npc);
+          var dirs = [["up",0,-1],["down",0,1],["left",-1,0],["right",1,0]];
+          for(var i = dirs.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)); var t = dirs[i]; dirs[i] = dirs[j]; dirs[j] = t; }
+          for(var k = 0; k < dirs.length; k++){
+            var nx = p[0] + dirs[k][1], ny = p[1] + dirs[k][2];
+            if(nx < npc.area[0] || ny < npc.area[1] || nx > npc.area[2] || ny > npc.area[3]) continue;
+            if(!npcWalkable(tileAt(nx, ny))) continue;
+            if(nx === player.x && ny === player.y) continue;
+            var other = npcAt(nx, ny);
+            if(other && other !== npc) continue;
+            npc._x = nx; npc._y = ny; npc._dir = dirs[k][0];
+            updateNpcEl(npc);
+            var nw2 = document.getElementById("field-npcs");
+            var el2 = nw2 ? nw2.querySelector('[data-nidx="' + npc._idx + '"]') : null;
+            if(el2){ el2.classList.add("walking"); setTimeout(function(){ el2.classList.remove("walking"); }, 620); }
+            break;
+          }
+        });
+      }
+      setInterval(npcWanderTick, 700);
+      /* 話しかけられたら 止まって 主人公の 方を 向く（歩き回る人だけ） */
+      function facePlayer(npc){
+        if(!npc.area) return;
+        var p = npcPos(npc);
+        if(player.y > p[1]) npc._dir = "down";
+        else if(player.y < p[1]) npc._dir = "up";
+        else if(player.x > p[0]) npc._dir = "right";
+        else if(player.x < p[0]) npc._dir = "left";
+        npc._freezeUntil = Date.now() + 4200;
+        updateNpcEl(npc);
       }
       function talkToNpc(npc){
         if(S.battle) return;
+        facePlayer(npc);
+        if(npc.kind === "villager"){
+          var lines = npc.lines || ["こんにちは！"];
+          var line = lines[npc._lineIdx % lines.length];
+          npc._lineIdx++;
+          setFieldMsg(npc.name + "「" + line + "」");
+          sfx("ok");
+          return;
+        }
         if(npc.kind === "trainer"){
           if(S.defeatedTrainers[npc.id]){
             setFieldMsg(npc.name + "「" + npc.after + "」");
             sfx("ok");
+            return;
+          }
+          if(npc.talkFirst){
+            /* 道路・どうくつの 新しい相手：まず 会話を 見せてから バトルへ */
+            setFieldMsg(npc.name + "「" + npc.talk + "」");
+            sfx("ok");
+            talkPending = true;
+            var target = npc, targetMap = curMap;
+            setTimeout(function(){
+              talkPending = false;
+              if(S.battle || curMap !== targetMap) return;
+              startTrainerBattle(target);
+            }, 1400);
             return;
           }
           startTrainerBattle(npc);
@@ -2157,6 +2512,7 @@
       }
       function tryMove(dir){
         if(!S.started || S.battle) return;
+        if(ecActive || talkPending) return;
         if(document.getElementById("screen-map").classList.contains("hidden")) return;
         if(player.moving) return;
         player.dir = dir;
@@ -2447,47 +2803,83 @@
         ef.className = "fighter enemy";
         ef.innerHTML = monArt(MONSTERS[t.mid]);
       }
+      /* ================= バトル開始 アイキャッチ =================
+         バトルの 直前に 約1.1秒の 演出を はさむ：フラッシュ＋帯の スライドとともに
+         相手の 姿と タイトルを 大きく 出してから バトル画面へ 移る */
+      var ecActive = false, ecTimer = null;
+      function showEyecatch(artHtml, title, sub, done){
+        var ec = document.getElementById("eyecatch");
+        document.getElementById("ec-art").innerHTML = artHtml;
+        document.getElementById("ec-title").textContent = title;
+        document.getElementById("ec-sub").textContent = sub || "";
+        ec.classList.remove("hidden");
+        ec.classList.remove("play");
+        void ec.offsetWidth;
+        ec.classList.add("play");
+        ecActive = true;
+        beep(196, .09, "square", .05); beep(294, .09, "square", .05, .08); beep(392, .13, "square", .05, .16);
+        var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        clearTimeout(ecTimer);
+        ecTimer = setTimeout(function(){
+          ec.classList.add("hidden");
+          ecActive = false;
+          done();
+        }, reduced ? 400 : 1150);
+      }
       function startWildBattle(area){
         if(activeMon().hp <= 0){ toast("パートナーが たおれている！ かいふくセンターへ 行こう"); return; }
         var mid = pick(area.pool);
         var lv = rnd(area.lv[0], area.lv[1]);
-        startBattleBase(mid, lv, { area: area, tier: curMapDef().tier });
-        setMsg("あっ！ やせいの " + MONSTERS[mid].name + "（Lv." + lv + "）が とびだしてきた！");
-        beep(392,.1,"square",.05); beep(523,.12,"square",.05,.1);
+        showEyecatch(monArt(MONSTERS[mid]), "やせいの " + MONSTERS[mid].name + " が あらわれた！", "Lv." + lv + " ・ " + MONSTERS[mid].type + "タイプ", function(){
+          startBattleBase(mid, lv, { area: area, tier: curMapDef().tier });
+          setMsg("あっ！ やせいの " + MONSTERS[mid].name + "（Lv." + lv + "）が とびだしてきた！");
+          beep(392,.1,"square",.05); beep(523,.12,"square",.05,.1);
+        });
       }
       function startTrainerBattle(npc){
         if(activeMon().hp <= 0){ toast("パートナーが たおれている！ かいふくセンターへ 行こう"); return; }
         var def = curMapDef();
-        startBattleBase(npc.team[0].mid, npc.team[0].lv, {
-          team: npc.team, tier: def.tier,
-          trainer: npc, trainerId: npc.id, oppName: npc.name, prize: npc.prize,
-          lineWin: npc.lineWin, lineLose: npc.lineLose,
-          night: !!(def.wild && def.wild.bg === "night")
+        showEyecatch(npcSvg(npc.look), npc.name + " の しょうぶ！", "トレーナーバトル", function(){
+          startBattleBase(npc.team[0].mid, npc.team[0].lv, {
+            team: npc.team, tier: def.tier,
+            trainer: npc, trainerId: npc.id, oppName: npc.name, prize: npc.prize,
+            lineWin: npc.lineWin, lineLose: npc.lineLose,
+            night: !!(def.wild && def.wild.bg === "night")
+          });
+          setMsg(npc.name + " が しょうぶを しかけてきた！「" + npc.lineBefore + "」 " + npc.name + " は " + MONSTERS[npc.team[0].mid].name + "（Lv." + npc.team[0].lv + "）を くりだした！");
+          beep(330,.1,"square",.05); beep(392,.12,"square",.05,.1);
         });
-        setMsg(npc.name + " が しょうぶを しかけてきた！「" + npc.lineBefore + "」 " + npc.name + " は " + MONSTERS[npc.team[0].mid].name + "（Lv." + npc.team[0].lv + "）を くりだした！");
-        beep(330,.1,"square",.05); beep(392,.12,"square",.05,.1);
       }
       function startGymBattle(g){
         if(activeMon().hp <= 0){ toast("パートナーが たおれている！ かいふくセンターへ 行こう"); return; }
-        var gi = GYMS.indexOf(g);
-        // ジムの もんだいの むずかしさは 町の すすみ具合で 段階式に 上がる（1→2→3→3）
-        startBattleBase(g.team[0].mid, g.team[0].lv, {
-          gym: g, team: g.team, tier: curMapDef().tier, gymPower: [1,2,3,3][gi] || 2,
-          oppName: g.leader, prize: 500 + g.lv * 30,
-          lineWin: g.lineWin, lineLose: g.lineLose
+        var gi0 = GYMS.indexOf(g);
+        var gNpcList = (MAPS[GYM_MAP_START + gi0] || {}).npcs || [];
+        var gLook = (gNpcList[0] && gNpcList[0].look) || { style:"bob", c1:"#e8a91c", shirt:"#ffd35c", stripe:"#e0574f", pants:"#8d6e63" };
+        showEyecatch(npcSvg(gLook), g.leader + " の しょうぶ！", g.name, function(){
+          var gi = GYMS.indexOf(g);
+          // ジムの もんだいの むずかしさは 町の すすみ具合で 段階式に 上がる（1→2→3→3）
+          startBattleBase(g.team[0].mid, g.team[0].lv, {
+            gym: g, team: g.team, tier: curMapDef().tier, gymPower: [1,2,3,3][gi] || 2,
+            oppName: g.leader, prize: 500 + g.lv * 30,
+            lineWin: g.lineWin, lineLose: g.lineLose
+          });
+          setMsg(g.leader + " が しょうぶを しかけてきた！「" + g.lineBefore + "」 " + g.leader + " は " + MONSTERS[g.team[0].mid].name + "（Lv." + g.team[0].lv + "）を くりだした！");
+          beep(330,.1,"square",.05); beep(330,.1,"square",.05,.12); beep(440,.16,"square",.05,.24);
         });
-        setMsg(g.leader + " が しょうぶを しかけてきた！「" + g.lineBefore + "」 " + g.leader + " は " + MONSTERS[g.team[0].mid].name + "（Lv." + g.team[0].lv + "）を くりだした！");
-        beep(330,.1,"square",.05); beep(330,.1,"square",.05,.12); beep(440,.16,"square",.05,.24);
       }
       function startChampionBattle(){
         if(activeMon().hp <= 0){ toast("パートナーが たおれている！ かいふくセンターへ 行こう"); return; }
-        startBattleBase(CHAMPION.team[0].mid, CHAMPION.team[0].lv, {
-          champion: true, team: CHAMPION.team, tier: 5,
-          oppName: CHAMPION.name, prize: 3000,
-          lineWin: CHAMPION.lineWin, lineLose: CHAMPION.lineLose
+        var cNpcList = MAPS[8].npcs || [];
+        var cLook = (cNpcList[0] && cNpcList[0].look) || { style:"crown", c1:"#ffd35c", shirt:"#fff8e1", stripe:"#e8a91c", pants:"#b97e0a" };
+        showEyecatch(npcSvg(cLook), CHAMPION.name + " の しょうぶ！", "さいごの たたかい", function(){
+          startBattleBase(CHAMPION.team[0].mid, CHAMPION.team[0].lv, {
+            champion: true, team: CHAMPION.team, tier: 5,
+            oppName: CHAMPION.name, prize: 3000,
+            lineWin: CHAMPION.lineWin, lineLose: CHAMPION.lineLose
+          });
+          setMsg(CHAMPION.name + " が しょうぶを しかけてきた！「" + CHAMPION.lineBefore + "」 " + CHAMPION.name + " は " + MONSTERS[CHAMPION.team[0].mid].name + "（Lv." + CHAMPION.team[0].lv + "）を くりだした！");
+          beep(330,.1,"square",.05); beep(330,.1,"square",.05,.12); beep(440,.16,"square",.05,.24); beep(554,.2,"square",.05,.36);
         });
-        setMsg(CHAMPION.name + " が しょうぶを しかけてきた！「" + CHAMPION.lineBefore + "」 " + CHAMPION.name + " は " + MONSTERS[CHAMPION.team[0].mid].name + "（Lv." + CHAMPION.team[0].lv + "）を くりだした！");
-        beep(330,.1,"square",.05); beep(330,.1,"square",.05,.12); beep(440,.16,"square",.05,.24); beep(554,.2,"square",.05,.36);
       }
 
       function openQuestion(catchMode){
